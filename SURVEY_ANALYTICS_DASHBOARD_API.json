@@ -1,0 +1,632 @@
+{
+  "endpoint": {
+    "name": "Survey Analytics Dashboard",
+    "description": "Comprehensive survey-level analytics dashboard providing KPIs, NPS, CSAT, advanced statistics, cohort analysis, and question summaries",
+    "url": "/api/surveys/admin/surveys/{survey_id}/dashboard/",
+    "method": "GET",
+    "version": "1.0",
+    "last_updated": "2025-10-21"
+  },
+  "access_control": {
+    "authentication": "Required - JWT Bearer Token",
+    "authorization": "Admin, Super Admin, or Survey Creator only",
+    "roles_allowed": ["admin", "super_admin", "creator"]
+  },
+  "request": {
+    "headers": {
+      "required": {
+        "Authorization": {
+          "type": "string",
+          "format": "Bearer {jwt_token}",
+          "description": "JWT authentication token obtained from login",
+          "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        }
+      },
+      "optional": {
+        "Content-Type": {
+          "type": "string",
+          "default": "application/json",
+          "example": "application/json"
+        }
+      }
+    },
+    "path_parameters": {
+      "survey_id": {
+        "type": "UUID",
+        "required": true,
+        "description": "Unique identifier of the survey",
+        "example": "60f2b28d-93d0-4184-8b6e-511914dd6b6c",
+        "validation": "Must be a valid UUID format"
+      }
+    },
+    "query_parameters": {
+      "start": {
+        "type": "string",
+        "format": "ISO 8601 datetime",
+        "required": false,
+        "description": "Filter responses from this date (inclusive)",
+        "example": "2025-01-01T00:00:00Z",
+        "default": null
+      },
+      "end": {
+        "type": "string",
+        "format": "ISO 8601 datetime",
+        "required": false,
+        "description": "Filter responses until this date (inclusive)",
+        "example": "2025-10-21T23:59:59Z",
+        "default": null
+      },
+      "tz": {
+        "type": "string",
+        "required": false,
+        "description": "Timezone for time series grouping and date operations",
+        "example": "Asia/Dubai",
+        "default": "Asia/Dubai",
+        "accepted_values": "Any valid IANA timezone identifier"
+      },
+      "group_by": {
+        "type": "string",
+        "required": false,
+        "description": "Time series data grouping interval",
+        "example": "day",
+        "default": "day",
+        "accepted_values": ["day", "week", "month"]
+      },
+      "include_personal": {
+        "type": "boolean",
+        "required": false,
+        "description": "Include personally identifiable information (PII) in responses",
+        "example": "false",
+        "default": "false",
+        "accepted_values": ["true", "false"]
+      }
+    },
+    "example_request": {
+      "url": "GET http://127.0.0.1:8000/api/surveys/admin/surveys/60f2b28d-93d0-4184-8b6e-511914dd6b6c/dashboard/?start=2025-01-01T00:00:00Z&end=2025-10-21T23:59:59Z&tz=Asia/Dubai&group_by=day&include_personal=false",
+      "headers": {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "response": {
+    "success": {
+      "status_code": 200,
+      "content_type": "application/json",
+      "structure": {
+        "status": {
+          "type": "string",
+          "value": "success",
+          "description": "Status of the API call"
+        },
+        "message": {
+          "type": "string",
+          "value": "Survey analytics retrieved successfully",
+          "description": "Human-readable success message"
+        },
+        "data": {
+          "type": "object",
+          "description": "Complete analytics dashboard data",
+          "properties": {
+            "survey": "Survey basic information",
+            "kpis": "Key Performance Indicators including NPS and CSAT",
+            "time_series": "Response trends over time",
+            "segments": "Response segmentation analysis",
+            "questions_summary": "Summary analytics for each question",
+            "advanced_statistics": "Advanced statistical metrics and predictions",
+            "cohort_analysis": "Cohort-based response analysis"
+          }
+        }
+      },
+      "example": {
+        "status": "success",
+        "message": "Survey analytics retrieved successfully",
+        "data": {
+          "survey": {
+            "id": "60f2b28d-93d0-4184-8b6e-511914dd6b6c",
+            "title": "Employee Satisfaction Survey 2025",
+            "visibility": "AUTH",
+            "created_at": "2025-01-15 09:30:00 GST",
+            "total_questions": 12
+          },
+          "kpis": {
+            "total_responses": 150,
+            "unique_respondents": 145,
+            "completion_rate": 0.867,
+            "completion_rate_pct": 86.7,
+            "authenticated_count": 120,
+            "anonymous_count": 30,
+            "first_response_at": "2025-01-15 10:00:00 GST",
+            "last_response_at": "2025-10-20 16:45:00 GST",
+            "unique_ips": 0,
+            "avg_response_time": 48.5,
+            "response_velocity": 5.2,
+            "nps": {
+              "score": 35.5,
+              "promoters_count": 65,
+              "passives_count": 40,
+              "detractors_count": 45,
+              "promoters_pct": 43.33,
+              "passives_pct": 26.67,
+              "detractors_pct": 30.0,
+              "total_responses": 150,
+              "question_id": "7a3d5e6f-1234-5678-90ab-cdef12345678",
+              "question_text": "How likely are you to recommend our company to a friend or colleague? (0-10)",
+              "distribution": [
+                {
+                  "score": 0,
+                  "count": 5,
+                  "percentage": 3.33
+                },
+                {
+                  "score": 1,
+                  "count": 3,
+                  "percentage": 2.0
+                },
+                {
+                  "score": 2,
+                  "count": 7,
+                  "percentage": 4.67
+                },
+                {
+                  "score": 3,
+                  "count": 8,
+                  "percentage": 5.33
+                },
+                {
+                  "score": 4,
+                  "count": 6,
+                  "percentage": 4.0
+                },
+                {
+                  "score": 5,
+                  "count": 10,
+                  "percentage": 6.67
+                },
+                {
+                  "score": 6,
+                  "count": 6,
+                  "percentage": 4.0
+                },
+                {
+                  "score": 7,
+                  "count": 15,
+                  "percentage": 10.0
+                },
+                {
+                  "score": 8,
+                  "count": 25,
+                  "percentage": 16.67
+                },
+                {
+                  "score": 9,
+                  "count": 30,
+                  "percentage": 20.0
+                },
+                {
+                  "score": 10,
+                  "count": 35,
+                  "percentage": 23.33
+                }
+              ],
+              "interpretation": "Good - NPS indicates healthy customer loyalty with room for improvement"
+            },
+            "csat": {
+              "score": 78.5,
+              "satisfied_count": 118,
+              "neutral_count": 20,
+              "dissatisfied_count": 12,
+              "satisfied_pct": 78.67,
+              "neutral_pct": 13.33,
+              "dissatisfied_pct": 8.0,
+              "total_responses": 150,
+              "question_id": "8b4e6f7g-2345-6789-01bc-def123456789",
+              "question_text": "How satisfied are you with our services? (1-5)",
+              "question_type": "rating",
+              "interpretation": "Good - Above average customer satisfaction"
+            }
+          },
+          "time_series": [
+            {
+              "period": "2025-01-15",
+              "responses": 12,
+              "complete": 10,
+              "incomplete": 2
+            },
+            {
+              "period": "2025-01-16",
+              "responses": 18,
+              "complete": 16,
+              "incomplete": 2
+            },
+            {
+              "period": "2025-01-17",
+              "responses": 15,
+              "complete": 13,
+              "incomplete": 2
+            }
+          ],
+          "segments": {
+            "by_auth": [
+              {
+                "type": "authenticated",
+                "count": 120
+              },
+              {
+                "type": "anonymous",
+                "count": 30
+              }
+            ],
+            "by_completion": [
+              {
+                "status": "complete",
+                "count": 130
+              },
+              {
+                "status": "incomplete",
+                "count": 20
+              }
+            ]
+          },
+          "questions_summary": [
+            {
+              "question_id": "7a3d5e6f-1234-5678-90ab-cdef12345678",
+              "question_text": "How likely are you to recommend our company?",
+              "question_type": "rating",
+              "order": 1,
+              "total_responses": 150,
+              "answered_count": 150,
+              "skipped_count": 0,
+              "answer_rate": 1.0,
+              "distributions": {
+                "rating": {
+                  "average": 7.8,
+                  "median": 8.0,
+                  "mode": 9,
+                  "min": 0,
+                  "max": 10,
+                  "distribution": [
+                    {
+                      "value": 0,
+                      "count": 5,
+                      "percentage": 3.33
+                    },
+                    {
+                      "value": 10,
+                      "count": 35,
+                      "percentage": 23.33
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "question_id": "8b4e6f7g-2345-6789-01bc-def123456789",
+              "question_text": "What is your primary department?",
+              "question_type": "single_choice",
+              "order": 2,
+              "total_responses": 150,
+              "answered_count": 145,
+              "skipped_count": 5,
+              "answer_rate": 0.967,
+              "distributions": {
+                "options": [
+                  {
+                    "value": "Engineering",
+                    "count": 45,
+                    "percentage": 31.03,
+                    "rank": 1
+                  },
+                  {
+                    "value": "Sales",
+                    "count": 30,
+                    "percentage": 20.69,
+                    "rank": 2
+                  },
+                  {
+                    "value": "Marketing",
+                    "count": 25,
+                    "percentage": 17.24,
+                    "rank": 3
+                  },
+                  {
+                    "value": "HR",
+                    "count": 20,
+                    "percentage": 13.79,
+                    "rank": 4
+                  },
+                  {
+                    "value": "Operations",
+                    "count": 25,
+                    "percentage": 17.24,
+                    "rank": 5
+                  }
+                ]
+              }
+            }
+          ],
+          "advanced_statistics": {
+            "response_quality_score": {
+              "average_quality": 0.82,
+              "median_quality": 0.85,
+              "low_quality_responses": 15,
+              "high_quality_responses": 110
+            },
+            "confidence_interval": {
+              "confidence_level": "95%",
+              "lower_bound": 0.42,
+              "upper_bound": 0.58,
+              "margin": 0.08
+            },
+            "margin_of_error": {
+              "margin_of_error_pct": 8.0,
+              "sample_size": 150,
+              "confidence_level": "95%"
+            },
+            "engagement_score": {
+              "score": 86.7,
+              "level": "high"
+            },
+            "question_fatigue_index": {
+              "fatigue_index": 0.045,
+              "by_question": [
+                {
+                  "question_order": 1,
+                  "answer_rate": 1.0,
+                  "dropout_rate": 0.0
+                },
+                {
+                  "question_order": 2,
+                  "answer_rate": 0.967,
+                  "dropout_rate": 0.033
+                },
+                {
+                  "question_order": 12,
+                  "answer_rate": 0.867,
+                  "dropout_rate": 0.133
+                }
+              ]
+            },
+            "dropout_analysis": {
+              "total_dropouts": 20,
+              "dropout_rate": 0.133,
+              "common_dropout_points": [
+                {
+                  "question_order": 8,
+                  "count": 7
+                },
+                {
+                  "question_order": 10,
+                  "count": 5
+                },
+                {
+                  "question_order": 11,
+                  "count": 4
+                }
+              ]
+            },
+            "peak_response_times": {
+              "peak_hour": {
+                "hour": 14,
+                "count": 35,
+                "time_range": "14:00-15:00"
+              },
+              "peak_day": {
+                "day": "Tuesday",
+                "count": 45
+              },
+              "hourly_distribution": {
+                "8": 10,
+                "9": 15,
+                "10": 20,
+                "11": 18,
+                "12": 12,
+                "13": 14,
+                "14": 35,
+                "15": 26
+              },
+              "daily_distribution": {
+                "Monday": 28,
+                "Tuesday": 45,
+                "Wednesday": 32,
+                "Thursday": 25,
+                "Friday": 20
+              }
+            },
+            "response_cadence": {
+              "avg_interval_minutes": 45.5,
+              "median_interval_minutes": 38.0,
+              "pattern": "steady"
+            },
+            "weekend_vs_weekday": {
+              "weekend_count": 12,
+              "weekday_count": 138,
+              "weekend_pct": 8.0,
+              "weekday_pct": 92.0,
+              "preference": "weekday"
+            },
+            "projected_total_responses": {
+              "current_count": 150,
+              "projected_7_days": 186,
+              "daily_velocity": 5.2
+            },
+            "completion_rate_trend": {
+              "trend": "improving",
+              "first_third_rate": 0.833,
+              "middle_third_rate": 0.867,
+              "last_third_rate": 0.9
+            },
+            "estimated_survey_close_date": {
+              "status": "open",
+              "end_date": "2025-12-31 23:59:59 GST",
+              "days_remaining": 71.5
+            }
+          },
+          "cohort_analysis": {
+            "early_adopters": {
+              "count": 30,
+              "completion_rate": 0.933,
+              "avg_response_time": 2.5,
+              "nps_score": 45.5,
+              "characteristics": [
+                "highly_engaged",
+                "quick_responders",
+                "authenticated"
+              ]
+            },
+            "majority": {
+              "count": 90,
+              "completion_rate": 0.867,
+              "avg_response_time": 48.5,
+              "nps_score": 32.0,
+              "characteristics": [
+                "authenticated"
+              ]
+            },
+            "laggards": {
+              "count": 30,
+              "completion_rate": 0.8,
+              "avg_response_time": 120.3,
+              "nps_score": 28.5,
+              "characteristics": [
+                "delayed_responders"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "errors": {
+      "401_unauthorized": {
+        "status_code": 401,
+        "description": "Authentication required or invalid token",
+        "example": {
+          "status": "error",
+          "message": "Authentication credentials were not provided.",
+          "data": null
+        }
+      },
+      "403_forbidden": {
+        "status_code": 403,
+        "description": "User does not have permission to access this survey's analytics",
+        "example": {
+          "status": "error",
+          "message": "You do not have permission to view analytics for this survey. Access restricted to Admin, Super Admin, or Survey Creator only.",
+          "data": null
+        }
+      },
+      "404_not_found": {
+        "status_code": 404,
+        "description": "Survey not found or has been deleted",
+        "example": {
+          "status": "error",
+          "message": "Survey not found or has been deleted",
+          "data": null
+        }
+      },
+      "500_internal_error": {
+        "status_code": 500,
+        "description": "Server error during analytics generation",
+        "example": {
+          "status": "error",
+          "message": "Failed to generate analytics dashboard",
+          "data": null
+        }
+      }
+    }
+  },
+  "data_dictionary": {
+    "kpis": {
+      "total_responses": "Total number of survey responses received",
+      "unique_respondents": "Count of unique respondents (authenticated users + unique anonymous contacts)",
+      "completion_rate": "Decimal representation of completion rate (0.0 to 1.0)",
+      "completion_rate_pct": "Percentage of completed responses (0 to 100)",
+      "authenticated_count": "Number of responses from authenticated users",
+      "anonymous_count": "Number of responses from anonymous users",
+      "first_response_at": "Timestamp of the first response in UAE timezone (GST)",
+      "last_response_at": "Timestamp of the most recent response in UAE timezone (GST)",
+      "unique_ips": "Count of unique IP addresses (only if include_personal=true)",
+      "avg_response_time": "Average time in hours between survey creation and response submission",
+      "response_velocity": "Average number of responses received per day"
+    },
+    "nps": {
+      "score": "Net Promoter Score ranging from -100 to +100",
+      "promoters_count": "Number of respondents who rated 9-10",
+      "passives_count": "Number of respondents who rated 7-8",
+      "detractors_count": "Number of respondents who rated 0-6",
+      "promoters_pct": "Percentage of promoters",
+      "passives_pct": "Percentage of passives",
+      "detractors_pct": "Percentage of detractors",
+      "distribution": "Array of score distributions from 0-10",
+      "interpretation": "Human-readable interpretation based on industry benchmarks"
+    },
+    "csat": {
+      "score": "Customer Satisfaction Score as percentage (0-100)",
+      "satisfied_count": "Number of satisfied respondents",
+      "neutral_count": "Number of neutral respondents",
+      "dissatisfied_count": "Number of dissatisfied respondents",
+      "question_type": "Type of question used for CSAT calculation (rating, yes_no, single_choice)",
+      "interpretation": "Human-readable interpretation based on industry benchmarks"
+    },
+    "cohort_analysis": {
+      "early_adopters": "First 20% of respondents - typically more engaged",
+      "majority": "Middle 60% of respondents - typical response pattern",
+      "laggards": "Last 20% of respondents - may need follow-up",
+      "completion_rate": "Cohort-specific completion rate",
+      "avg_response_time": "Average hours from survey creation to response for this cohort",
+      "nps_score": "NPS score calculated only for this cohort",
+      "characteristics": "Auto-generated tags describing cohort behavior"
+    }
+  },
+  "notes": {
+    "timezone": "All datetime values are returned in UAE timezone (Asia/Dubai - GST/Gulf Standard Time)",
+    "nps_calculation": "NPS is automatically detected from 0-10 rating questions. Formula: (% Promoters - % Detractors)",
+    "csat_calculation": "CSAT is automatically detected from satisfaction-related questions (rating, yes/no, single_choice)",
+    "accuracy": "All percentage calculations use Decimal precision with ROUND_HALF_UP for 100% accuracy",
+    "empty_responses": "If no responses exist, KPIs return zero values and advanced statistics return null",
+    "cohort_segmentation": "Responses are divided into three cohorts based on submission time for comparative analysis",
+    "advanced_statistics": "Includes quality scoring, confidence intervals, engagement metrics, temporal patterns, and predictive analytics"
+  },
+  "usage_examples": {
+    "basic_request": {
+      "description": "Get all analytics for a survey",
+      "curl": "curl -X GET 'http://127.0.0.1:8000/api/surveys/admin/surveys/60f2b28d-93d0-4184-8b6e-511914dd6b6c/dashboard/' -H 'Authorization: Bearer YOUR_JWT_TOKEN'"
+    },
+    "filtered_request": {
+      "description": "Get analytics for specific date range",
+      "curl": "curl -X GET 'http://127.0.0.1:8000/api/surveys/admin/surveys/60f2b28d-93d0-4184-8b6e-511914dd6b6c/dashboard/?start=2025-01-01T00:00:00Z&end=2025-10-21T23:59:59Z' -H 'Authorization: Bearer YOUR_JWT_TOKEN'"
+    },
+    "with_personal_data": {
+      "description": "Get analytics including PII data (for authorized users only)",
+      "curl": "curl -X GET 'http://127.0.0.1:8000/api/surveys/admin/surveys/60f2b28d-93d0-4184-8b6e-511914dd6b6c/dashboard/?include_personal=true' -H 'Authorization: Bearer YOUR_JWT_TOKEN'"
+    },
+    "weekly_grouping": {
+      "description": "Get analytics with weekly time series grouping",
+      "curl": "curl -X GET 'http://127.0.0.1:8000/api/surveys/admin/surveys/60f2b28d-93d0-4184-8b6e-511914dd6b6c/dashboard/?group_by=week' -H 'Authorization: Bearer YOUR_JWT_TOKEN'"
+    }
+  },
+  "integration_guide": {
+    "frontend_implementation": {
+      "recommended_libraries": [
+        "axios or fetch for HTTP requests",
+        "recharts or chart.js for data visualization",
+        "date-fns or moment.js for date formatting"
+      ],
+      "state_management": "Store dashboard data in component state or Redux/Context for sharing across charts",
+      "refresh_strategy": "Implement auto-refresh every 30-60 seconds for real-time dashboards",
+      "error_handling": "Always check response.status and handle 401/403 for re-authentication"
+    },
+    "visualization_recommendations": {
+      "nps": "Use gauge chart or semi-circular progress indicator with color coding (green >50, yellow 30-50, red <30)",
+      "csat": "Use horizontal bar chart or donut chart showing satisfied/neutral/dissatisfied segments",
+      "time_series": "Use line chart or area chart for trend visualization",
+      "cohort_analysis": "Use grouped bar charts for comparing cohort metrics",
+      "question_summary": "Use cards or tables with drill-down capability to question details"
+    },
+    "caching_strategy": {
+      "recommendation": "Cache dashboard data for 5 minutes on frontend to reduce API calls",
+      "invalidation": "Clear cache when new responses are submitted or survey is modified",
+      "storage": "Use sessionStorage or Redux for temporary caching"
+    }
+  }
+}

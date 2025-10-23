@@ -1,0 +1,191 @@
+[
+  {
+    "model": "surveys.surveytemplate",
+    "pk": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+    "fields": {
+      "name": "تسجيل فعالية",
+      "name_ar": "تسجيل فعالية",
+      "description": "يرجى تعبئة النموذج أدناه لتأكيد تسجيلك في الفعالية القادمة. تأكد من إدخال جميع المعلومات المطلوبة بدقة لضمان اكتمال التسجيل.",
+      "description_ar": "يرجى تعبئة النموذج أدناه لتأكيد تسجيلك في الفعالية القادمة. تأكد من إدخال جميع المعلومات المطلوبة بدقة لضمان اكتمال التسجيل.",
+      "category": "event",
+      "icon": "fa-clipboard-list",
+      "preview_image": null,
+      "is_predefined": true,
+      "usage_count": 0,
+      "created_by": null,
+      "created_at": "2025-01-21T00:00:00Z",
+      "updated_at": "2025-01-21T00:00:00Z"
+    }
+  },
+  {
+    "model": "surveys.templatequestion",
+    "pk": "q1a1b2c3-d4e5-4f6a-8b9c-0d1e2f3a4b5c",
+    "fields": {
+      "template": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+      "text": "الاسم الكامل",
+      "text_ar": "الاسم الكامل",
+      "question_type": "text",
+      "options": null,
+      "is_required": true,
+      "order": 1,
+      "placeholder": "أدخل اسمك الكامل",
+      "placeholder_ar": "أدخل اسمك الكامل"
+    }
+  },
+  {
+    "model": "surveys.templatequestion",
+    "pk": "q2a1b2c3-d4e5-4f6a-8b9c-0d1e2f3a4b5c",
+    "fields": {
+      "template": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+      "text": "البريد الإلكتروني",
+      "text_ar": "البريد الإلكتروني",
+      "question_type": "text",
+      "options": null,
+      "is_required": true,
+      "order": 2,
+      "placeholder": "example@email.com",
+      "placeholder_ar": "example@email.com"
+    }
+  },
+  {
+    "model": "surveys.templatequestion",
+    "pk": "q3a1b2c3-d4e5-4f6a-8b9c-0d1e2f3a4b5c",
+    "fields": {
+      "template": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+      "text": "اسم الجهة أو المؤسسة",
+      "text_ar": "اسم الجهة أو المؤسسة",
+      "question_type": "text",
+      "options": null,
+      "is_required": true,
+      "order": 3,
+      "placeholder": "أدخل اسم جهتك أو مؤسستك",
+      "placeholder_ar": "أدخل اسم جهتك أو مؤسستك"
+    }
+  },
+  {
+    "model": "surveys.surveytemplate",
+    "pk": "b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e",
+    "fields": {
+      "name": "تأكيد الحضور",
+      "name_ar": "تأكيد الحضور",
+      "description": "نرجو منك تأكيد حضورك للفعالية القادمة عبر تعبئة النموذج أدناه. يساعدنا ذلك في تنظيم المقاعد والخدمات بشكل أفضل.",
+      "description_ar": "نرجو منك تأكيد حضورك للفعالية القادمة عبر تعبئة النموذج أدناه. يساعدنا ذلك في تنظيم المقاعد والخدمات بشكل أفضل.",
+      "category": "event",
+      "icon": "fa-calendar-check",
+      "preview_image": null,
+      "is_predefined": true,
+      "usage_count": 0,
+      "created_by": null,
+      "created_at": "2025-01-21T00:00:00Z",
+      "updated_at": "2025-01-21T00:00:00Z"
+    }
+  },
+  {
+    "model": "surveys.templatequestion",
+    "pk": "q1b2c3d4-e5f6-4a7b-9c0d-1e2f3a4b5c6d",
+    "fields": {
+      "template": "b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e",
+      "text": "هل ستتمكن من الحضور؟",
+      "text_ar": "هل ستتمكن من الحضور؟",
+      "question_type": "yes_no",
+      "options": null,
+      "is_required": true,
+      "order": 1,
+      "placeholder": null,
+      "placeholder_ar": null
+    }
+  },
+  {
+    "model": "surveys.templatequestion",
+    "pk": "q2b2c3d4-e5f6-4a7b-9c0d-1e2f3a4b5c6d",
+    "fields": {
+      "template": "b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e",
+      "text": "كم عدد الأشخاص الذين سيحضرون معك؟",
+      "text_ar": "كم عدد الأشخاص الذين سيحضرون معك؟",
+      "question_type": "text",
+      "options": null,
+      "is_required": false,
+      "order": 2,
+      "placeholder": "أدخل عدد الضيوف",
+      "placeholder_ar": "أدخل عدد الضيوف"
+    }
+  },
+  {
+    "model": "surveys.templatequestion",
+    "pk": "q3b2c3d4-e5f6-4a7b-9c0d-1e2f3a4b5c6d",
+    "fields": {
+      "template": "b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e",
+      "text": "هل لديك أي متطلبات خاصة أو ملاحظات تود مشاركتها؟",
+      "text_ar": "هل لديك أي متطلبات خاصة أو ملاحظات تود مشاركتها؟",
+      "question_type": "textarea",
+      "options": null,
+      "is_required": false,
+      "order": 3,
+      "placeholder": "أدخل أي طلبات خاصة أو ملاحظات",
+      "placeholder_ar": "أدخل أي طلبات خاصة أو ملاحظات"
+    }
+  },
+  {
+    "model": "surveys.surveytemplate",
+    "pk": "c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f",
+    "fields": {
+      "name": "معلومات التواصل",
+      "name_ar": "معلومات التواصل",
+      "description": "يرجى تزويدنا بمعلومات الاتصال الخاصة بك حتى نتمكن من التواصل معك عند الحاجة أو لإرسال التحديثات المستقبلية.",
+      "description_ar": "يرجى تزويدنا بمعلومات الاتصال الخاصة بك حتى نتمكن من التواصل معك عند الحاجة أو لإرسال التحديثات المستقبلية.",
+      "category": "contact",
+      "icon": "fa-address-card",
+      "preview_image": null,
+      "is_predefined": true,
+      "usage_count": 0,
+      "created_by": null,
+      "created_at": "2025-01-21T00:00:00Z",
+      "updated_at": "2025-01-21T00:00:00Z"
+    }
+  },
+  {
+    "model": "surveys.templatequestion",
+    "pk": "q1c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+    "fields": {
+      "template": "c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f",
+      "text": "الاسم الكامل",
+      "text_ar": "الاسم الكامل",
+      "question_type": "text",
+      "options": null,
+      "is_required": true,
+      "order": 1,
+      "placeholder": "أدخل اسمك الكامل",
+      "placeholder_ar": "أدخل اسمك الكامل"
+    }
+  },
+  {
+    "model": "surveys.templatequestion",
+    "pk": "q2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+    "fields": {
+      "template": "c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f",
+      "text": "البريد الإلكتروني",
+      "text_ar": "البريد الإلكتروني",
+      "question_type": "text",
+      "options": null,
+      "is_required": true,
+      "order": 2,
+      "placeholder": "example@email.com",
+      "placeholder_ar": "example@email.com"
+    }
+  },
+  {
+    "model": "surveys.templatequestion",
+    "pk": "q3c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+    "fields": {
+      "template": "c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f",
+      "text": "رقم الهاتف أو العنوان",
+      "text_ar": "رقم الهاتف أو العنوان",
+      "question_type": "text",
+      "options": null,
+      "is_required": true,
+      "order": 3,
+      "placeholder": "أدخل رقم هاتفك أو عنوانك",
+      "placeholder_ar": "أدخل رقم هاتفك أو عنوانك"
+    }
+  }
+]

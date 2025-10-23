@@ -117,6 +117,47 @@ urlpatterns = [
     # Get admin groups for sharing
     path('my-admin-groups/', views.MyAdminGroupsView.as_view(), name='my-admin-groups'),
     
+    # Template Management APIs
+    path('templates/gallery/', 
+         views.TemplateGalleryView.as_view(), 
+         name='template-gallery'),
+    
+    path('templates/predefined/', 
+         views.PredefinedTemplatesView.as_view(), 
+         name='predefined-templates'),
+    
+    path('templates/user/', 
+         views.UserTemplatesView.as_view(), 
+         name='user-templates'),
+    
+    path('recent/', 
+         views.RecentSurveysView.as_view(), 
+         name='recent-surveys'),
+    
+    path('templates/<uuid:template_id>/', 
+         views.TemplateDetailView.as_view(), 
+         name='template-detail'),
+    
+    path('templates/create/', 
+         views.CreateTemplateView.as_view(), 
+         name='create-template'),
+    
+    path('from-template/', 
+         views.CreateSurveyFromTemplateView.as_view(), 
+         name='create-survey-from-template'),
+    
+    path('surveys/<uuid:survey_id>/clone/', 
+         views.CloneSurveyView.as_view(), 
+         name='clone-survey'),
+    
+    path('templates/<uuid:template_id>/update/', 
+         views.UpdateTemplateView.as_view(), 
+         name='update-template'),
+    
+    path('templates/<uuid:template_id>/delete/', 
+         views.DeleteTemplateView.as_view(), 
+         name='delete-template'),
+    
     # Health check
     path('health/', views.health_check, name='health-check'),
 ]

@@ -7,8 +7,11 @@ with comprehensive validation and encryption support.
 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Survey, Question, Response, Answer
-from .timezone_utils import serialize_datetime_uae, get_status_uae, is_currently_active_uae
+from .models import Survey, Question, Response, Answer, SurveyTemplate, TemplateQuestion
+from .timezone_utils import (
+    serialize_datetime_uae, get_status_uae, is_currently_active_uae,
+    ensure_gregorian_from_hijri, convert_hijri_string_to_gregorian
+)
 from weaponpowercloud_backend.security_utils import validate_and_sanitize_text_input, sanitize_html_input
 import json
 import logging
@@ -19,12 +22,44 @@ User = get_user_model()
 
 class UAEDateTimeField(serializers.DateTimeField):
     """
-    Custom DateTimeField that always serializes in UAE timezone
+    Custom DateTimeField that:
+    1. Accepts Hijri dates and converts them to Gregorian
+    2. Always serializes in UAE timezone (Gregorian calendar)
+    
+    Input formats:
+    - Standard datetime object (Gregorian)
+    - Hijri date dict: {'year': 1446, 'month': 4, 'day': 15, 'is_hijri': True}
+    - Hijri date string with 'H' prefix: 'H1446-04-15' or 'H1446-04-15 10:30:00'
     """
     
     def to_representation(self, value):
-        """Serialize datetime in UAE timezone"""
+        """Always serialize datetime in UAE timezone (Gregorian)"""
         return serialize_datetime_uae(value)
+    
+    def to_internal_value(self, data):
+        """
+        Accept both Gregorian and Hijri dates, convert Hijri to Gregorian.
+        """
+        if data is None:
+            return None
+        
+        # Check if it's a Hijri date dictionary
+        if isinstance(data, dict) and data.get('is_hijri'):
+            gregorian_dt = ensure_gregorian_from_hijri(data)
+            if gregorian_dt is None:
+                raise serializers.ValidationError("Invalid Hijri date provided")
+            return gregorian_dt
+        
+        # Check if it's a Hijri date string (starts with 'H')
+        if isinstance(data, str) and data.startswith('H'):
+            hijri_string = data[1:]  # Remove 'H' prefix
+            gregorian_dt = convert_hijri_string_to_gregorian(hijri_string)
+            if gregorian_dt is None:
+                raise serializers.ValidationError("Invalid Hijri date string format")
+            return gregorian_dt
+        
+        # Otherwise, treat as Gregorian and use parent class parsing
+        return super().to_internal_value(data)
 
 
 class OptionsField(serializers.CharField):
@@ -535,3 +570,177 @@ class ResponseSubmissionSerializer(serializers.Serializer):
         # since we need database access to check survey settings
         
         return data
+
+
+class TemplateQuestionSerializer(serializers.ModelSerializer):
+    """Serializer for template questions with encrypted fields"""
+    
+    class Meta:
+        model = TemplateQuestion
+        fields = [
+            'id', 'text', 'text_ar', 'question_type', 'options',
+            'is_required', 'order', 'placeholder', 'placeholder_ar'
+        ]
+        read_only_fields = ['id']
+    
+    def validate_text(self, value):
+        """Validate and sanitize question text."""
+        return validate_and_sanitize_text_input(value, max_length=500, field_name="Question text")
+    
+    def validate_text_ar(self, value):
+        """Validate and sanitize Arabic question text."""
+        if not value:
+            return value
+        return validate_and_sanitize_text_input(value, max_length=500, field_name="Question text (Arabic)")
+    
+    def validate(self, data):
+        """Cross-field validation for template questions"""
+        question_type = data.get('question_type')
+        options = data.get('options')
+        
+        # Validate options for choice questions
+        if question_type in ['single_choice', 'multiple_choice']:
+            if not options:
+                raise serializers.ValidationError(
+                    "Choice questions must have options"
+                )
+            
+            if not isinstance(options, list) or len(options) < 2:
+                raise serializers.ValidationError(
+                    "Choice questions must have at least 2 options"
+                )
+        
+        return data
+
+
+class SurveyTemplateSerializer(serializers.ModelSerializer):
+    """Serializer for survey templates with encrypted fields"""
+    
+    questions = TemplateQuestionSerializer(many=True, read_only=True)
+    created_by_email = serializers.SerializerMethodField()
+    
+    # Use UAE timezone for datetime fields
+    created_at = UAEDateTimeField(read_only=True)
+    updated_at = UAEDateTimeField(read_only=True)
+    
+    class Meta:
+        model = SurveyTemplate
+        fields = [
+            'id', 'name', 'name_ar', 'description', 'description_ar',
+            'category', 'icon', 'preview_image', 'is_predefined',
+            'usage_count', 'created_by', 'created_by_email',
+            'created_at', 'updated_at', 'questions'
+        ]
+        read_only_fields = ['id', 'usage_count', 'created_by', 'created_at', 'updated_at']
+    
+    def get_created_by_email(self, obj):
+        """Get creator email"""
+        return obj.created_by.email if obj.created_by else None
+    
+    def validate_name(self, value):
+        """Validate and sanitize template name."""
+        return validate_and_sanitize_text_input(value, max_length=200, field_name="Template name")
+    
+    def validate_name_ar(self, value):
+        """Validate and sanitize Arabic template name."""
+        if not value:
+            return value
+        return validate_and_sanitize_text_input(value, max_length=200, field_name="Template name (Arabic)")
+    
+    def validate_description(self, value):
+        """Validate and sanitize template description."""
+        return validate_and_sanitize_text_input(value, max_length=1000, field_name="Description")
+    
+    def validate_description_ar(self, value):
+        """Validate and sanitize Arabic template description."""
+        if not value:
+            return value
+        return validate_and_sanitize_text_input(value, max_length=1000, field_name="Description (Arabic)")
+
+
+class CreateTemplateSerializer(serializers.Serializer):
+    """Serializer for creating a template from a survey"""
+    
+    name = serializers.CharField(max_length=200, required=True)
+    name_ar = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    description = serializers.CharField(max_length=1000, required=True)
+    description_ar = serializers.CharField(max_length=1000, required=False, allow_blank=True)
+    category = serializers.ChoiceField(
+        choices=['contact', 'event', 'feedback', 'registration', 'custom'],
+        required=True
+    )
+    survey_id = serializers.UUIDField(required=True)
+    
+    def validate_name(self, value):
+        """Validate and sanitize template name."""
+        return validate_and_sanitize_text_input(value, max_length=200, field_name="Template name")
+    
+    def validate_name_ar(self, value):
+        """Validate and sanitize Arabic template name."""
+        if not value:
+            return value
+        return validate_and_sanitize_text_input(value, max_length=200, field_name="Template name (Arabic)")
+    
+    def validate_description(self, value):
+        """Validate and sanitize template description."""
+        return validate_and_sanitize_text_input(value, max_length=1000, field_name="Description")
+    
+    def validate_description_ar(self, value):
+        """Validate and sanitize Arabic template description."""
+        if not value:
+            return value
+        return validate_and_sanitize_text_input(value, max_length=1000, field_name="Description (Arabic)")
+
+
+class CreateSurveyFromTemplateSerializer(serializers.Serializer):
+    """Serializer for creating a survey from a template"""
+    
+    template_id = serializers.UUIDField(required=True)
+    title = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    description = serializers.CharField(max_length=1000, required=False, allow_blank=True)
+    
+    def validate_title(self, value):
+        """Validate and sanitize survey title."""
+        if not value:
+            return value
+        return validate_and_sanitize_text_input(value, max_length=255, field_name="Survey title")
+    
+    def validate_description(self, value):
+        """Validate and sanitize survey description."""
+        if not value:
+            return value
+        return validate_and_sanitize_text_input(value, max_length=1000, field_name="Description")
+
+
+class RecentSurveySerializer(serializers.ModelSerializer):
+    """Serializer for recent surveys with minimal fields"""
+    
+    questions_count = serializers.SerializerMethodField()
+    response_count = serializers.SerializerMethodField()
+    can_use_as_template = serializers.SerializerMethodField()
+    
+    # Use UAE timezone for datetime fields
+    created_at = UAEDateTimeField(read_only=True)
+    updated_at = UAEDateTimeField(read_only=True)
+    
+    class Meta:
+        model = Survey
+        fields = [
+            'id', 'title', 'description', 'created_at', 'updated_at',
+            'questions_count', 'response_count', 'visibility', 'status',
+            'can_use_as_template'
+        ]
+        read_only_fields = fields
+    
+    def get_questions_count(self, obj):
+        """Get total questions count"""
+        return obj.questions.count()
+    
+    def get_response_count(self, obj):
+        """Get total response count"""
+        return obj.responses.count()
+    
+    def get_can_use_as_template(self, obj):
+        """Check if survey can be used as template"""
+        # Only draft or submitted surveys can be used as templates
+        return obj.status in ['draft', 'submitted']

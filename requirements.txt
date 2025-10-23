@@ -25,6 +25,7 @@ python-dotenv==1.1.1
 
 # Date utilities
 python-dateutil
+hijri-converter>=2.3.1  # Hijri to Gregorian date conversion
 
 # Image processing
 Pillow>=10.0.0

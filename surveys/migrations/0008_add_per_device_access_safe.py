@@ -15,7 +15,13 @@ def check_column_exists(table_name, column_name):
                 WHERE table_name = UPPER(%s) 
                 AND column_name = UPPER(%s)
             """, [table_name, column_name])
+        elif connection.vendor == 'sqlite':
+            # SQLite uses pragma table_info
+            cursor.execute(f"PRAGMA table_info({table_name})")
+            columns = [row[1] for row in cursor.fetchall()]
+            return column_name in columns
         else:
+            # PostgreSQL, MySQL, SQL Server use information_schema
             cursor.execute("""
                 SELECT COUNT(*) 
                 FROM information_schema.columns 
@@ -35,7 +41,16 @@ def check_table_exists(table_name):
                 FROM user_tables 
                 WHERE table_name = UPPER(%s)
             """, [table_name])
+        elif connection.vendor == 'sqlite':
+            # SQLite uses sqlite_master
+            cursor.execute("""
+                SELECT COUNT(*) 
+                FROM sqlite_master 
+                WHERE type='table' 
+                AND name = %s
+            """, [table_name])
         else:
+            # PostgreSQL, MySQL, SQL Server use information_schema
             cursor.execute("""
                 SELECT COUNT(*) 
                 FROM information_schema.tables 
@@ -58,7 +73,14 @@ def add_per_device_access_field(apps, schema_editor):
                     ALTER TABLE surveys_survey 
                     ADD per_device_access NUMBER(1) DEFAULT 0 NOT NULL
                 """)
+            elif connection.vendor == 'sqlite':
+                # SQLite syntax for adding column with default
+                cursor.execute("""
+                    ALTER TABLE surveys_survey 
+                    ADD COLUMN per_device_access INTEGER DEFAULT 0 NOT NULL
+                """)
             else:
+                # PostgreSQL, MySQL, SQL Server
                 cursor.execute("""
                     ALTER TABLE surveys_survey 
                     ADD COLUMN per_device_access BOOLEAN DEFAULT FALSE NOT NULL

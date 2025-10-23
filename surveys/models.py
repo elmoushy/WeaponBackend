@@ -310,12 +310,12 @@ class Survey(models.Model):
     
     def can_be_edited(self):
         """
-        Check if survey can be edited based on status and visibility.
+        Check if survey can be edited based on status, visibility, and responses.
         - Draft surveys: Always editable
-        - Submitted surveys: Editable based on visibility settings
+        - Submitted surveys: Editable based on visibility settings and responses
           * PRIVATE surveys: Can be edited after submission
           * AUTH surveys: Can be edited after submission
-          * PUBLIC surveys: Cannot be edited after submission (too risky)
+          * PUBLIC surveys: Can be edited ONLY if no responses exist yet
           * GROUPS surveys: Can be edited after submission
         """
         if self.deleted_at is not None:
@@ -325,7 +325,11 @@ class Survey(models.Model):
             return True
             
         if self.status == 'submitted':
-            # Allow editing of submitted surveys except PUBLIC ones
+            # PUBLIC surveys can only be edited if no one has responded yet
+            if self.visibility == 'PUBLIC':
+                return not self.responses.exists()
+            
+            # Other visibility types can be edited after submission
             return self.visibility in ['PRIVATE', 'AUTH', 'GROUPS']
             
         return False
@@ -851,3 +855,175 @@ class PublicAccessToken(models.Model):
         import string
         alphabet = string.ascii_letters + string.digits
         return ''.join(secrets.choice(alphabet) for _ in range(8))
+
+
+class SurveyTemplate(models.Model):
+    """
+    Survey template model for predefined and user-created templates.
+    Supports both system-defined templates and custom user templates.
+    """
+    
+    CATEGORY_CHOICES = [
+        ('contact', 'Contact Information'),
+        ('event', 'Event'),
+        ('feedback', 'Feedback'),
+        ('registration', 'Registration'),
+        ('custom', 'Custom'),
+    ]
+    
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    name = EncryptedCharField(
+        max_length=200,
+        help_text='Template name (encrypted)'
+    )
+    name_hash = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text='SHA256 hash of name for search indexing'
+    )
+    name_ar = EncryptedCharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text='Template name in Arabic (encrypted)'
+    )
+    description = EncryptedTextField(
+        help_text='Template description (encrypted)'
+    )
+    description_ar = EncryptedTextField(
+        null=True,
+        blank=True,
+        help_text='Template description in Arabic (encrypted)'
+    )
+    category = models.CharField(
+        max_length=50,
+        choices=CATEGORY_CHOICES,
+        default='custom'
+    )
+    icon = models.CharField(
+        max_length=50,
+        default='fa-star',
+        help_text='FontAwesome icon class'
+    )
+    preview_image = models.URLField(
+        null=True,
+        blank=True,
+        help_text='Preview image URL'
+    )
+    is_predefined = models.BooleanField(
+        default=False,
+        help_text='Whether this is a system predefined template'
+    )
+    usage_count = models.IntegerField(
+        default=0,
+        help_text='Number of times this template has been used'
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='created_templates',
+        help_text='User who created this template (null for predefined templates)'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'surveys_template'
+        verbose_name = 'Survey Template'
+        verbose_name_plural = 'Survey Templates'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['name_hash'], name='surveys_tmpl_name_hash_idx'),
+            models.Index(fields=['category'], name='surveys_tmpl_category_idx'),
+            models.Index(fields=['is_predefined'], name='surveys_tmpl_predef_idx'),
+        ]
+    
+    def __str__(self):
+        return f"Template: {self.name}"
+    
+    def save(self, *args, **kwargs):
+        """Override save to generate name hash"""
+        if self.name:
+            self.name_hash = hashlib.sha256(self.name.encode('utf-8')).hexdigest()
+        super().save(*args, **kwargs)
+    
+    def increment_usage(self):
+        """Increment the usage count"""
+        self.usage_count += 1
+        self.save(update_fields=['usage_count'])
+
+
+class TemplateQuestion(models.Model):
+    """
+    Question template associated with a survey template.
+    """
+    
+    QUESTION_TYPES = [
+        ('text', 'Short Text'),
+        ('textarea', 'Long Text'),
+        ('single_choice', 'Single Choice'),
+        ('multiple_choice', 'Multiple Choice'),
+        ('rating', 'Rating'),
+        ('yes_no', 'Yes/No'),
+    ]
+    
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    template = models.ForeignKey(
+        SurveyTemplate,
+        on_delete=models.CASCADE,
+        related_name='questions'
+    )
+    text = EncryptedTextField(
+        help_text='Question text (encrypted)'
+    )
+    text_ar = EncryptedTextField(
+        null=True,
+        blank=True,
+        help_text='Question text in Arabic (encrypted)'
+    )
+    question_type = models.CharField(
+        max_length=50,
+        choices=QUESTION_TYPES,
+        default='text'
+    )
+    options = models.JSONField(
+        null=True,
+        blank=True,
+        help_text='Options for choice questions (stored as JSON)'
+    )
+    is_required = models.BooleanField(default=False)
+    order = models.IntegerField(default=1)
+    placeholder = EncryptedCharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text='Placeholder text (encrypted)'
+    )
+    placeholder_ar = EncryptedCharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text='Placeholder text in Arabic (encrypted)'
+    )
+    
+    class Meta:
+        db_table = 'surveys_template_question'
+        verbose_name = 'Template Question'
+        verbose_name_plural = 'Template Questions'
+        ordering = ['template', 'order']
+        indexes = [
+            models.Index(fields=['template', 'order'], name='surveys_tmpl_q_order_idx'),
+        ]
+    
+    def __str__(self):
+        return f"Template Q{self.order}: {self.text[:50]}..."

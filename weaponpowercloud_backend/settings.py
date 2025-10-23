@@ -283,6 +283,16 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
+# CORS allowed methods
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
 # Security Settings for Production
 if not DEBUG:
     # Cookie Security
