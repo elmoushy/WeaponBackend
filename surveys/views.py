@@ -26,6 +26,7 @@ import io
 import secrets
 import pytz
 import math
+import hashlib
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.db.models import Q, Count, Avg, F, Sum, StdDev, Variance
@@ -4306,16 +4307,19 @@ class SurveyAnalyticsDashboardView(APIView):
             responses = self._get_filtered_responses(survey, params)
             logger.info(f"Retrieved {responses.count()} responses for survey {survey_id} analytics")
             
-            # Build dashboard data
+            # Build dashboard data with minimal payload (v2)
+            # Only include 'nps' and 'csat_tracking' if any question has the flag True
+            has_nps = survey.questions.filter(NPS_Calculate=True).exists()
+            has_csat = survey.questions.filter(CSAT_Calculate=True).exists()
+
             dashboard_data = {
-                'survey': self._get_survey_info(survey),
-                'kpis': self._calculate_kpis(survey, responses, params['include_personal']),
-                'time_series': self._generate_time_series(responses, params),
-                'segments': self._calculate_segments(responses),
-                'questions_summary': self._get_questions_summary(survey, responses, params['include_personal']),
-                'advanced_statistics': self._calculate_advanced_statistics(responses, survey),
-                'cohort_analysis': self._calculate_cohort_analysis(responses, survey)
+                'heatmap': self._calculate_heatmap(responses, params.get('tz', 'Asia/Dubai')),
+                'questions_summary': self._get_questions_summary(survey, responses, params['include_personal'])
             }
+            if has_nps:
+                dashboard_data['nps'] = self._calculate_nps_fixed(survey, responses)
+            if has_csat:
+                dashboard_data['csat_tracking'] = self._calculate_csat_tracking(survey, responses, params)
             
             logger.info(f"Successfully generated analytics dashboard for survey {survey_id}")
             return uniform_response(
@@ -4590,6 +4594,71 @@ class SurveyAnalyticsDashboardView(APIView):
         velocity = Decimal(responses.count()) / days
         return float(velocity.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
     
+    def _calculate_heatmap(self, responses, tz_str='Asia/Dubai'):
+        """
+        Calculate response heatmap (7 days × 24 hours) with timezone support.
+        
+        Returns density matrix showing when responses were submitted:
+        - Rows: Days of week (0=Sunday, 6=Saturday, UAE standard)
+        - Columns: Hours of day (0-23)
+        
+        Args:
+            responses: QuerySet of Response objects
+            tz_str: Timezone string (e.g., 'Asia/Dubai')
+        
+        Returns:
+            dict with 'matrix', 'totals_by_day', 'totals_by_hour'
+        """
+        import pytz
+        
+        # Validate and setup timezone
+        try:
+            tz = pytz.timezone(tz_str) if tz_str else pytz.timezone('Asia/Dubai')
+        except pytz.exceptions.UnknownTimeZoneError:
+            logger.warning(f"Invalid timezone '{tz_str}', using fallback 'Asia/Dubai'")
+            tz = pytz.timezone('Asia/Dubai')
+        
+        # Initialize 7×24 matrix (all zeros)
+        matrix = [[0] * 24 for _ in range(7)]
+        
+        # Filter to complete responses
+        complete_responses = responses.filter(is_complete=True)
+        
+        # Process each response
+        for response in complete_responses:
+            try:
+                if not response.submitted_at:
+                    logger.debug(f"Response {response.id} has no submitted_at timestamp, skipping")
+                    continue
+                
+                # Convert to local timezone
+                local_dt = response.submitted_at.astimezone(tz)
+                
+                # Calculate weekday index (convert Monday=0 to Sunday=0)
+                # Python's weekday(): Monday=0, Sunday=6
+                # Our format: Sunday=0, Saturday=6
+                weekday_idx = (local_dt.weekday() + 1) % 7
+                
+                # Hour is 0-23
+                hour = local_dt.hour
+                
+                # Increment matrix cell
+                matrix[weekday_idx][hour] += 1
+                
+            except (AttributeError, TypeError) as e:
+                logger.warning(f"Error processing response {response.id} timestamp: {e}")
+                continue
+        
+        # Calculate totals
+        totals_by_day = [sum(row) for row in matrix]
+        totals_by_hour = [sum(matrix[day][hour] for day in range(7)) for hour in range(24)]
+        
+        return {
+            "matrix": matrix,
+            "totals_by_day": totals_by_day,
+            "totals_by_hour": totals_by_hour
+        }
+    
     def _calculate_nps(self, survey, responses):
         """
         Calculate Net Promoter Score (NPS) from rating questions.
@@ -4717,6 +4786,162 @@ class SurveyAnalyticsDashboardView(APIView):
             return "Fair - Needs improvement"
         else:
             return "Critical - Urgent action needed"
+    
+    def _calculate_nps_fixed(self, survey, responses):
+        """
+        Calculate Net Promoter Score (NPS) with Arabic support and dynamic scale detection.
+        
+        Selection Priority:
+        1. PRIMARY: Question with NPS_Calculate == True
+        2. FALLBACK 1: Question with semantic_tag == 'nps'
+        3. FALLBACK 2: Rating question matching NPS intent keywords (Arabic/English)
+        4. FALLBACK 3: First rating question
+        
+        Dynamic Scale Support:
+        - Detects min_scale and max_scale from question (defaults: 0-5)
+        - Calculates dynamic thresholds:
+          * Detractors: bottom 60% of scale
+          * Passives: middle 20% of scale
+          * Promoters: top 20% of scale
+        
+        Arabic Support:
+        - Comprehensive keyword matching via arabic_text module
+        - Arabic/Persian/English digit parsing
+        - Handles all diacritics, hamza, alef variations
+        
+        Returns:
+            dict with NPS data or None if no valid NPS question found
+        """
+        from .arabic_text import normalize_arabic, match_intent, extract_number
+        from .arabic_text import NPS_KEYWORDS_AR, NPS_KEYWORDS_EN
+        from .metrics import nps_thresholds, nps_distribution, nps_interpretation
+        
+        # Priority 1: Check for NPS_Calculate flag
+        nps_question = survey.questions.filter(
+            question_type__in=['rating', 'تقييم'],
+            NPS_Calculate=True
+        ).first()
+        
+        if not nps_question:
+            # Priority 2: Check for semantic_tag
+            nps_question = survey.questions.filter(
+                question_type__in=['rating', 'تقييم'],
+                semantic_tag='nps'
+            ).first()
+        
+        if not nps_question:
+            # Priority 3: Intent matching via keywords
+            rating_questions = survey.questions.filter(
+                question_type__in=['rating', 'تقييم']
+            ).order_by('order')
+            
+            for question in rating_questions:
+                question_text = question.text
+                # Check Arabic keywords
+                if match_intent(question_text, NPS_KEYWORDS_AR):
+                    nps_question = question
+                    break
+                # Check English keywords
+                if match_intent(question_text, NPS_KEYWORDS_EN):
+                    nps_question = question
+                    break
+        
+        if not nps_question:
+            # Priority 4: Fallback to first rating question
+            nps_question = survey.questions.filter(
+                question_type__in=['rating', 'تقييم']
+            ).order_by('order').first()
+        
+        if not nps_question:
+            logger.debug(f"No NPS question found for survey {survey.id}")
+            return None
+        
+        # Get scale metadata
+        min_scale = nps_question.min_scale if nps_question.min_scale is not None else 0
+        max_scale = nps_question.max_scale if nps_question.max_scale is not None else 5
+        
+        # Validate scale
+        if min_scale >= max_scale:
+            logger.warning(f"Invalid NPS scale for question {nps_question.id}: min={min_scale}, max={max_scale}")
+            return None
+        
+        # Get dynamic thresholds
+        det_max, pas_max = nps_thresholds(min_scale, max_scale)
+        
+        # Get all answers for this question (only complete responses)
+        answers = Answer.objects.filter(
+            question=nps_question,
+            response__in=responses.filter(is_complete=True)
+        ).select_related('response')
+        
+        if not answers.exists():
+            logger.debug(f"No answers found for NPS question {nps_question.id}")
+            return None
+        
+        # Extract numeric values with Arabic digit support
+        numeric_values = []
+        for answer in answers:
+            try:
+                # Use extract_number for Arabic/Persian/English digit support
+                value = extract_number(answer.answer_text)
+                if value is None:
+                    logger.debug(f"Could not extract number from answer: {answer.answer_text[:50]}")
+                    continue
+                
+                # Validate range
+                if min_scale <= value <= max_scale:
+                    numeric_values.append(value)
+                else:
+                    logger.warning(f"Answer {value} outside scale [{min_scale}, {max_scale}] for question {nps_question.id}")
+            except (ValueError, TypeError) as e:
+                logger.debug(f"Error parsing answer text: {e}")
+                continue
+        
+        if not numeric_values:
+            logger.info(f"No valid numeric answers for NPS question {nps_question.id}")
+            return None
+        
+        total_responses = len(numeric_values)
+        
+        # Categorize responses using dynamic thresholds
+        promoters = sum(1 for v in numeric_values if v > pas_max)
+        passives = sum(1 for v in numeric_values if det_max < v <= pas_max)
+        detractors = sum(1 for v in numeric_values if v <= det_max)
+        
+        # Validate categorization
+        if promoters + passives + detractors != total_responses:
+            logger.error(f"NPS categorization count mismatch: {promoters}+{passives}+{detractors} != {total_responses}")
+        
+        # Calculate percentages using Decimal for precision
+        promoters_pct = Decimal(promoters) / Decimal(total_responses) * Decimal('100')
+        passives_pct = Decimal(passives) / Decimal(total_responses) * Decimal('100')
+        detractors_pct = Decimal(detractors) / Decimal(total_responses) * Decimal('100')
+        
+        # Calculate NPS score: % Promoters - % Detractors
+        nps_score = promoters_pct - detractors_pct
+        
+        # Get distribution
+        distribution = nps_distribution(numeric_values, min_scale, max_scale)
+        
+        return {
+            'score': float(nps_score.quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)),
+            'promoters_count': promoters,
+            'passives_count': passives,
+            'detractors_count': detractors,
+            'promoters_pct': float(promoters_pct.quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)),
+            'passives_pct': float(passives_pct.quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)),
+            'detractors_pct': float(detractors_pct.quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)),
+            'total_responses': total_responses,
+            'question_id': str(nps_question.id),
+            'question_text': nps_question.text,
+            'scale_min': min_scale,
+            'scale_max': max_scale,
+            'detractor_range': f"{min_scale}-{det_max}",
+            'passive_range': f"{det_max+1}-{pas_max}",
+            'promoter_range': f"{pas_max+1}-{max_scale}",
+            'distribution': distribution,
+            'interpretation': nps_interpretation(float(nps_score))
+        }
     
     def _calculate_csat(self, survey, responses):
         """
@@ -4907,6 +5132,269 @@ class SurveyAnalyticsDashboardView(APIView):
             return "Fair - Average, room for improvement"
         else:
             return "Poor - Significant customer satisfaction issues"
+    
+    def _calculate_csat_tracking(self, survey, responses, params):
+        """
+        Calculate CSAT tracking over time with Arabic support and satisfaction_value mapping.
+        
+        Selection Priority:
+        1. PRIMARY: Question with CSAT_Calculate == True
+        2. FALLBACK 1: Question with semantic_tag == 'csat'
+        3. FALLBACK 2: Intent matching (rating → yes/no → single_choice)
+        
+        Classification Methods:
+        - Single choice: Use mapped satisfaction_value (PRIMARY), fallback to keyword-based
+        - Rating: Scale auto-detection or metadata-based thresholds
+        - Yes/No: Comprehensive yes_no_normalize() function
+        
+        Grouping:
+        - day: YYYY-MM-DD format
+        - week: Week starting Sunday (UAE standard)
+        - month: YYYY-MM format
+        
+        Args:
+            survey: Survey instance
+            responses: QuerySet of Response objects
+            params: dict with 'group_by' and 'tz' keys
+        
+        Returns:
+            list of dicts with period, score, satisfied, neutral, dissatisfied, total
+        """
+        from .arabic_text import normalize_arabic, match_intent, extract_number
+        from .arabic_text import CSAT_KEYWORDS_AR, CSAT_KEYWORDS_EN, classify_csat_choice, yes_no_normalize
+        from .metrics import csat_score as calculate_csat_score
+        from collections import defaultdict
+        import pytz
+        from datetime import datetime, timedelta
+        
+        # Priority 1: Check for CSAT_Calculate flag
+        valid_csat_types = ['single_choice', 'rating', 'yes_no', 'اختيار واحد', 'تقييم', 'نعم/لا']
+        csat_question = survey.questions.filter(
+            question_type__in=valid_csat_types,
+            CSAT_Calculate=True
+        ).first()
+        
+        if not csat_question:
+            # Priority 2: Check for semantic_tag
+            csat_question = survey.questions.filter(
+                question_type__in=valid_csat_types,
+                semantic_tag='csat'
+            ).first()
+        
+        if not csat_question:
+            # Priority 3: Intent matching with priority order
+            # Rating questions first
+            rating_questions = survey.questions.filter(
+                question_type__in=['rating', 'تقييم']
+            ).order_by('order')
+            
+            for question in rating_questions:
+                question_text = question.text
+                if match_intent(question_text, CSAT_KEYWORDS_AR) or match_intent(question_text, CSAT_KEYWORDS_EN):
+                    csat_question = question
+                    break
+            
+            # Yes/No questions second
+            if not csat_question:
+                yesno_questions = survey.questions.filter(
+                    question_type__in=['yes_no', 'نعم/لا']
+                ).order_by('order')
+                
+                for question in yesno_questions:
+                    question_text = question.text
+                    if match_intent(question_text, CSAT_KEYWORDS_AR) or match_intent(question_text, CSAT_KEYWORDS_EN):
+                        csat_question = question
+                        break
+            
+            # Single choice questions third
+            if not csat_question:
+                choice_questions = survey.questions.filter(
+                    question_type__in=['single_choice', 'اختيار واحد']
+                ).order_by('order')
+                
+                for question in choice_questions:
+                    question_text = question.text
+                    if match_intent(question_text, CSAT_KEYWORDS_AR) or match_intent(question_text, CSAT_KEYWORDS_EN):
+                        csat_question = question
+                        break
+        
+        if not csat_question:
+            logger.debug(f"No CSAT question found for survey {survey.id}")
+            return []
+        
+        # Get grouping parameters
+        group_by = params.get('group_by', 'day')
+        if group_by not in ['day', 'week', 'month']:
+            logger.info(f"Invalid group_by '{group_by}', defaulting to 'day'")
+            group_by = 'day'
+        
+        tz_str = params.get('tz', 'Asia/Dubai')
+        try:
+            tz = pytz.timezone(tz_str)
+        except pytz.exceptions.UnknownTimeZoneError:
+            logger.warning(f"Invalid timezone '{tz_str}', using fallback 'Asia/Dubai'")
+            tz = pytz.timezone('Asia/Dubai')
+        
+        # Get all answers for this question (only complete responses)
+        answers = Answer.objects.filter(
+            question=csat_question,
+            response__in=responses.filter(is_complete=True)
+        ).select_related('response').order_by('response__submitted_at')
+        
+        if not answers.exists():
+            logger.debug(f"No answers found for CSAT question {csat_question.id}")
+            return []
+        
+        # Group answers by period
+        period_data = defaultdict(lambda: {'satisfied': 0, 'neutral': 0, 'dissatisfied': 0})
+        
+        # Preload QuestionOption mappings if single_choice or yes_no
+        option_mappings = {}
+        if csat_question.question_type in ['single_choice', 'اختيار واحد', 'yes_no', 'نعم/لا']:
+            from .models import QuestionOption
+            for opt in QuestionOption.objects.filter(question=csat_question):
+                option_mappings[opt.option_text_hash] = opt.satisfaction_value
+        
+        for answer in answers:
+            try:
+                if not answer.response.submitted_at:
+                    continue
+                
+                # Convert to local timezone
+                local_dt = answer.response.submitted_at.astimezone(tz)
+                
+                # Calculate period key
+                if group_by == 'day':
+                    period = local_dt.strftime('%Y-%m-%d')
+                elif group_by == 'week':
+                    # Week starts on Sunday (UAE standard)
+                    days_since_sunday = (local_dt.weekday() + 1) % 7
+                    week_start = local_dt.date() - timedelta(days=days_since_sunday)
+                    period = week_start.strftime('%Y-W%U')
+                else:  # month
+                    period = local_dt.strftime('%Y-%m')
+                
+                # Classify the answer
+                classification = 'unknown'
+                
+                if csat_question.question_type in ['single_choice', 'اختيار واحد']:
+                    # PRIMARY: Try satisfaction_value mapping
+                    answer_hash = hashlib.sha256(answer.answer_text.encode('utf-8')).hexdigest()
+                    if answer_hash in option_mappings:
+                        sat_value = option_mappings[answer_hash]
+                        if sat_value == 2:
+                            classification = 'satisfied'
+                        elif sat_value == 1:
+                            classification = 'neutral'
+                        elif sat_value == 0:
+                            classification = 'dissatisfied'
+                    else:
+                        # FALLBACK: Keyword-based classification
+                        classification = classify_csat_choice(answer.answer_text)
+                
+                elif csat_question.question_type in ['rating', 'تقييم']:
+                    # Extract numeric value
+                    value = extract_number(answer.answer_text)
+                    if value is None:
+                        logger.debug(f"Could not extract number from rating answer: {answer.answer_text[:50]}")
+                        continue
+                    
+                    # Check for explicit scale metadata
+                    min_scale = csat_question.min_scale if csat_question.min_scale is not None else None
+                    max_scale = csat_question.max_scale if csat_question.max_scale is not None else None
+                    
+                    # Auto-detect scale if not explicit
+                    if min_scale is None or max_scale is None:
+                        # We'll use the value itself to infer scale
+                        if value <= 5:
+                            min_scale, max_scale = 1, 5
+                        elif value <= 10:
+                            min_scale, max_scale = 1, 10
+                        else:
+                            # Custom scale - can't auto-detect reliably
+                            logger.warning(f"Cannot auto-detect scale for value {value}")
+                            continue
+                    
+                    # Apply thresholds
+                    span = max_scale - min_scale
+                    if max_scale <= 5:
+                        # 1-5 scale: 4-5 = satisfied, 3 = neutral, 1-2 = dissatisfied
+                        if value >= min_scale + 0.6 * span:
+                            classification = 'satisfied'
+                        elif value >= min_scale + 0.4 * span:
+                            classification = 'neutral'
+                        else:
+                            classification = 'dissatisfied'
+                    elif max_scale <= 10:
+                        # 1-10 scale: 8-10 = satisfied, 6-7 = neutral, 1-5 = dissatisfied
+                        if value >= min_scale + 0.7 * span:
+                            classification = 'satisfied'
+                        elif value >= min_scale + 0.5 * span:
+                            classification = 'neutral'
+                        else:
+                            classification = 'dissatisfied'
+                    else:
+                        # Custom scale: percentile-based
+                        if value >= min_scale + 0.8 * span:
+                            classification = 'satisfied'
+                        elif value >= min_scale + 0.4 * span:
+                            classification = 'neutral'
+                        else:
+                            classification = 'dissatisfied'
+                
+                elif csat_question.question_type in ['yes_no', 'نعم/لا']:
+                    # PRIMARY: Try satisfaction_value mapping
+                    answer_hash = hashlib.sha256(answer.answer_text.encode('utf-8')).hexdigest()
+                    if answer_hash in option_mappings:
+                        sat_value = option_mappings[answer_hash]
+                        if sat_value == 2:
+                            classification = 'satisfied'
+                        elif sat_value == 1:
+                            classification = 'neutral'
+                        elif sat_value == 0:
+                            classification = 'dissatisfied'
+                    else:
+                        # FALLBACK: Keyword-based yes/no normalization
+                        result = yes_no_normalize(answer.answer_text)
+                        if result == 'yes':
+                            classification = 'satisfied'
+                        elif result == 'no':
+                            classification = 'dissatisfied'
+                        else:
+                            classification = 'neutral'
+                
+                # Increment counter
+                if classification in ['satisfied', 'neutral', 'dissatisfied']:
+                    period_data[period][classification] += 1
+                else:
+                    # Unknown classifications count as neutral (configurable)
+                    period_data[period]['neutral'] += 1
+                    
+            except Exception as e:
+                logger.warning(f"Error processing answer {answer.id} for CSAT tracking: {e}")
+                continue
+        
+        # Build result array
+        result = []
+        for period in sorted(period_data.keys()):
+            data = period_data[period]
+            satisfied = data['satisfied']
+            neutral = data['neutral']
+            dissatisfied = data['dissatisfied']
+            total = satisfied + neutral + dissatisfied
+            
+            score = calculate_csat_score(satisfied, neutral, dissatisfied)
+            
+            result.append({
+                'period': period,
+                'score': score,
+                'satisfied': satisfied,
+                'neutral': neutral,
+                'dissatisfied': dissatisfied,
+                'total': total
+            })
+        
+        return result
     
     def _calculate_rating_statistics(self, numeric_values):
         """
@@ -7852,91 +8340,53 @@ class TemplateGalleryView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        """Get template gallery with predefined templates from JSON file, user templates, and recent surveys"""
+        """Get template gallery with predefined templates from database, user templates, and recent surveys"""
         try:
             user = request.user
             
-            # Load predefined templates from JSON file
-            import os
-            from django.conf import settings
+            # Get predefined templates from DATABASE (not JSON file)
+            predefined_templates = SurveyTemplate.objects.filter(
+                is_predefined=True
+            ).prefetch_related('questions').order_by('-created_at')
             
-            json_file_path = os.path.join(settings.BASE_DIR, 'predefined_templates_arabic.json')
-            predefined_data = []
-            
-            try:
-                with open(json_file_path, 'r', encoding='utf-8') as f:
-                    json_data = json.load(f)
-                    
-                # Group templates and questions
-                templates_dict = {}
-                for item in json_data:
-                    if item['model'] == 'surveys.surveytemplate':
-                        template_id = item['pk']
-                        templates_dict[template_id] = {
-                            'id': template_id,
-                            'name': item['fields']['name'],
-                            'name_ar': item['fields']['name_ar'],
-                            'description': item['fields']['description'],
-                            'description_ar': item['fields']['description_ar'],
-                            'category': item['fields']['category'],
-                            'icon': item['fields']['icon'],
-                            'preview_image': item['fields']['preview_image'],
-                            'is_predefined': item['fields']['is_predefined'],
-                            'usage_count': item['fields']['usage_count'],
-                            'created_at': item['fields']['created_at'],
-                            'updated_at': item['fields']['updated_at'],
-                            'questions': []
-                        }
-                    elif item['model'] == 'surveys.templatequestion':
-                        template_id = item['fields']['template']
-                        if template_id in templates_dict:
-                            templates_dict[template_id]['questions'].append({
-                                'id': item['pk'],
-                                'text': item['fields']['text'],
-                                'text_ar': item['fields']['text_ar'],
-                                'question_type': item['fields']['question_type'],
-                                'options': item['fields']['options'],
-                                'is_required': item['fields']['is_required'],
-                                'order': item['fields']['order'],
-                                'placeholder': item['fields']['placeholder'],
-                                'placeholder_ar': item['fields']['placeholder_ar']
-                            })
-                
-                # Sort questions by order
-                for template in templates_dict.values():
-                    template['questions'].sort(key=lambda q: q['order'])
-                
-                predefined_data = list(templates_dict.values())
-                
-            except FileNotFoundError:
-                logger.warning(f"Predefined templates JSON file not found: {json_file_path}")
-                predefined_data = []
-            except json.JSONDecodeError as e:
-                logger.error(f"Error parsing JSON file: {e}")
-                predefined_data = []
+            predefined_serializer = SurveyTemplateSerializer(
+                predefined_templates, 
+                many=True, 
+                context={'request': request}
+            )
             
             # Get user's custom templates from database
             user_templates = SurveyTemplate.objects.filter(
                 is_predefined=False,
                 created_by=user
-            ).order_by('-created_at')
-            user_serializer = SurveyTemplateSerializer(user_templates, many=True, context={'request': request})
+            ).prefetch_related('questions').order_by('-created_at')
+            
+            user_serializer = SurveyTemplateSerializer(
+                user_templates, 
+                many=True, 
+                context={'request': request}
+            )
             
             # Get user's recent surveys (last 10)
             recent_surveys = Survey.objects.filter(
                 creator=user,
                 deleted_at__isnull=True
             ).order_by('-created_at')[:10]
-            recent_serializer = RecentSurveySerializer(recent_surveys, many=True, context={'request': request})
+            
+            recent_serializer = RecentSurveySerializer(
+                recent_surveys, 
+                many=True, 
+                context={'request': request}
+            )
             
             return uniform_response(
                 success=True,
                 message="Template gallery retrieved successfully",
                 data={
-                    'predefined_templates': predefined_data,
+                    'predefined_templates': predefined_serializer.data,
                     'user_templates': user_serializer.data,
                     'recent_surveys': recent_serializer.data,
-                    'total_predefined': len(predefined_data),
+                    'total_predefined': predefined_templates.count(),
                     'total_user': user_templates.count(),
                     'total_recent': recent_surveys.count()
                 },
@@ -8527,5 +8977,178 @@ class DeleteTemplateView(APIView):
             return uniform_response(
                 success=False,
                 message="An error occurred while deleting the template",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class DeletePredefinedTemplateView(APIView):
+    """
+    DELETE /api/surveys/templates/predefined/{template_id}/
+    Delete a predefined template by ID
+    
+    Only admin and super_admin users can delete predefined templates.
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def delete(self, request, template_id):
+        """Delete a predefined template"""
+        try:
+            # Only admin and super_admin can delete predefined templates
+            if request.user.role not in ['admin', 'super_admin']:
+                return uniform_response(
+                    success=False,
+                    message="Only admins and super admins can delete predefined templates",
+                    status_code=status.HTTP_403_FORBIDDEN
+                )
+            
+            # Get the template
+            template = get_object_or_404(SurveyTemplate, id=template_id)
+            
+            # Check if template is predefined
+            if not template.is_predefined:
+                return uniform_response(
+                    success=False,
+                    message="This endpoint is only for deleting predefined templates. Use the regular delete endpoint for user templates.",
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Delete the template (this will cascade to questions)
+            template_name = template.name
+            template.delete()
+            
+            logger.info(f"Predefined template deleted: {template_id} ({template_name}) by {request.user.email}")
+            
+            return uniform_response(
+                success=True,
+                message="Predefined template deleted successfully",
+                status_code=status.HTTP_200_OK
+            )
+            
+        except SurveyTemplate.DoesNotExist:
+            return uniform_response(
+                success=False,
+                message="Predefined template not found",
+                status_code=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"Error deleting predefined template: {e}")
+            return uniform_response(
+                success=False,
+                message="An error occurred while deleting the predefined template",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class CreatePredefinedTemplateView(APIView):
+    """
+    POST /api/surveys/templates/predefined/create/
+    Create a predefined template with questions using survey-like structure.
+    
+    Accepts the same structure as POST /api/surveys/draft/ but saves as a template.
+    Only admin and super_admin users can create predefined templates.
+    
+    Request body uses survey format (title, description, questions with full metadata)
+    but saves as a reusable template instead.
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        """Create a new predefined template with questions from survey-like structure"""
+        try:
+            # Only admin and super_admin can create predefined templates
+            if request.user.role not in ['admin', 'super_admin']:
+                return uniform_response(
+                    success=False,
+                    message="Only admins and super admins can create predefined templates",
+                    status_code=status.HTTP_403_FORBIDDEN
+                )
+            
+            from .serializers import SurveyTemplateSerializer
+            
+            # Extract data from request (survey format)
+            data = request.data
+            
+            # Map survey fields to template fields
+            name = data.get('title')
+            name_ar = data.get('title_ar') or data.get('title')  # Use title as fallback
+            description = data.get('description', '')
+            description_ar = data.get('description_ar') or description
+            
+            # Validate required fields
+            if not name:
+                return uniform_response(
+                    success=False,
+                    message="Validation error",
+                    data={"name": ["Title is required"]},
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Determine category from visibility or default
+            visibility = data.get('visibility', 'PRIVATE')
+            category_map = {
+                'PUBLIC': 'feedback',
+                'AUTH': 'event',
+                'PRIVATE': 'custom',
+                'GROUPS': 'registration'
+            }
+            category = data.get('category', category_map.get(visibility, 'custom'))
+            
+            # Create the template
+            template = SurveyTemplate.objects.create(
+                name=name,
+                name_ar=name_ar,
+                description=description or 'Template created from survey structure',
+                description_ar=description_ar or 'قالب تم إنشاؤه من بنية الاستطلاع',
+                category=category,
+                icon=data.get('icon', 'fa-star'),
+                preview_image=data.get('preview_image'),
+                is_predefined=data.get('is_predefined', True),
+                created_by=None if data.get('is_predefined', True) else request.user
+            )
+            
+            # Create questions from survey questions
+            questions_data = data.get('questions', [])
+            created_questions = []
+            
+            for question_data in questions_data:
+                # Extract question fields (ignoring survey-specific fields like NPS_Calculate, etc.)
+                question = TemplateQuestion.objects.create(
+                    template=template,
+                    text=question_data.get('text', ''),
+                    text_ar=question_data.get('text_ar') or question_data.get('text', ''),
+                    question_type=question_data.get('question_type', 'text'),
+                    options=question_data.get('options'),  # JSON field
+                    is_required=question_data.get('is_required', False),
+                    order=question_data.get('order', len(created_questions) + 1),
+                    placeholder=question_data.get('placeholder'),
+                    placeholder_ar=question_data.get('placeholder_ar') or question_data.get('placeholder'),
+                    # Analytics flags
+                    NPS_Calculate=question_data.get('NPS_Calculate', False),
+                    CSAT_Calculate=question_data.get('CSAT_Calculate', False),
+                    min_scale=question_data.get('min_scale'),
+                    max_scale=question_data.get('max_scale')
+                )
+                created_questions.append(question)
+            
+            logger.info(
+                f"Predefined template created from survey structure: {template.id} ({template.name}) "
+                f"with {len(created_questions)} questions by {request.user.email}"
+            )
+            
+            # Return the created template
+            response_serializer = SurveyTemplateSerializer(template)
+            
+            return uniform_response(
+                success=True,
+                message="Predefined template created successfully from survey structure",
+                data=response_serializer.data,
+                status_code=status.HTTP_201_CREATED
+            )
+            
+        except Exception as e:
+            logger.error(f"Error creating predefined template: {e}")
+            return uniform_response(
+                success=False,
+                message=str(e),
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

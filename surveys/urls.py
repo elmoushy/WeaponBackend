@@ -126,6 +126,14 @@ urlpatterns = [
          views.PredefinedTemplatesView.as_view(), 
          name='predefined-templates'),
     
+    path('templates/predefined/create/', 
+         views.CreatePredefinedTemplateView.as_view(), 
+         name='create-predefined-template'),
+    
+    path('templates/predefined/<uuid:template_id>/', 
+         views.DeletePredefinedTemplateView.as_view(), 
+         name='delete-predefined-template'),
+    
     path('templates/user/', 
          views.UserTemplatesView.as_view(), 
          name='user-templates'),

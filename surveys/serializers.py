@@ -103,17 +103,91 @@ class OptionsField(serializers.CharField):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    """Serializer for survey questions with encrypted fields"""
+    """Serializer for survey questions with encrypted fields and analytics metadata"""
     
     options = OptionsField(allow_blank=True, required=False)
+    
+    # Read field for getting satisfaction values
+    options_satisfaction_values = serializers.SerializerMethodField()
+    
+    # Write field for setting satisfaction values during create/update
+    set_satisfaction_values = serializers.ListField(
+        child=serializers.IntegerField(min_value=0, max_value=2),
+        required=False,
+        allow_null=True,
+        help_text="List of satisfaction values (0=Dissatisfied, 1=Neutral, 2=Satisfied) for each option in order"
+    )
     
     class Meta:
         model = Question
         fields = [
-            'id', 'text', 'question_type', 'options', 
-            'is_required', 'order', 'created_at', 'updated_at'
+            'id', 'survey', 'text', 'question_type', 'options', 
+            'is_required', 'order', 
+            'NPS_Calculate', 'CSAT_Calculate', 'min_scale', 'max_scale', 'semantic_tag',
+            'options_satisfaction_values', 'set_satisfaction_values',
+            'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+        extra_kwargs = {
+            'survey': {'required': False}  # Survey is set automatically when creating through SurveySerializer
+        }
+    
+    def to_representation(self, instance):
+        """Exclude set_satisfaction_values from output"""
+        ret = super().to_representation(instance)
+        ret.pop('set_satisfaction_values', None)
+        return ret
+    
+    def get_options_satisfaction_values(self, obj):
+        """
+        Return satisfaction values for each option when CSAT_Calculate is True.
+        Returns a list of integers matching the order of options.
+        """
+        # Only return satisfaction values if CSAT_Calculate is enabled
+        if not obj.CSAT_Calculate:
+            return None
+        
+        # Only applicable for single_choice and yes_no questions
+        if obj.question_type not in ['single_choice', 'yes_no', 'اختيار واحد', 'نعم/لا']:
+            return None
+        
+        # Get satisfaction values from QuestionOption model ordered by 'order' field
+        from .models import QuestionOption
+        
+        option_objs = QuestionOption.objects.filter(question=obj).order_by('order')
+        
+        if not option_objs.exists():
+            return None
+        
+        # Return satisfaction values in order
+        satisfaction_values = [opt.satisfaction_value for opt in option_objs]
+        
+        return satisfaction_values
+    
+    def to_internal_value(self, data):
+        """Handle set_satisfaction_values and options_satisfaction_values, converting from JSON strings if needed"""
+        # Handle set_satisfaction_values
+        if 'set_satisfaction_values' in data:
+            value = data['set_satisfaction_values']
+            if isinstance(value, str):
+                try:
+                    data['set_satisfaction_values'] = json.loads(value)
+                except (json.JSONDecodeError, TypeError):
+                    pass
+            # Store for use in create/update
+            data['options_satisfaction_values'] = data.get('set_satisfaction_values')
+        
+        # Handle options_satisfaction_values - convert from JSON string to list if needed
+        if 'options_satisfaction_values' in data:
+            value = data['options_satisfaction_values']
+            if isinstance(value, str):
+                try:
+                    data['options_satisfaction_values'] = json.loads(value)
+                except (json.JSONDecodeError, TypeError):
+                    # If JSON parsing fails, leave as-is and let validation handle the error
+                    pass
+        
+        return super().to_internal_value(data)
     
     def validate_text(self, value):
         """Validate and sanitize question text."""
@@ -123,9 +197,25 @@ class QuestionSerializer(serializers.ModelSerializer):
         """Cross-field validation for questions"""
         question_type = data.get('question_type')
         options = data.get('options')
+        csat_calculate = data.get('CSAT_Calculate', False)
+        nps_calculate = data.get('NPS_Calculate', False)
+        options_satisfaction_values = data.get('options_satisfaction_values')
+        
+        # Validate NPS_Calculate flag
+        if nps_calculate and question_type not in ['rating', 'تقييم']:
+            raise serializers.ValidationError({
+                'NPS_Calculate': 'NPS_Calculate can only be True for rating questions.'
+            })
+        
+        # Validate CSAT_Calculate flag
+        valid_csat_types = ['single_choice', 'rating', 'yes_no', 'اختيار واحد', 'تقييم', 'نعم/لا']
+        if csat_calculate and question_type not in valid_csat_types:
+            raise serializers.ValidationError({
+                'CSAT_Calculate': 'CSAT_Calculate can only be True for single_choice, rating, or yes_no questions.'
+            })
         
         # Validate options for choice questions
-        if question_type in ['single_choice', 'multiple_choice']:
+        if question_type in ['single_choice', 'multiple_choice', 'اختيار واحد', 'اختيار متعدد']:
             if not options:
                 raise serializers.ValidationError(
                     "Choice questions must have options"
@@ -139,6 +229,13 @@ class QuestionSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         "Choice questions must have at least 2 options"
                     )
+                
+                # Validate options_satisfaction_values if CSAT_Calculate is True
+                if csat_calculate and options_satisfaction_values:
+                    if len(options_satisfaction_values) != len(options_list):
+                        raise serializers.ValidationError({
+                            'options_satisfaction_values': f'Must provide satisfaction value for each option ({len(options_list)} options, {len(options_satisfaction_values)} values)'
+                        })
                 
                 # Sanitize each option
                 sanitized_options = []
@@ -157,7 +254,80 @@ class QuestionSerializer(serializers.ModelSerializer):
             except (json.JSONDecodeError, TypeError):
                 raise serializers.ValidationError("Options must be valid JSON array")
         
+        # Validate yes/no questions with CSAT_Calculate
+        if question_type in ['yes_no', 'نعم/لا'] and csat_calculate:
+            if options_satisfaction_values:
+                if len(options_satisfaction_values) != 2:
+                    raise serializers.ValidationError({
+                        'options_satisfaction_values': 'Yes/No questions require exactly 2 satisfaction values [yes_value, no_value]'
+                    })
+        
         return data
+    
+    def create(self, validated_data):
+        """Create question and QuestionOption records for satisfaction values"""
+        from .models import QuestionOption
+        import hashlib
+        
+        # Extract set_satisfaction_values and options_satisfaction_values before creating the question
+        satisfaction_values = validated_data.pop('set_satisfaction_values', None) or validated_data.pop('options_satisfaction_values', None)
+        
+        # Create the question
+        question = Question.objects.create(**validated_data)
+        
+        # Create QuestionOption records if satisfaction values provided
+        if satisfaction_values and question.CSAT_Calculate:
+            try:
+                # Parse options
+                options_list = json.loads(question.options) if isinstance(question.options, str) else question.options
+                
+                if options_list and len(satisfaction_values) == len(options_list):
+                    for idx, (option_text, sat_value) in enumerate(zip(options_list, satisfaction_values)):
+                        QuestionOption.objects.create(
+                            question=question,
+                            option_text=str(option_text),
+                            satisfaction_value=sat_value,
+                            order=idx
+                        )
+            except Exception as e:
+                logger.error(f"Error creating QuestionOption records: {e}")
+        
+        return question
+    
+    def update(self, instance, validated_data):
+        """Update question and QuestionOption records for satisfaction values"""
+        from .models import QuestionOption
+        import hashlib
+        
+        # Extract set_satisfaction_values and options_satisfaction_values before updating
+        satisfaction_values = validated_data.pop('set_satisfaction_values', None) or validated_data.pop('options_satisfaction_values', None)
+        
+        # Update the question fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        # Update QuestionOption records if satisfaction values provided
+        if satisfaction_values and instance.CSAT_Calculate:
+            # Delete existing QuestionOption records for this question
+            QuestionOption.objects.filter(question=instance).delete()
+            
+            try:
+                # Parse options
+                options_list = json.loads(instance.options) if isinstance(instance.options, str) else instance.options
+                
+                if options_list and len(satisfaction_values) == len(options_list):
+                    for idx, (option_text, sat_value) in enumerate(zip(options_list, satisfaction_values)):
+                        QuestionOption.objects.create(
+                            question=instance,
+                            option_text=str(option_text),
+                            satisfaction_value=sat_value,
+                            order=idx
+                        )
+            except Exception as e:
+                logger.error(f"Error updating QuestionOption records: {e}")
+        
+        return instance
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -363,14 +533,39 @@ class SurveySerializer(serializers.ModelSerializer):
         return {}
     
     def to_internal_value(self, data):
-        """Ensure per_device_access always has a value"""
+        """Ensure per_device_access always has a value and preserve satisfaction values in nested questions"""
         # Ensure per_device_access is never None and defaults to False
         if 'per_device_access' not in data:
             data['per_device_access'] = False
         elif data.get('per_device_access') is None:
             data['per_device_access'] = False
         
-        return super().to_internal_value(data)
+        # Preserve and convert options_satisfaction_values in nested questions data
+        # Convert from JSON string to list if needed
+        if 'questions' in data and isinstance(data['questions'], list):
+            for question_data in data['questions']:
+                if 'options_satisfaction_values' in question_data:
+                    value = question_data['options_satisfaction_values']
+                    # Convert from JSON string to list if needed
+                    if isinstance(value, str):
+                        try:
+                            question_data['options_satisfaction_values'] = json.loads(value)
+                        except (json.JSONDecodeError, TypeError):
+                            pass
+                    # Store it temporarily to preserve through validation
+                    question_data['_temp_satisfaction_values'] = question_data['options_satisfaction_values']
+        
+        result = super().to_internal_value(data)
+        
+        # Restore satisfaction values after validation
+        if 'questions' in result:
+            questions_list = result['questions']
+            if 'questions' in data and isinstance(data['questions'], list):
+                for idx, question_data in enumerate(data['questions']):
+                    if '_temp_satisfaction_values' in question_data and idx < len(questions_list):
+                        questions_list[idx]['options_satisfaction_values'] = question_data['_temp_satisfaction_values']
+        
+        return result
     
     def validate(self, data):
         """Enhanced validation with security checks"""
@@ -413,6 +608,9 @@ class SurveySerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         """Create survey with creator set to current user and handle nested questions"""
+        from .models import QuestionOption
+        import hashlib
+        
         request = self.context.get('request')
         validated_data['creator'] = request.user
         
@@ -441,13 +639,60 @@ class SurveySerializer(serializers.ModelSerializer):
         
         # Create questions if provided
         for question_data in questions_data:
-            Question.objects.create(survey=survey, **question_data)
+            # Extract satisfaction values before creating question
+            # Check both field names since they might come from different sources
+            options_satisfaction_values = question_data.pop('options_satisfaction_values', None) or question_data.pop('set_satisfaction_values', None)
+            
+            question = Question.objects.create(survey=survey, **question_data)
+            
+            # Create QuestionOption records if satisfaction values provided
+            if options_satisfaction_values and question.CSAT_Calculate:
+                question_type = question.question_type
+                
+                if question_type in ['single_choice', 'اختيار واحد']:
+                    # Parse options JSON
+                    options_list = json.loads(question.options) if isinstance(question.options, str) else question.options
+                    
+                    for idx, option_text in enumerate(options_list):
+                        if idx < len(options_satisfaction_values):
+                            QuestionOption.objects.create(
+                                question=question,
+                                option_text=option_text,
+                                satisfaction_value=options_satisfaction_values[idx],
+                                order=idx
+                            )
+                
+                elif question_type in ['yes_no', 'نعم/لا']:
+                    # For yes/no questions, use options from the question if provided,
+                    # otherwise use default yes/no options
+                    if question.options:
+                        try:
+                            options_list = json.loads(question.options) if isinstance(question.options, str) else question.options
+                        except (json.JSONDecodeError, TypeError):
+                            # If parsing fails, use default yes/no options
+                            options_list = ["yes", "no"]
+                    else:
+                        # Default yes/no options
+                        options_list = ["yes", "no"]
+                    
+                    # Create option records for each yes/no option
+                    for idx, option_text in enumerate(options_list):
+                        if idx < len(options_satisfaction_values):
+                            QuestionOption.objects.create(
+                                question=question,
+                                option_text=option_text,
+                                satisfaction_value=options_satisfaction_values[idx],
+                                order=idx
+                            )
         
         logger.info(f"Survey created: {survey.id} with {len(questions_data)} questions by {request.user.email}")
         return survey
     
     def update(self, instance, validated_data):
         """Update survey and handle nested questions"""
+        from .models import QuestionOption
+        import hashlib
+        
         # Ensure per_device_access is never None
         if 'per_device_access' in validated_data and validated_data['per_device_access'] is None:
             validated_data['per_device_access'] = False
@@ -472,12 +717,55 @@ class SurveySerializer(serializers.ModelSerializer):
         
         # Handle questions if provided
         if questions_data is not None:
-            # Delete existing questions
+            # Delete existing questions (cascade will delete QuestionOption records)
             instance.questions.all().delete()
             
             # Create new questions
             for question_data in questions_data:
-                Question.objects.create(survey=instance, **question_data)
+                # Extract satisfaction values before creating question
+                options_satisfaction_values = question_data.pop('options_satisfaction_values', None)
+                
+                question = Question.objects.create(survey=instance, **question_data)
+                
+                # Create QuestionOption records if satisfaction values provided
+                if options_satisfaction_values and question.CSAT_Calculate:
+                    question_type = question.question_type
+                    
+                    if question_type in ['single_choice', 'اختيار واحد']:
+                        # Parse options JSON
+                        options_list = json.loads(question.options) if isinstance(question.options, str) else question.options
+                        
+                        for idx, option_text in enumerate(options_list):
+                            if idx < len(options_satisfaction_values):
+                                QuestionOption.objects.create(
+                                    question=question,
+                                    option_text=option_text,
+                                    satisfaction_value=options_satisfaction_values[idx],
+                                    order=idx
+                                )
+                    
+                    elif question_type in ['yes_no', 'نعم/لا']:
+                        # For yes/no questions, use options from the question if provided,
+                        # otherwise use default yes/no options
+                        if question.options:
+                            try:
+                                options_list = json.loads(question.options) if isinstance(question.options, str) else question.options
+                            except (json.JSONDecodeError, TypeError):
+                                # If parsing fails, use default yes/no options
+                                options_list = ["yes", "no"]
+                        else:
+                            # Default yes/no options
+                            options_list = ["yes", "no"]
+                        
+                        # Create option records for each yes/no option
+                        for idx, option_text in enumerate(options_list):
+                            if idx < len(options_satisfaction_values):
+                                QuestionOption.objects.create(
+                                    question=question,
+                                    option_text=option_text,
+                                    satisfaction_value=options_satisfaction_values[idx],
+                                    order=idx
+                                )
         
         logger.info(f"Survey updated: {instance.id} with {len(questions_data) if questions_data else 0} questions")
         return instance
@@ -579,7 +867,8 @@ class TemplateQuestionSerializer(serializers.ModelSerializer):
         model = TemplateQuestion
         fields = [
             'id', 'text', 'text_ar', 'question_type', 'options',
-            'is_required', 'order', 'placeholder', 'placeholder_ar'
+            'is_required', 'order', 'placeholder', 'placeholder_ar',
+            'NPS_Calculate', 'CSAT_Calculate', 'min_scale', 'max_scale'
         ]
         read_only_fields = ['id']
     
@@ -696,20 +985,59 @@ class CreateSurveyFromTemplateSerializer(serializers.Serializer):
     """Serializer for creating a survey from a template"""
     
     template_id = serializers.UUIDField(required=True)
-    title = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    title = serializers.CharField(max_length=200, required=True)
     description = serializers.CharField(max_length=1000, required=False, allow_blank=True)
+    visibility = serializers.ChoiceField(
+        choices=['PUBLIC', 'PRIVATE', 'AUTH', 'GROUPS'],
+        default='PRIVATE'
+    )
     
     def validate_title(self, value):
         """Validate and sanitize survey title."""
-        if not value:
-            return value
-        return validate_and_sanitize_text_input(value, max_length=255, field_name="Survey title")
+        return validate_and_sanitize_text_input(value, max_length=200, field_name="Survey title")
     
     def validate_description(self, value):
         """Validate and sanitize survey description."""
         if not value:
             return value
+        return validate_and_sanitize_text_input(value, max_length=1000, field_name="Survey description")
+
+
+class CreatePredefinedTemplateSerializer(serializers.Serializer):
+    """Serializer for creating predefined templates with questions (similar to draft endpoint)"""
+    
+    name = serializers.CharField(max_length=200, required=True)
+    name_ar = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
+    description = serializers.CharField(max_length=1000, required=True)
+    description_ar = serializers.CharField(max_length=1000, required=False, allow_blank=True, allow_null=True)
+    category = serializers.ChoiceField(
+        choices=['contact', 'event', 'feedback', 'registration', 'custom'],
+        required=True
+    )
+    icon = serializers.CharField(max_length=50, default='fa-star')
+    preview_image = serializers.URLField(required=False, allow_blank=True, allow_null=True)
+    is_predefined = serializers.BooleanField(default=True)
+    questions = TemplateQuestionSerializer(many=True, required=False)
+    
+    def validate_name(self, value):
+        """Validate and sanitize template name."""
+        return validate_and_sanitize_text_input(value, max_length=200, field_name="Template name")
+    
+    def validate_name_ar(self, value):
+        """Validate and sanitize Arabic template name."""
+        if not value:
+            return value
+        return validate_and_sanitize_text_input(value, max_length=200, field_name="Template name (Arabic)")
+    
+    def validate_description(self, value):
+        """Validate and sanitize template description."""
         return validate_and_sanitize_text_input(value, max_length=1000, field_name="Description")
+    
+    def validate_description_ar(self, value):
+        """Validate and sanitize Arabic template description."""
+        if not value:
+            return value
+        return validate_and_sanitize_text_input(value, max_length=1000, field_name="Description (Arabic)")
 
 
 class RecentSurveySerializer(serializers.ModelSerializer):

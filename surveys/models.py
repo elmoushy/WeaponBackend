@@ -414,6 +414,48 @@ class Question(models.Model):
     is_required = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
     
+    # Analytics calculation flags (PRIMARY approach for 100% accuracy)
+    NPS_Calculate = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text='Indicates if this question is used for NPS calculation (only valid for rating questions)'
+    )
+    
+    CSAT_Calculate = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text='Indicates if this question is used for CSAT calculation (only valid for single_choice, rating, yes_no)'
+    )
+    
+    # Scale metadata for rating questions
+    min_scale = models.IntegerField(
+        null=True,
+        blank=True,
+        default=0,
+        help_text='Minimum value for rating scale (default 0 for NPS, auto-detect for CSAT)'
+    )
+    
+    max_scale = models.IntegerField(
+        null=True,
+        blank=True,
+        default=5,
+        help_text='Maximum value for rating scale (default 5 for NPS, auto-detect for CSAT)'
+    )
+    
+    # OPTIONAL fallback: Semantic tag (for legacy/heuristic matching)
+    SEMANTIC_TAG_CHOICES = [
+        ('none', 'None'),
+        ('nps', 'NPS'),
+        ('csat', 'CSAT')
+    ]
+    semantic_tag = models.CharField(
+        max_length=20,
+        choices=SEMANTIC_TAG_CHOICES,
+        default='none',
+        db_index=True,
+        help_text='Semantic tag for analytics optimization (fallback if Calculate flags not set)'
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -436,10 +478,147 @@ class Question(models.Model):
     def __str__(self):
         return f"Q{self.order}: {self.text[:50]}..."
     
+    def clean(self):
+        """Validate NPS_Calculate and CSAT_Calculate flags"""
+        from django.core.exceptions import ValidationError
+        super().clean()
+        
+        # Validate NPS_Calculate flag
+        if self.NPS_Calculate and self.question_type not in ['rating', 'تقييم']:
+            raise ValidationError({
+                'NPS_Calculate': 'NPS_Calculate can only be True for rating questions.'
+            })
+        
+        # Validate CSAT_Calculate flag
+        valid_csat_types = ['single_choice', 'rating', 'yes_no', 'اختيار واحد', 'تقييم', 'نعم/لا']
+        if self.CSAT_Calculate and self.question_type not in valid_csat_types:
+            raise ValidationError({
+                'CSAT_Calculate': 'CSAT_Calculate can only be True for single_choice, rating, or yes_no questions.'
+            })
+        
+        # Validate scale ranges for rating questions
+        if self.question_type in ['rating', 'تقييم']:
+            if self.min_scale is None:
+                self.min_scale = 0
+            if self.max_scale is None:
+                self.max_scale = 5
+            if self.min_scale >= self.max_scale:
+                raise ValidationError({
+                    'min_scale': 'min_scale must be less than max_scale.'
+                })
+    
     def save(self, *args, **kwargs):
         """Override save to generate text hash for searching"""
         if self.text:
             self.text_hash = hashlib.sha256(self.text.encode('utf-8')).hexdigest()
+        super().save(*args, **kwargs)
+    
+    def validate_csat_options(self):
+        """
+        Validate that CSAT questions have required QuestionOption mappings.
+        
+        Should be called after question is saved and options are created.
+        Returns (is_valid, error_message) tuple.
+        """
+        if not self.CSAT_Calculate:
+            return (True, None)
+        
+        if self.question_type in ['single_choice', 'اختيار واحد']:
+            # Check all options have satisfaction_value
+            options_count = self.option_mappings.count()
+            options_with_value = self.option_mappings.filter(satisfaction_value__isnull=False).count()
+            if options_count > 0 and options_with_value < options_count:
+                return (False, f"CSAT single_choice questions require satisfaction_value for all options ({options_with_value}/{options_count} have values)")
+        
+        elif self.question_type in ['yes_no', 'نعم/لا']:
+            # Check exactly 2 options exist with satisfaction_value
+            options_count = self.option_mappings.count()
+            if options_count != 2:
+                return (False, f"CSAT yes/no questions require exactly 2 QuestionOption records (found {options_count})")
+            options_with_value = self.option_mappings.filter(satisfaction_value__isnull=False).count()
+            if options_with_value != 2:
+                return (False, f"CSAT yes/no questions require satisfaction_value for both yes/no options ({options_with_value}/2 have values)")
+        
+        return (True, None)
+
+
+class QuestionOption(models.Model):
+    """
+    Individual option for single_choice/multiple_choice/yes_no questions with CSAT satisfaction mapping.
+    
+    This model stores metadata for each option separately from the encrypted options JSON,
+    allowing for efficient CSAT classification without decrypting all answers.
+    
+    For yes/no questions:
+    - Create 2 options: one for "Yes" and one for "No"
+    - Map each to appropriate satisfaction_value based on question context
+    - Example: "Did you experience problems?" - Yes=Dissatisfied(0), No=Satisfied(2)
+    - Example: "Are you satisfied?" - Yes=Satisfied(2), No=Dissatisfied(0)
+    """
+    
+    SATISFACTION_CHOICES = [
+        (2, 'Satisfied'),     # ممتاز، جيد، مرضي
+        (1, 'Neutral'),       # عادي، محايد، مقبول
+        (0, 'Dissatisfied')   # سيئ، غير مرضي
+    ]
+    
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+        related_name='option_mappings'
+    )
+    option_text = EncryptedCharField(
+        max_length=255,
+        help_text='Option text (encrypted). For yes/no: "yes", "no", "نعم", "لا"'
+    )
+    option_text_hash = models.CharField(
+        max_length=64,
+        blank=True,
+        db_index=True,
+        help_text='SHA256 hash of option text for efficient matching'
+    )
+    satisfaction_value = models.IntegerField(
+        null=True,
+        blank=True,
+        choices=SATISFACTION_CHOICES,
+        db_index=True,
+        help_text='CSAT satisfaction mapping (required when question.CSAT_Calculate=True for single_choice/yes_no)'
+    )
+    order = models.PositiveIntegerField(default=0)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'surveys_question_option'
+        verbose_name = 'Question Option'
+        verbose_name_plural = 'Question Options'
+        ordering = ['question', 'order']
+        indexes = [
+            models.Index(fields=['option_text_hash'], name='option_text_hash_idx'),
+            models.Index(fields=['satisfaction_value'], name='option_satisfaction_idx'),
+        ]
+        # Unique constraint on question + option_text_hash to prevent duplicates
+        constraints = [
+            models.UniqueConstraint(
+                fields=['question', 'option_text_hash'],
+                name='unique_question_option_hash'
+            )
+        ]
+    
+    def __str__(self):
+        satisfaction_str = dict(self.SATISFACTION_CHOICES).get(self.satisfaction_value, 'Unset')
+        return f"{self.option_text[:30]} ({satisfaction_str})"
+    
+    def save(self, *args, **kwargs):
+        """Override save to generate option_text hash"""
+        if self.option_text:
+            self.option_text_hash = hashlib.sha256(self.option_text.encode('utf-8')).hexdigest()
         super().save(*args, **kwargs)
 
 
@@ -1014,6 +1193,30 @@ class TemplateQuestion(models.Model):
         null=True,
         blank=True,
         help_text='Placeholder text in Arabic (encrypted)'
+    )
+    
+    # Analytics calculation flags (for templates to specify default analytics behavior)
+    NPS_Calculate = models.BooleanField(
+        default=False,
+        help_text='Default NPS calculation flag when creating survey from template'
+    )
+    
+    CSAT_Calculate = models.BooleanField(
+        default=False,
+        help_text='Default CSAT calculation flag when creating survey from template'
+    )
+    
+    # Scale metadata for rating questions in templates
+    min_scale = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text='Minimum value for rating scale (applied when creating survey from template)'
+    )
+    
+    max_scale = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text='Maximum value for rating scale (applied when creating survey from template)'
     )
     
     class Meta:
