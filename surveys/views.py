@@ -4498,8 +4498,8 @@ class SurveyAnalyticsDashboardView(APIView):
         if include_personal:
             unique_ips = responses.filter(ip_address__isnull=False).values('ip_address').distinct().count()
         
-        # Calculate NPS (Net Promoter Score) - detects 0-10 rating questions
-        nps_data = self._calculate_nps(survey, responses)
+        # Calculate NPS (Net Promoter Score) - detects rating questions with dynamic scale support
+        nps_data = self._calculate_nps_fixed(survey, responses)
         
         # Calculate CSAT (Customer Satisfaction Score) - detects satisfaction questions
         csat_data = self._calculate_csat(survey, responses)
@@ -5137,9 +5137,11 @@ class SurveyAnalyticsDashboardView(APIView):
         """
         Calculate CSAT tracking over time with Arabic support and satisfaction_value mapping.
         
-        Selection Priority:
-        1. PRIMARY: Question with CSAT_Calculate == True
-        2. FALLBACK 1: Question with semantic_tag == 'csat'
+        FIXED: Now aggregates ALL questions with CSAT_Calculate=True instead of just the first one.
+        
+        Selection Strategy:
+        1. PRIMARY: All questions with CSAT_Calculate == True (aggregated)
+        2. FALLBACK 1: All questions with semantic_tag == 'csat' (aggregated)
         3. FALLBACK 2: Intent matching (rating → yes/no → single_choice)
         
         Classification Methods:
@@ -5167,22 +5169,24 @@ class SurveyAnalyticsDashboardView(APIView):
         import pytz
         from datetime import datetime, timedelta
         
-        # Priority 1: Check for CSAT_Calculate flag
+        # Priority 1: Get ALL questions with CSAT_Calculate flag (not just the first!)
         valid_csat_types = ['single_choice', 'rating', 'yes_no', 'اختيار واحد', 'تقييم', 'نعم/لا']
-        csat_question = survey.questions.filter(
+        csat_questions = survey.questions.filter(
             question_type__in=valid_csat_types,
             CSAT_Calculate=True
-        ).first()
+        ).order_by('order')
         
-        if not csat_question:
-            # Priority 2: Check for semantic_tag
-            csat_question = survey.questions.filter(
+        if not csat_questions.exists():
+            # Priority 2: Check for semantic_tag (get all, not just first)
+            csat_questions = survey.questions.filter(
                 question_type__in=valid_csat_types,
                 semantic_tag='csat'
-            ).first()
+            ).order_by('order')
         
-        if not csat_question:
-            # Priority 3: Intent matching with priority order
+        if not csat_questions.exists():
+            # Priority 3: Intent matching with priority order (fallback to single question)
+            csat_question = None
+            
             # Rating questions first
             rating_questions = survey.questions.filter(
                 question_type__in=['rating', 'تقييم']
@@ -5217,10 +5221,12 @@ class SurveyAnalyticsDashboardView(APIView):
                     if match_intent(question_text, CSAT_KEYWORDS_AR) or match_intent(question_text, CSAT_KEYWORDS_EN):
                         csat_question = question
                         break
-        
-        if not csat_question:
-            logger.debug(f"No CSAT question found for survey {survey.id}")
-            return []
+            
+            if csat_question:
+                csat_questions = [csat_question]
+            else:
+                logger.debug(f"No CSAT question found for survey {survey.id}")
+                return []
         
         # Get grouping parameters
         group_by = params.get('group_by', 'day')
@@ -5235,144 +5241,154 @@ class SurveyAnalyticsDashboardView(APIView):
             logger.warning(f"Invalid timezone '{tz_str}', using fallback 'Asia/Dubai'")
             tz = pytz.timezone('Asia/Dubai')
         
-        # Get all answers for this question (only complete responses)
-        answers = Answer.objects.filter(
-            question=csat_question,
-            response__in=responses.filter(is_complete=True)
-        ).select_related('response').order_by('response__submitted_at')
-        
-        if not answers.exists():
-            logger.debug(f"No answers found for CSAT question {csat_question.id}")
-            return []
-        
-        # Group answers by period
+        # Group answers by period - aggregate ALL CSAT questions
         period_data = defaultdict(lambda: {'satisfied': 0, 'neutral': 0, 'dissatisfied': 0})
+        total_questions_processed = 0
         
-        # Preload QuestionOption mappings if single_choice or yes_no
-        option_mappings = {}
-        if csat_question.question_type in ['single_choice', 'اختيار واحد', 'yes_no', 'نعم/لا']:
-            from .models import QuestionOption
-            for opt in QuestionOption.objects.filter(question=csat_question):
-                option_mappings[opt.option_text_hash] = opt.satisfaction_value
-        
-        for answer in answers:
-            try:
-                if not answer.response.submitted_at:
-                    continue
-                
-                # Convert to local timezone
-                local_dt = answer.response.submitted_at.astimezone(tz)
-                
-                # Calculate period key
-                if group_by == 'day':
-                    period = local_dt.strftime('%Y-%m-%d')
-                elif group_by == 'week':
-                    # Week starts on Sunday (UAE standard)
-                    days_since_sunday = (local_dt.weekday() + 1) % 7
-                    week_start = local_dt.date() - timedelta(days=days_since_sunday)
-                    period = week_start.strftime('%Y-W%U')
-                else:  # month
-                    period = local_dt.strftime('%Y-%m')
-                
-                # Classify the answer
-                classification = 'unknown'
-                
-                if csat_question.question_type in ['single_choice', 'اختيار واحد']:
-                    # PRIMARY: Try satisfaction_value mapping
-                    answer_hash = hashlib.sha256(answer.answer_text.encode('utf-8')).hexdigest()
-                    if answer_hash in option_mappings:
-                        sat_value = option_mappings[answer_hash]
-                        if sat_value == 2:
-                            classification = 'satisfied'
-                        elif sat_value == 1:
-                            classification = 'neutral'
-                        elif sat_value == 0:
-                            classification = 'dissatisfied'
-                    else:
-                        # FALLBACK: Keyword-based classification
-                        classification = classify_csat_choice(answer.answer_text)
-                
-                elif csat_question.question_type in ['rating', 'تقييم']:
-                    # Extract numeric value
-                    value = extract_number(answer.answer_text)
-                    if value is None:
-                        logger.debug(f"Could not extract number from rating answer: {answer.answer_text[:50]}")
+        # Process each CSAT question and aggregate results
+        for csat_question in csat_questions:
+            logger.debug(f"Processing CSAT question {csat_question.id}: {csat_question.text[:50]}")
+            
+            # Get all answers for this specific question (only complete responses)
+            answers = Answer.objects.filter(
+                question=csat_question,
+                response__in=responses.filter(is_complete=True)
+            ).select_related('response').order_by('response__submitted_at')
+            
+            if not answers.exists():
+                logger.debug(f"No answers found for CSAT question {csat_question.id}")
+                continue
+            
+            total_questions_processed += 1
+            
+            # Preload QuestionOption mappings if single_choice or yes_no
+            option_mappings = {}
+            if csat_question.question_type in ['single_choice', 'اختيار واحد', 'yes_no', 'نعم/لا']:
+                from .models import QuestionOption
+                for opt in QuestionOption.objects.filter(question=csat_question):
+                    option_mappings[opt.option_text_hash] = opt.satisfaction_value
+            
+            for answer in answers:
+                try:
+                    if not answer.response.submitted_at:
                         continue
                     
-                    # Check for explicit scale metadata
-                    min_scale = csat_question.min_scale if csat_question.min_scale is not None else None
-                    max_scale = csat_question.max_scale if csat_question.max_scale is not None else None
+                    # Convert to local timezone
+                    local_dt = answer.response.submitted_at.astimezone(tz)
                     
-                    # Auto-detect scale if not explicit
-                    if min_scale is None or max_scale is None:
-                        # We'll use the value itself to infer scale
-                        if value <= 5:
-                            min_scale, max_scale = 1, 5
-                        elif value <= 10:
-                            min_scale, max_scale = 1, 10
+                    # Calculate period key
+                    if group_by == 'day':
+                        period = local_dt.strftime('%Y-%m-%d')
+                    elif group_by == 'week':
+                        # Week starts on Sunday (UAE standard)
+                        days_since_sunday = (local_dt.weekday() + 1) % 7
+                        week_start = local_dt.date() - timedelta(days=days_since_sunday)
+                        period = week_start.strftime('%Y-W%U')
+                    else:  # month
+                        period = local_dt.strftime('%Y-%m')
+                    
+                    # Classify the answer
+                    classification = 'unknown'
+                    
+                    if csat_question.question_type in ['single_choice', 'اختيار واحد']:
+                        # PRIMARY: Try satisfaction_value mapping
+                        answer_hash = hashlib.sha256(answer.answer_text.encode('utf-8')).hexdigest()
+                        if answer_hash in option_mappings:
+                            sat_value = option_mappings[answer_hash]
+                            if sat_value == 2:
+                                classification = 'satisfied'
+                            elif sat_value == 1:
+                                classification = 'neutral'
+                            elif sat_value == 0:
+                                classification = 'dissatisfied'
                         else:
-                            # Custom scale - can't auto-detect reliably
-                            logger.warning(f"Cannot auto-detect scale for value {value}")
+                            # FALLBACK: Keyword-based classification
+                            classification = classify_csat_choice(answer.answer_text)
+                    
+                    elif csat_question.question_type in ['rating', 'تقييم']:
+                        # Extract numeric value
+                        value = extract_number(answer.answer_text)
+                        if value is None:
+                            logger.debug(f"Could not extract number from rating answer: {answer.answer_text[:50]}")
                             continue
+                        
+                        # Check for explicit scale metadata
+                        min_scale = csat_question.min_scale if csat_question.min_scale is not None else None
+                        max_scale = csat_question.max_scale if csat_question.max_scale is not None else None
+                        
+                        # Auto-detect scale if not explicit
+                        if min_scale is None or max_scale is None:
+                            # We'll use the value itself to infer scale
+                            if value <= 5:
+                                min_scale, max_scale = 1, 5
+                            elif value <= 10:
+                                min_scale, max_scale = 1, 10
+                            else:
+                                # Custom scale - can't auto-detect reliably
+                                logger.warning(f"Cannot auto-detect scale for value {value}")
+                                continue
+                        
+                        # Apply thresholds
+                        span = max_scale - min_scale
+                        if max_scale <= 5:
+                            # 1-5 scale: 4-5 = satisfied, 3 = neutral, 1-2 = dissatisfied
+                            if value >= min_scale + 0.6 * span:
+                                classification = 'satisfied'
+                            elif value >= min_scale + 0.4 * span:
+                                classification = 'neutral'
+                            else:
+                                classification = 'dissatisfied'
+                        elif max_scale <= 10:
+                            # 1-10 scale: 8-10 = satisfied, 6-7 = neutral, 1-5 = dissatisfied
+                            if value >= min_scale + 0.7 * span:
+                                classification = 'satisfied'
+                            elif value >= min_scale + 0.5 * span:
+                                classification = 'neutral'
+                            else:
+                                classification = 'dissatisfied'
+                        else:
+                            # Custom scale: percentile-based
+                            if value >= min_scale + 0.8 * span:
+                                classification = 'satisfied'
+                            elif value >= min_scale + 0.4 * span:
+                                classification = 'neutral'
+                            else:
+                                classification = 'dissatisfied'
                     
-                    # Apply thresholds
-                    span = max_scale - min_scale
-                    if max_scale <= 5:
-                        # 1-5 scale: 4-5 = satisfied, 3 = neutral, 1-2 = dissatisfied
-                        if value >= min_scale + 0.6 * span:
-                            classification = 'satisfied'
-                        elif value >= min_scale + 0.4 * span:
-                            classification = 'neutral'
+                    elif csat_question.question_type in ['yes_no', 'نعم/لا']:
+                        # PRIMARY: Try satisfaction_value mapping
+                        answer_hash = hashlib.sha256(answer.answer_text.encode('utf-8')).hexdigest()
+                        if answer_hash in option_mappings:
+                            sat_value = option_mappings[answer_hash]
+                            if sat_value == 2:
+                                classification = 'satisfied'
+                            elif sat_value == 1:
+                                classification = 'neutral'
+                            elif sat_value == 0:
+                                classification = 'dissatisfied'
                         else:
-                            classification = 'dissatisfied'
-                    elif max_scale <= 10:
-                        # 1-10 scale: 8-10 = satisfied, 6-7 = neutral, 1-5 = dissatisfied
-                        if value >= min_scale + 0.7 * span:
-                            classification = 'satisfied'
-                        elif value >= min_scale + 0.5 * span:
-                            classification = 'neutral'
-                        else:
-                            classification = 'dissatisfied'
-                    else:
-                        # Custom scale: percentile-based
-                        if value >= min_scale + 0.8 * span:
-                            classification = 'satisfied'
-                        elif value >= min_scale + 0.4 * span:
-                            classification = 'neutral'
-                        else:
-                            classification = 'dissatisfied'
-                
-                elif csat_question.question_type in ['yes_no', 'نعم/لا']:
-                    # PRIMARY: Try satisfaction_value mapping
-                    answer_hash = hashlib.sha256(answer.answer_text.encode('utf-8')).hexdigest()
-                    if answer_hash in option_mappings:
-                        sat_value = option_mappings[answer_hash]
-                        if sat_value == 2:
-                            classification = 'satisfied'
-                        elif sat_value == 1:
-                            classification = 'neutral'
-                        elif sat_value == 0:
-                            classification = 'dissatisfied'
-                    else:
-                        # FALLBACK: Keyword-based yes/no normalization
-                        result = yes_no_normalize(answer.answer_text)
-                        if result == 'yes':
-                            classification = 'satisfied'
-                        elif result == 'no':
-                            classification = 'dissatisfied'
-                        else:
-                            classification = 'neutral'
-                
-                # Increment counter
-                if classification in ['satisfied', 'neutral', 'dissatisfied']:
-                    period_data[period][classification] += 1
-                else:
-                    # Unknown classifications count as neutral (configurable)
-                    period_data[period]['neutral'] += 1
+                            # FALLBACK: Keyword-based yes/no normalization
+                            result = yes_no_normalize(answer.answer_text)
+                            if result == 'yes':
+                                classification = 'satisfied'
+                            elif result == 'no':
+                                classification = 'dissatisfied'
+                            else:
+                                classification = 'neutral'
                     
-            except Exception as e:
-                logger.warning(f"Error processing answer {answer.id} for CSAT tracking: {e}")
-                continue
+                    # Increment counter
+                    if classification in ['satisfied', 'neutral', 'dissatisfied']:
+                        period_data[period][classification] += 1
+                    else:
+                        # Unknown classifications count as neutral (configurable)
+                        period_data[period]['neutral'] += 1
+                        
+                except Exception as e:
+                    logger.warning(f"Error processing answer {answer.id} for CSAT tracking: {e}")
+                    continue
+        
+        if total_questions_processed > 1:
+            logger.info(f"CSAT tracking aggregated {total_questions_processed} questions with CSAT_Calculate=True for survey {survey.id}")
         
         # Build result array
         result = []
