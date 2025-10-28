@@ -52,7 +52,7 @@ if DEBUG:
 else:
     # Production: parse from ALLOWED_HOST environment variable
     env_hosts = parse_allowed_hosts(os.getenv('ALLOWED_HOST', 'localhost'))
-    ALLOWED_HOSTS = env_hosts + ['127.0.0.1', 'localhost']
+    ALLOWED_HOSTS = env_hosts + ['127.0.0.1', 'localhost', 'lightidea.org']
 
 
 # Application definition
