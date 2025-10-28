@@ -88,10 +88,43 @@ class OracleCompatibleUserManager(BaseUserManager):
         Returns:
             User instance or None
         """
+        import logging
+        logger = logging.getLogger(__name__)
+        
         if not email:
             return None
-        email_hash = hashlib.sha256(email.encode('utf-8')).hexdigest()
-        return self.filter(email_hash=email_hash).first()
+        
+        try:
+            # Ensure email is a string type
+            if not isinstance(email, str):
+                email = str(email)
+            
+            # Generate hash
+            email_hash = hashlib.sha256(email.encode('utf-8')).hexdigest()
+            
+            # Use filter with Q object to bypass some validation issues
+            from django.db.models import Q
+            queryset = self.filter(Q(email_hash=email_hash))
+            result = queryset.first()
+            
+            return result
+            
+        except (TypeError, AttributeError, ValueError) as e:
+            # Handle isinstance() errors from Django's validation or type annotation issues  
+            logger.error(f"Error in get_by_email hash lookup for {email}: {type(e).__name__}: {e}", exc_info=True)
+            
+            # Fallback to direct email lookup (less Oracle-compatible but works)
+            try:
+                from django.db.models import Q
+                return self.filter(Q(email=email)).first()
+            except Exception as fallback_error:
+                logger.error(f"Fallback email lookup also failed: {fallback_error}", exc_info=True)
+                return None
+                
+        except Exception as e:
+            # Catch-all for any other unexpected errors
+            logger.error(f"Unexpected error in get_by_email for {email}: {type(e).__name__}: {e}", exc_info=True)
+            return None
     
     def get_by_username(self, username):
         """

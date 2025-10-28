@@ -2891,3 +2891,171 @@ INFO 2025-10-27 12:45:43,539 dual_auth 12392 9448 User seif778811@gmail.com auth
 INFO 2025-10-27 12:45:43,539 views 12392 9448 Building queryset for user seif778811@gmail.com
 INFO 2025-10-27 12:45:43,541 views 12392 9448 Successfully built queryset for user seif778811@gmail.com
 INFO 2025-10-27 12:46:23,298 views 22872 9248 CSAT tracking aggregated 2 questions with CSAT_Calculate=True for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-27 13:02:33,908 dual_auth 2576 20672 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:02:33,909 dual_auth 2576 3876 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:08:25,834 views 20088 16304 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-10-27 13:08:25,854 dual_auth 20088 16304 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:08:25,854 views 20088 16304 User profile accessed: seif778811@gmail.com
+INFO 2025-10-27 13:08:31,939 dual_auth 20088 16304 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:08:32,007 dual_auth 20088 20972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:08:32,863 views 20088 20972 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-10-27 13:08:32,945 dual_auth 20088 20972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:08:33,082 views 20088 20972 User profile accessed: seif778811@gmail.com
+INFO 2025-10-27 13:08:33,123 dual_auth 20088 16304 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:08:33,455 dual_auth 20088 10932 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:08:39,126 dual_auth 20088 10932 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:08:39,131 views 20088 10932 User logged out without token blacklisting: seif778811@gmail.com
+INFO 2025-10-27 13:09:30,838 serializers 20088 10932 Looking for user with email: seif778811@gmail.com
+INFO 2025-10-27 13:09:30,842 serializers 20088 10932 User found: seif778811@gmail.com (super_admin)
+INFO 2025-10-27 13:09:30,842 serializers 20088 10932 Authenticating with username: seif778811@gmail.com
+INFO 2025-10-27 13:09:32,542 serializers 20088 10932 Authentication result: seif778811@gmail.com (super_admin)
+INFO 2025-10-27 13:09:32,542 serializers 20088 10932 Validation successful
+INFO 2025-10-27 13:09:32,562 views 20088 10932 User logged in: seif778811@gmail.com
+INFO 2025-10-27 13:09:33,501 dual_auth 20088 10932 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:09:33,502 views 20088 10932 Building queryset for user seif778811@gmail.com
+INFO 2025-10-27 13:09:33,506 views 20088 10932 Successfully built queryset for user seif778811@gmail.com
+INFO 2025-10-27 13:09:37,417 dual_auth 20088 16304 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:09:37,418 dual_auth 20088 10932 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:16:56,310 dual_auth 12100 3828 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:16:56,312 views 12100 3828 User logged out without token blacklisting: seif778811@gmail.com
+INFO 2025-10-27 13:16:58,501 serializers 12100 3828 Looking for user with email: seif778811@gmail.com
+INFO 2025-10-27 13:16:59,249 serializers 12100 3828 User found: seif778811@gmail.com (super_admin)
+INFO 2025-10-27 13:16:59,250 serializers 12100 3828 Authenticating with username: seif778811@gmail.com
+INFO 2025-10-27 13:17:01,053 serializers 12100 3828 Authentication result: seif778811@gmail.com (super_admin)
+INFO 2025-10-27 13:17:01,053 serializers 12100 3828 Validation successful
+INFO 2025-10-27 13:17:01,445 views 12100 3828 User logged in: seif778811@gmail.com
+INFO 2025-10-27 13:17:02,402 dual_auth 12100 3828 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:17:02,402 views 12100 3828 Building queryset for user seif778811@gmail.com
+INFO 2025-10-27 13:17:02,495 views 12100 3828 Successfully built queryset for user seif778811@gmail.com
+INFO 2025-10-27 13:17:11,714 dual_auth 12100 3828 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:17:11,810 dual_auth 12100 1068 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:17:19,781 dual_auth 12100 1068 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:17:19,939 views 12100 1068 Successfully retrieved survey 81c28e34-f83e-4821-8f7a-b8d9c867f946: استطلاع الاول ما قبل الtemplete
+INFO 2025-10-27 13:17:19,943 views 12100 1068 Successfully serialized survey 81c28e34-f83e-4821-8f7a-b8d9c867f946
+INFO 2025-10-27 13:17:49,582 dual_auth 20008 12656 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:17:49,738 models 20008 12656 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-27 13:17:49,739 models 20008 12656 Survey.save() - per_device_access final value: False
+INFO 2025-10-27 13:17:49,986 views 20008 12656 Survey 81c28e34-f83e-4821-8f7a-b8d9c867f946 deleted by seif778811@gmail.com (role: super_admin)
+INFO 2025-10-27 13:17:50,798 dual_auth 20008 5600 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 13:17:50,834 dual_auth 20008 17336 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 14:31:20,282 serializers 23832 23920 Looking for user with email: seif778811@gmail.com
+INFO 2025-10-27 14:31:21,900 serializers 23832 23920 User found: seif778811@gmail.com (super_admin)
+INFO 2025-10-27 14:31:21,900 serializers 23832 23920 Authenticating with username: seif778811@gmail.com
+INFO 2025-10-27 14:31:23,540 serializers 23832 23920 Authentication result: seif778811@gmail.com (super_admin)
+INFO 2025-10-27 14:31:23,540 serializers 23832 23920 Validation successful
+INFO 2025-10-27 14:31:23,927 views 23832 23920 User logged in: seif778811@gmail.com
+INFO 2025-10-27 14:31:25,131 dual_auth 23832 23920 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-27 14:31:25,132 views 23832 23920 Building queryset for user seif778811@gmail.com
+INFO 2025-10-27 14:31:25,210 views 23832 23920 Successfully built queryset for user seif778811@gmail.com
+INFO 2025-10-28 10:53:11,858 serializers 24208 3496 Looking for user with email: seif778811@gmail.com
+INFO 2025-10-28 10:53:15,828 serializers 24208 3496 User found: seif778811@gmail.com (super_admin)
+INFO 2025-10-28 10:53:15,828 serializers 24208 3496 Authenticating with username: seif778811@gmail.com
+INFO 2025-10-28 10:53:17,653 serializers 24208 3496 Authentication result: seif778811@gmail.com (super_admin)
+INFO 2025-10-28 10:53:17,653 serializers 24208 3496 Validation successful
+INFO 2025-10-28 10:53:20,741 views 24208 3496 User logged in: seif778811@gmail.com
+INFO 2025-10-28 10:53:27,866 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:53:27,867 views 24208 20744 Building queryset for user seif778811@gmail.com
+INFO 2025-10-28 10:53:28,023 views 24208 20744 Successfully built queryset for user seif778811@gmail.com
+INFO 2025-10-28 10:53:46,632 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:53:46,632 views 24208 20744 Building queryset for user seif778811@gmail.com
+INFO 2025-10-28 10:53:46,770 views 24208 20744 Successfully built queryset for user seif778811@gmail.com
+INFO 2025-10-28 10:53:59,874 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:54:58,415 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:54:58,521 dual_auth 24208 21604 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:55:10,064 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:55:22,024 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:55:22,184 views 24208 20744 Found survey 71ad5153-bac7-4c8a-920c-e8d13d900c70: SURVERY TEST SYAM
+INFO 2025-10-28 10:55:22,184 views 24208 20744 Analytics access granted to user 1 (role: super_admin) for survey 71ad5153-bac7-4c8a-920c-e8d13d900c70
+INFO 2025-10-28 10:55:22,185 views 24208 20744 Successfully parsed query parameters for survey 71ad5153-bac7-4c8a-920c-e8d13d900c70
+INFO 2025-10-28 10:55:22,262 views 24208 20744 Retrieved 2 responses for survey 71ad5153-bac7-4c8a-920c-e8d13d900c70 analytics
+INFO 2025-10-28 10:55:24,268 views 24208 20744 Successfully generated analytics dashboard for survey 71ad5153-bac7-4c8a-920c-e8d13d900c70
+INFO 2025-10-28 10:55:25,205 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:55:25,361 views 24208 20744 Successfully retrieved survey 71ad5153-bac7-4c8a-920c-e8d13d900c70: SURVERY TEST SYAM
+INFO 2025-10-28 10:55:25,361 views 24208 20744 Successfully serialized survey 71ad5153-bac7-4c8a-920c-e8d13d900c70
+INFO 2025-10-28 10:55:40,862 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:56:00,679 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:56:00,697 dual_auth 24208 21604 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:56:09,230 dual_auth 24208 21604 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:56:13,672 dual_auth 24208 21604 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:56:13,904 views 24208 21604 Found survey a1238c6f-16fc-42eb-ae74-30a071583f49: اختبار الاستطلاع
+INFO 2025-10-28 10:56:13,905 views 24208 21604 Analytics access granted to user 1 (role: super_admin) for survey a1238c6f-16fc-42eb-ae74-30a071583f49
+INFO 2025-10-28 10:56:13,906 views 24208 21604 Successfully parsed query parameters for survey a1238c6f-16fc-42eb-ae74-30a071583f49
+INFO 2025-10-28 10:56:13,981 views 24208 21604 Retrieved 1 responses for survey a1238c6f-16fc-42eb-ae74-30a071583f49 analytics
+INFO 2025-10-28 10:56:16,181 views 24208 21604 Successfully generated analytics dashboard for survey a1238c6f-16fc-42eb-ae74-30a071583f49
+INFO 2025-10-28 10:56:17,087 dual_auth 24208 21604 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:56:17,311 views 24208 21604 Successfully retrieved survey a1238c6f-16fc-42eb-ae74-30a071583f49: اختبار الاستطلاع
+INFO 2025-10-28 10:56:17,312 views 24208 21604 Successfully serialized survey a1238c6f-16fc-42eb-ae74-30a071583f49
+INFO 2025-10-28 10:56:23,246 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:56:23,253 dual_auth 24208 21604 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:56:25,698 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:58:01,870 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:58:02,169 views 24208 17972 Predefined template created from survey structure: a8b12b9e-e6f9-46c8-91bd-4a444da8dd83 (تجربه لى طارق) with 2 questions by seif778811@gmail.com
+INFO 2025-10-28 10:58:05,689 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:58:05,689 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:58:13,500 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:58:13,837 views 24208 17972 Current link retrieved for survey 71ad5153-bac7-4c8a-920c-e8d13d900c70 by seif778811@gmail.com
+INFO 2025-10-28 10:58:14,726 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:58:15,332 views 24208 17972 Current link retrieved for survey 71ad5153-bac7-4c8a-920c-e8d13d900c70 by seif778811@gmail.com
+INFO 2025-10-28 10:58:40,860 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:58:40,867 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:58:58,653 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 10:58:58,653 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:00:14,731 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:00:14,735 serializers 24208 20744 Serializer create - per_device_access: False
+INFO 2025-10-28 11:00:14,735 serializers 24208 20744 Serializer create - all validated_data keys: ['title', 'description', 'visibility', 'is_active', 'start_date', 'end_date', 'per_device_access', 'questions', 'status', 'creator']
+INFO 2025-10-28 11:00:14,735 serializers 24208 20744 About to create survey with data: {'title': 'اختبار لى طارق', 'description': '', 'visibility': 'AUTH', 'is_active': True, 'start_date': None, 'end_date': None, 'per_device_access': False, 'status': 'draft', 'creator': <User: seif778811@gmail.com (super_admin)>}
+INFO 2025-10-28 11:00:14,736 models 24208 20744 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-28 11:00:14,736 models 24208 20744 Survey.save() - per_device_access final value: False
+INFO 2025-10-28 11:00:15,515 serializers 24208 20744 Survey created: b7b8b36d-2c84-4308-a88e-3e6801859b0c with 2 questions by seif778811@gmail.com
+INFO 2025-10-28 11:00:22,956 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:00:23,129 models 24208 20744 Survey.save() - per_device_access before check: True (type: <class 'bool'>)
+INFO 2025-10-28 11:00:23,130 models 24208 20744 Survey.save() - per_device_access final value: True
+INFO 2025-10-28 11:00:23,418 serializers 24208 20744 Survey updated: b7b8b36d-2c84-4308-a88e-3e6801859b0c with 0 questions
+INFO 2025-10-28 11:00:23,419 views 24208 20744 Survey b7b8b36d-2c84-4308-a88e-3e6801859b0c visibility changed to PUBLIC from AUTH. Existing tokens remain active.
+INFO 2025-10-28 11:00:23,420 views 24208 20744 Survey b7b8b36d-2c84-4308-a88e-3e6801859b0c updated by seif778811@gmail.com (role: super_admin)
+INFO 2025-10-28 11:00:27,416 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:00:28,214 views 24208 20744 Auto-generated public link for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c by seif778811@gmail.com
+INFO 2025-10-28 11:00:29,161 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:00:29,315 models 24208 20744 Survey.save() - per_device_access before check: True (type: <class 'bool'>)
+INFO 2025-10-28 11:00:29,316 models 24208 20744 Survey.save() - per_device_access final value: True
+INFO 2025-10-28 11:00:29,572 signals 24208 20744 Survey b7b8b36d-2c84-4308-a88e-3e6801859b0c was published, sending availability notifications
+INFO 2025-10-28 11:00:29,573 views 24208 20744 Skipped sending survey availability notifications for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c as send_notifications was not requested
+INFO 2025-10-28 11:00:33,565 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:00:33,616 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:00:38,883 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:00:49,586 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:00:49,893 views 24208 17972 Current link retrieved for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c by seif778811@gmail.com
+INFO 2025-10-28 11:00:50,836 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:00:51,159 views 24208 17972 Current link retrieved for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c by seif778811@gmail.com
+INFO 2025-10-28 11:01:19,659 signals 24208 17972 Sent survey completed notification to seif778811@gmail.com for response 998c480d-8298-47da-a6eb-c986050f808c to survey b7b8b36d-2c84-4308-a88e-3e6801859b0c
+INFO 2025-10-28 11:01:20,418 views 24208 17972 Survey response submitted: 998c480d-8298-47da-a6eb-c986050f808c for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c by email None
+INFO 2025-10-28 11:01:26,320 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:01:35,422 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:01:35,577 views 24208 17972 Found survey b7b8b36d-2c84-4308-a88e-3e6801859b0c: اختبار لى طارق
+INFO 2025-10-28 11:01:35,577 views 24208 17972 Analytics access granted to user 1 (role: super_admin) for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c
+INFO 2025-10-28 11:01:35,577 views 24208 17972 Successfully parsed query parameters for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c
+INFO 2025-10-28 11:01:35,655 views 24208 17972 Retrieved 1 responses for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c analytics
+INFO 2025-10-28 11:01:39,637 views 24208 17972 CSAT tracking aggregated 2 questions with CSAT_Calculate=True for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c
+INFO 2025-10-28 11:01:39,638 views 24208 17972 Successfully generated analytics dashboard for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c
+INFO 2025-10-28 11:01:40,567 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:01:41,004 views 24208 17972 Successfully retrieved survey b7b8b36d-2c84-4308-a88e-3e6801859b0c: اختبار لى طارق
+INFO 2025-10-28 11:01:41,004 views 24208 17972 Successfully serialized survey b7b8b36d-2c84-4308-a88e-3e6801859b0c
+INFO 2025-10-28 11:01:56,602 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:02:01,804 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:02:14,183 dual_auth 24208 17972 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:02:14,212 dual_auth 24208 20744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:10:20,621 dual_auth 24208 8980 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:10:31,930 dual_auth 24208 8980 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:10:32,080 views 24208 8980 Found survey b7b8b36d-2c84-4308-a88e-3e6801859b0c: اختبار لى طارق
+INFO 2025-10-28 11:10:32,080 views 24208 8980 Analytics access granted to user 1 (role: super_admin) for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c
+INFO 2025-10-28 11:10:32,080 views 24208 8980 Successfully parsed query parameters for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c
+INFO 2025-10-28 11:10:32,201 views 24208 8980 Retrieved 1 responses for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c analytics
+INFO 2025-10-28 11:10:35,859 views 24208 8980 CSAT tracking aggregated 2 questions with CSAT_Calculate=True for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c
+INFO 2025-10-28 11:10:35,860 views 24208 8980 Successfully generated analytics dashboard for survey b7b8b36d-2c84-4308-a88e-3e6801859b0c
+INFO 2025-10-28 11:10:36,863 dual_auth 24208 8980 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:10:37,058 views 24208 8980 Successfully retrieved survey b7b8b36d-2c84-4308-a88e-3e6801859b0c: اختبار لى طارق
+INFO 2025-10-28 11:10:37,058 views 24208 8980 Successfully serialized survey b7b8b36d-2c84-4308-a88e-3e6801859b0c
+INFO 2025-10-28 11:11:33,166 dual_auth 24208 8980 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:22:55,134 dual_auth 24208 18464 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 11:22:55,135 views 24208 18464 User logged out without token blacklisting: seif778811@gmail.com
+INFO 2025-10-28 11:36:32,855 signals 15216 19140 Sent welcome notification to new user test_user@example.com

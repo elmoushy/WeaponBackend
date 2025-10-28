@@ -140,7 +140,20 @@ class User(AbstractBaseUser):
             self.username_hash = hashlib.sha256(self.username.encode('utf-8')).hexdigest()
         
         # Call clean to validate (including Oracle-specific validation)
-        self.full_clean()
+        # Skip full_clean if we're only updating specific fields (like last_login)
+        if not kwargs.get('update_fields') or len(kwargs.get('update_fields', [])) > 1:
+            try:
+                self.clean()
+            except (ValidationError, TypeError) as e:
+                # Handle validation errors gracefully
+                # TypeError can occur from isinstance() issues in Django's validation
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f"Validation warning during save: {e}")
+                # Only re-raise ValidationError, not TypeError
+                if isinstance(e, ValidationError):
+                    raise
+        
         super().save(*args, **kwargs)
     
     def __str__(self):

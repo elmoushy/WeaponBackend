@@ -390,27 +390,39 @@ class UserLoginSerializer(serializers.Serializer):
             try:
                 logger.info(f"Looking for user with email: {email}")
                 user = User.objects.get_by_email(email)
-                logger.info(f"User found: {user}")
-                if not user or user.auth_type != 'regular':
-                    logger.warning(f"Invalid user or auth_type for {email}")
+                
+                if not user:
+                    logger.warning(f"User not found for email: {email}")
                     raise serializers.ValidationError("Invalid email or password.")
-            except Exception as e:
-                logger.error(f"Error in get_by_email for {email}: {e}")
+                
+                logger.info(f"User found: {user.email}")
+                
+                if user.auth_type != 'regular':
+                    logger.warning(f"Invalid auth_type for {email}: {user.auth_type}")
+                    raise serializers.ValidationError("Invalid email or password.")
+                    
+            except serializers.ValidationError:
+                # Re-raise validation errors
+                raise
+            except (TypeError, AttributeError, Exception) as e:
+                # Handle isinstance errors from Django's validation or other unexpected errors
+                logger.error(f"Error in get_by_email for {email}: {type(e).__name__}: {e}")
                 raise serializers.ValidationError("Invalid email or password.")
             
             # Authenticate user using username field
             logger.info(f"Authenticating with username: {user.username}")
-            user = authenticate(username=user.username, password=password)
-            logger.info(f"Authentication result: {user}")
-            if not user:
+            authenticated_user = authenticate(username=user.username, password=password)
+            logger.info(f"Authentication result: {'Success' if authenticated_user else 'Failed'}")
+            
+            if not authenticated_user:
                 logger.warning(f"Authentication failed for username: {user.username}")
                 raise serializers.ValidationError("Invalid email or password.")
             
-            if not user.is_active:
-                logger.warning(f"User account is disabled: {user.username}")
+            if not authenticated_user.is_active:
+                logger.warning(f"User account is disabled: {authenticated_user.username}")
                 raise serializers.ValidationError("User account is disabled.")
             
-            data['user'] = user
+            data['user'] = authenticated_user
             logger.info("Validation successful")
         else:
             raise serializers.ValidationError("Email and password are required.")
