@@ -121,16 +121,16 @@ class User(AbstractBaseUser):
             
             if self.email:
                 email_hash = hashlib.sha256(self.email.encode('utf-8')).hexdigest()
-                # Use CAST for NVARCHAR2 comparison
+                # Use N prefix for NVARCHAR2 comparison
+                safe_hash = email_hash.replace("'", "''")
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        """
+                        f"""
                         SELECT id FROM auth_user 
-                        WHERE email_hash = CAST(:email_hash AS NVARCHAR2(128))
-                        AND id != :current_id
+                        WHERE email_hash = N'{safe_hash}'
+                        AND id != {self.pk or 0}
                         AND ROWNUM = 1
-                        """,
-                        {'email_hash': email_hash, 'current_id': self.pk or 0}
+                        """
                     )
                     if cursor.fetchone():
                         from django.core.exceptions import ValidationError
@@ -138,16 +138,16 @@ class User(AbstractBaseUser):
             
             if self.username:
                 username_hash = hashlib.sha256(self.username.encode('utf-8')).hexdigest()
-                # Use CAST for NVARCHAR2 comparison
+                # Use N prefix for NVARCHAR2 comparison
+                safe_hash = username_hash.replace("'", "''")
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        """
+                        f"""
                         SELECT id FROM auth_user 
-                        WHERE username_hash = CAST(:username_hash AS NVARCHAR2(128))
-                        AND id != :current_id
+                        WHERE username_hash = N'{safe_hash}'
+                        AND id != {self.pk or 0}
                         AND ROWNUM = 1
-                        """,
-                        {'username_hash': username_hash, 'current_id': self.pk or 0}
+                        """
                     )
                     if cursor.fetchone():
                         from django.core.exceptions import ValidationError

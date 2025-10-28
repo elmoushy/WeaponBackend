@@ -109,16 +109,21 @@ class OracleCompatibleUserManager(BaseUserManager):
             from django.db import connection
             
             if is_oracle_db():
-                # Use raw SQL with explicit type handling for Oracle
-                # CRITICAL: NVARCHAR2 fields need explicit casting to avoid ORA-01722
+                # Use raw SQL with N prefix for NVARCHAR2 fields
+                # Oracle's oracledb driver has issues with NVARCHAR2 bind parameters
+                # The N'...' prefix is required to match NVARCHAR2 columns
                 with connection.cursor() as cursor:
-                    # Cast both sides to NVARCHAR2 explicitly to avoid type conversion errors
-                    sql = """
+                    # Use parameterized query for security (Django will handle escaping)
+                    # Then wrap the parameter value with N prefix in the SQL
+                    from django.db import models
+                    # Escape single quotes in hash (though hash is hex, this is for safety)
+                    safe_hash = email_hash.replace("'", "''")
+                    sql = f"""
                         SELECT id FROM auth_user 
-                        WHERE email_hash = CAST(:email_hash AS NVARCHAR2(128))
+                        WHERE email_hash = N'{safe_hash}'
                         AND ROWNUM = 1
                     """
-                    cursor.execute(sql, {'email_hash': email_hash})
+                    cursor.execute(sql)
                     row = cursor.fetchone()
                     
                     if row:
@@ -165,15 +170,16 @@ class OracleCompatibleUserManager(BaseUserManager):
         from django.db import connection
         
         if is_oracle_db():
-            # Use raw SQL with explicit type handling for Oracle
-            # CRITICAL: NVARCHAR2 fields need explicit casting
+            # Use raw SQL with N prefix for NVARCHAR2 fields
             with connection.cursor() as cursor:
-                sql = """
+                # Escape single quotes (hash is hex so this is just safety)
+                safe_hash = username_hash.replace("'", "''")
+                sql = f"""
                     SELECT id FROM auth_user 
-                    WHERE username_hash = CAST(:username_hash AS NVARCHAR2(128))
+                    WHERE username_hash = N'{safe_hash}'
                     AND ROWNUM = 1
                 """
-                cursor.execute(sql, {'username_hash': username_hash})
+                cursor.execute(sql)
                 row = cursor.fetchone()
                 
                 if row:
@@ -200,12 +206,12 @@ class OracleCompatibleUserManager(BaseUserManager):
         from .oracle_utils import is_oracle_db
         
         if is_oracle_db():
-            # Use raw SQL with NVARCHAR2 cast for Oracle
+            # Use raw SQL with N prefix for NVARCHAR2 fields
             from django.db import connection
             with connection.cursor() as cursor:
+                safe_hash = email_hash.replace("'", "''")
                 cursor.execute(
-                    "SELECT id FROM auth_user WHERE email_hash = CAST(:hash AS NVARCHAR2(128))",
-                    {'hash': email_hash}
+                    f"SELECT id FROM auth_user WHERE email_hash = N'{safe_hash}'"
                 )
                 rows = cursor.fetchall()
                 if rows:
@@ -233,12 +239,12 @@ class OracleCompatibleUserManager(BaseUserManager):
         from .oracle_utils import is_oracle_db
         
         if is_oracle_db():
-            # Use raw SQL with NVARCHAR2 cast for Oracle
+            # Use raw SQL with N prefix for NVARCHAR2 fields
             from django.db import connection
             with connection.cursor() as cursor:
+                safe_hash = username_hash.replace("'", "''")
                 cursor.execute(
-                    "SELECT id FROM auth_user WHERE username_hash = CAST(:hash AS NVARCHAR2(128))",
-                    {'hash': username_hash}
+                    f"SELECT id FROM auth_user WHERE username_hash = N'{safe_hash}'"
                 )
                 rows = cursor.fetchall()
                 if rows:
@@ -266,12 +272,12 @@ class OracleCompatibleUserManager(BaseUserManager):
         from .oracle_utils import is_oracle_db
         
         if is_oracle_db():
-            # Use raw SQL with NVARCHAR2 cast for Oracle
+            # Use raw SQL with N prefix for NVARCHAR2 fields
             from django.db import connection
             with connection.cursor() as cursor:
+                safe_hash = email_hash.replace("'", "''")
                 cursor.execute(
-                    "SELECT COUNT(*) FROM auth_user WHERE email_hash = CAST(:hash AS NVARCHAR2(128))",
-                    {'hash': email_hash}
+                    f"SELECT COUNT(*) FROM auth_user WHERE email_hash = N'{safe_hash}'"
                 )
                 count = cursor.fetchone()[0]
                 return count > 0
