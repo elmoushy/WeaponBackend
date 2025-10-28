@@ -113,9 +113,6 @@ class OracleCompatibleUserManager(BaseUserManager):
                 # Oracle's oracledb driver has issues with NVARCHAR2 bind parameters
                 # The N'...' prefix is required to match NVARCHAR2 columns
                 with connection.cursor() as cursor:
-                    # Use parameterized query for security (Django will handle escaping)
-                    # Then wrap the parameter value with N prefix in the SQL
-                    from django.db import models
                     # Escape single quotes in hash (though hash is hex, this is for safety)
                     safe_hash = email_hash.replace("'", "''")
                     sql = f"""
@@ -127,8 +124,10 @@ class OracleCompatibleUserManager(BaseUserManager):
                     row = cursor.fetchone()
                     
                     if row:
-                        # Use pk lookup which is always safe
-                        return self.get(pk=row[0])
+                        user_id = row[0]
+                        # Use filter().first() instead of get(pk=) to avoid DoesNotExist issues
+                        # This is more robust with Oracle's cursor/transaction handling
+                        return self.filter(pk=user_id).first()
                     return None
             else:
                 # For non-Oracle databases, use standard ORM
@@ -183,7 +182,8 @@ class OracleCompatibleUserManager(BaseUserManager):
                 row = cursor.fetchone()
                 
                 if row:
-                    return self.get(pk=row[0])
+                    user_id = row[0]
+                    return self.filter(pk=user_id).first()
                 return None
         else:
             return self.filter(username_hash=username_hash).first()
