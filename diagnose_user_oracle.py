@@ -109,6 +109,12 @@ def diagnose_user(email):
             user_id, db_email, db_email_hash, auth_type = row
             hash_status = "✅" if db_email_hash else "❌ NULL"
             print(f"   [{user_id}] {db_email} - Hash: {hash_status} - Type: {auth_type}")
+            if db_email_hash:
+                print(f"       Stored hash: {db_email_hash}")
+                # Compare with expected
+                if db_email == email:
+                    print(f"       Expected:    {expected_email_hash}")
+                    print(f"       Match: {'✅ YES' if db_email_hash == expected_email_hash else '❌ NO'}")
     
     # Suggest fix
     print("\n" + "=" * 80)
@@ -120,16 +126,30 @@ def diagnose_user(email):
     # Check if hash needs to be regenerated
     with connection.cursor() as cursor:
         cursor.execute(
-            "SELECT id, email_hash FROM auth_user WHERE LOWER(email) = LOWER(:email)",
+            "SELECT id, email, email_hash FROM auth_user WHERE LOWER(email) = LOWER(:email)",
             {'email': email}
         )
         row = cursor.fetchone()
         
         if row:
-            user_id, db_hash = row
+            user_id, db_email, db_hash = row
+            
+            # Check for encoding/whitespace issues
+            print(f"\n   📧 Email analysis:")
+            print(f"      Input email: '{email}'")
+            print(f"      Input length: {len(email)} chars")
+            print(f"      Input bytes: {email.encode('utf-8').hex()}")
+            print(f"\n      DB email: '{db_email}'")
+            print(f"      DB length: {len(db_email)} chars")
+            print(f"      DB bytes: {db_email.encode('utf-8').hex()}")
+            print(f"\n      Exact match: {email == db_email}")
+            
             if not db_hash or db_hash != expected_email_hash:
-                print(f"\n   ⚠️  Hash mismatch or missing! Run this to fix:")
-                print(f"\n   python fix_user_hash.py --email '{email}'")
+                print(f"\n   ⚠️  Hash mismatch or missing!")
+                print(f"\n   Expected hash: {expected_email_hash}")
+                print(f"   Actual hash:   {db_hash}")
+                print(f"\n   🔧 Run this to fix:")
+                print(f"\n   python fix_user_hash.py --user-id {user_id}")
                 print(f"\n   Or in Django shell:")
                 print(f"   from authentication.models import User")
                 print(f"   user = User.objects.get(id={user_id})")
