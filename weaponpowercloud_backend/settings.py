@@ -13,6 +13,15 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
+# CRITICAL: Apply Oracle compatibility fixes BEFORE any Django database code runs
+# This fixes Python 3.12 + Django 5.2 + oracledb 3.x compatibility issues
+try:
+    from weaponpowercloud_backend.oracle_fix import apply_oracle_fixes
+    apply_oracle_fixes()
+except Exception as e:
+    import logging
+    logging.warning(f"Could not apply Oracle compatibility fixes: {e}")
+
 # Load environment variables from .env file (optional)
 try:
     from dotenv import load_dotenv

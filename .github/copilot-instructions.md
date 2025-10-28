@@ -14,7 +14,34 @@ Django REST Framework backend supporting **dual authentication** (Azure AD SSO +
 
 ## Critical Architecture Patterns
 
-### 1. Universal Database Compatibility (Oracle + SQL Server + SQLite)
+### 1. Oracle + Python 3.12 Compatibility Fix (CRITICAL)
+**Challenge**: Django 5.2 + oracledb 3.3.0 + Python 3.12 has a critical compatibility bug.
+
+**Error**: `TypeError: isinstance() arg 2 must be a type, a tuple of types, or a union`
+
+**Solution**: Monkey-patch applied in `weaponpowercloud_backend/oracle_fix.py`
+- Patches Django's `OracleParam.__init__()` before database connection
+- Applied in both `settings.py` and `wsgi.py` to ensure coverage
+- Automatically detects Oracle usage and skips patch for SQLite
+
+**Key Files**:
+- `weaponpowercloud_backend/oracle_fix.py` - Compatibility patch
+- `weaponpowercloud_backend/settings.py` - Applies patch on import
+- `weaponpowercloud_backend/wsgi.py` - Applies patch for Gunicorn
+- `ORACLE_PYTHON312_FIX.md` - Complete documentation
+
+**⚠️ NEVER remove or modify** the `apply_oracle_fixes()` calls in settings.py or wsgi.py - they're critical for production Oracle database connectivity.
+
+**Production verification**:
+```bash
+# Check patch was applied
+grep "Successfully patched Django Oracle backend" logs/django.log
+
+# Test database connectivity
+curl -X POST https://lightidea.org:9006/api/auth/login/
+```
+
+### 2. Universal Database Compatibility (Oracle + SQL Server + SQLite)
 **Challenge**: Different databases have varying constraints on encrypted fields and indexes.
 - **Oracle**: No unique constraints on encrypted fields, uses hash-based indexes
 - **SQL Server**: Similar limitations with encrypted data
@@ -50,7 +77,7 @@ Survey.objects.filter(title=title)  # ❌ Fails on Oracle/SQL Server
 
 **Critical**: Always use hash-based managers to maintain compatibility across Oracle, SQL Server, and SQLite.
 
-### 2. Dual Authentication System
+### 3. Dual Authentication System
 **Three authentication layers** work in sequence:
 
 1. **UniversalAuthentication** (REST_FRAMEWORK setting) - Try both token types
@@ -71,7 +98,7 @@ Survey.objects.filter(title=title)  # ❌ Fails on Oracle/SQL Server
 - Uses `username=email` for regular users
 - Returns access + refresh tokens (30min/4hr lifetimes)
 
-### 3. Encryption Architecture
+### 4. Encryption Architecture
 **Three custom field types** in `surveys/models.py`:
 ```python
 EncryptedCharField  # For short strings (titles, names)
@@ -85,7 +112,7 @@ EncryptedTextField  # For long text (descriptions, answers)
 
 **NEVER** query encrypted fields directly. Use hash fields or decrypt after fetching.
 
-### 4. UAE Timezone Enforcement & Hijri Date Conversion
+### 5. UAE Timezone Enforcement & Hijri Date Conversion
 **Middleware**: `weaponpowercloud_backend/middleware/emirates_timezone.py`
 - Forces `Asia/Dubai` timezone for ALL requests
 - Activated per-request, deactivated in finally block
@@ -105,7 +132,7 @@ survey.start_date = ensure_uae_timezone(survey.start_date)  # Always convert
 survey.start_date = hijri_to_gregorian_date(1446, 9, 1)  # Ramadan 1, 1446
 ```
 
-### 5. Survey Visibility System
+### 6. Survey Visibility System
 **Four visibility modes** with different access patterns:
 - `PRIVATE` - Creator + explicitly shared users (via `shared_with` M2M)
 - `AUTH` - Any authenticated user with valid JWT
@@ -121,7 +148,7 @@ survey.start_date = hijri_to_gregorian_date(1446, 9, 1)  # Ramadan 1, 1446
 - `draft` → editable, not accessible via public endpoints
 - `submitted` → immutable (except PRIVATE/AUTH/GROUPS), accessible via public endpoints
 
-### 6. Security Patterns
+### 7. Security Patterns
 
 **Brute Force Protection** (`weaponpowercloud_backend/middleware/brute_force_protection.py`):
 - Rate limits tracked in cache by IP + email
