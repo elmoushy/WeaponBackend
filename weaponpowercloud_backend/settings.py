@@ -34,9 +34,25 @@ SECRET_KEY = os.getenv('SECRET_KEY', '6hyk-x9f#r!16lez2i+ek+@!x(4!k6x9y-$^1h69_@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] if DEBUG else [
-    host.strip() for host in os.getenv('ALLOWED_HOST', 'localhost').split(',')
-] + ['127.0.0.1', 'localhost']
+# Parse ALLOWED_HOSTS from environment variable
+# Remove ports if present (Django doesn't accept ports in ALLOWED_HOSTS)
+def parse_allowed_hosts(hosts_str):
+    hosts = []
+    for host in hosts_str.split(','):
+        host = host.strip()
+        # Remove port if present (e.g., 'lightidea.org:9006' -> 'lightidea.org')
+        if ':' in host and not host.startswith('['):  # IPv6 addresses use [], skip those
+            host = host.split(':')[0]
+        if host and host not in hosts:
+            hosts.append(host)
+    return hosts
+
+if DEBUG:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+else:
+    # Production: parse from ALLOWED_HOST environment variable
+    env_hosts = parse_allowed_hosts(os.getenv('ALLOWED_HOST', 'localhost'))
+    ALLOWED_HOSTS = env_hosts + ['127.0.0.1', 'localhost']
 
 
 # Application definition
