@@ -42,21 +42,37 @@ def fix_nvarchar2_columns():
         for col_name, data_type, data_length in nvarchar2_columns:
             print(f"      {col_name}: {data_type}({data_length})")
         
-        # Convert each column
+        # Convert each column using the rename method
         print("\n2. Converting columns to VARCHAR2...")
         for col_name, data_type, data_length in nvarchar2_columns:
             # VARCHAR2 length is in bytes, NVARCHAR2 is in characters
-            # For safety, use the byte length (data_length)
             varchar2_length = data_length
             
-            alter_sql = f"ALTER TABLE AUTH_USER MODIFY {col_name} VARCHAR2({varchar2_length})"
+            temp_col_name = f"{col_name}_NEW"
             
             try:
                 print(f"   Converting {col_name}...", end=" ")
-                cursor.execute(alter_sql)
+                
+                # Step 1: Add new VARCHAR2 column
+                cursor.execute(f"ALTER TABLE AUTH_USER ADD {temp_col_name} VARCHAR2({varchar2_length})")
+                
+                # Step 2: Copy data from NVARCHAR2 to VARCHAR2
+                cursor.execute(f"UPDATE AUTH_USER SET {temp_col_name} = {col_name}")
+                
+                # Step 3: Drop old NVARCHAR2 column
+                cursor.execute(f"ALTER TABLE AUTH_USER DROP COLUMN {col_name}")
+                
+                # Step 4: Rename new column to original name
+                cursor.execute(f"ALTER TABLE AUTH_USER RENAME COLUMN {temp_col_name} TO {col_name}")
+                
                 print("✅")
             except Exception as e:
                 print(f"❌ Error: {e}")
+                # Try to clean up if something failed
+                try:
+                    cursor.execute(f"ALTER TABLE AUTH_USER DROP COLUMN {temp_col_name}")
+                except:
+                    pass
         
         # Commit the changes
         print("\n3. Committing changes...")
