@@ -99,15 +99,35 @@ class OracleCompatibleUserManager(BaseUserManager):
             if not isinstance(email, str):
                 email = str(email)
             
-            # Generate hash
+            # Generate hash - ensure it's always a string
             email_hash = hashlib.sha256(email.encode('utf-8')).hexdigest()
             
-            # Use filter with Q object to bypass some validation issues
-            from django.db.models import Q
-            queryset = self.filter(Q(email_hash=email_hash))
-            result = queryset.first()
+            logger.info(f"Looking for user with email: {email}")
             
-            return result
+            # Use explicit TO_CHAR for Oracle to force string comparison
+            from .oracle_utils import is_oracle_db
+            from django.db import connection
+            
+            if is_oracle_db():
+                # Use raw SQL with explicit type handling for Oracle
+                # This prevents Oracle from trying to implicitly convert types
+                with connection.cursor() as cursor:
+                    # Use TO_CHAR to ensure string comparison
+                    sql = """
+                        SELECT id FROM auth_user 
+                        WHERE TO_CHAR(email_hash) = TO_CHAR(:email_hash)
+                        AND ROWNUM = 1
+                    """
+                    cursor.execute(sql, {'email_hash': email_hash})
+                    row = cursor.fetchone()
+                    
+                    if row:
+                        # Use pk lookup which is always safe
+                        return self.get(pk=row[0])
+                    return None
+            else:
+                # For non-Oracle databases, use standard ORM
+                return self.filter(email_hash=email_hash).first()
             
         except (TypeError, AttributeError, ValueError) as e:
             # Handle isinstance() errors from Django's validation or type annotation issues  
@@ -138,8 +158,28 @@ class OracleCompatibleUserManager(BaseUserManager):
         """
         if not username:
             return None
+        
         username_hash = hashlib.sha256(username.encode('utf-8')).hexdigest()
-        return self.filter(username_hash=username_hash).first()
+        
+        from .oracle_utils import is_oracle_db
+        from django.db import connection
+        
+        if is_oracle_db():
+            # Use raw SQL with explicit type handling for Oracle
+            with connection.cursor() as cursor:
+                sql = """
+                    SELECT id FROM auth_user 
+                    WHERE TO_CHAR(username_hash) = TO_CHAR(:username_hash)
+                    AND ROWNUM = 1
+                """
+                cursor.execute(sql, {'username_hash': username_hash})
+                row = cursor.fetchone()
+                
+                if row:
+                    return self.get(pk=row[0])
+                return None
+        else:
+            return self.filter(username_hash=username_hash).first()
     
     def filter_by_email(self, email):
         """
@@ -153,8 +193,19 @@ class OracleCompatibleUserManager(BaseUserManager):
         """
         if not email:
             return self.none()
+        
         email_hash = hashlib.sha256(email.encode('utf-8')).hexdigest()
-        return self.filter(email_hash=email_hash)
+        
+        from .oracle_utils import is_oracle_db
+        
+        if is_oracle_db():
+            # Use extra() to add TO_CHAR for Oracle
+            return self.extra(
+                where=["TO_CHAR(email_hash) = TO_CHAR(%s)"],
+                params=[email_hash]
+            )
+        else:
+            return self.filter(email_hash=email_hash)
     
     def filter_by_username(self, username):
         """
@@ -168,8 +219,19 @@ class OracleCompatibleUserManager(BaseUserManager):
         """
         if not username:
             return self.none()
+        
         username_hash = hashlib.sha256(username.encode('utf-8')).hexdigest()
-        return self.filter(username_hash=username_hash)
+        
+        from .oracle_utils import is_oracle_db
+        
+        if is_oracle_db():
+            # Use extra() to add TO_CHAR for Oracle
+            return self.extra(
+                where=["TO_CHAR(username_hash) = TO_CHAR(%s)"],
+                params=[username_hash]
+            )
+        else:
+            return self.filter(username_hash=username_hash)
     
     def email_exists(self, email):
         """
@@ -183,8 +245,19 @@ class OracleCompatibleUserManager(BaseUserManager):
         """
         if not email:
             return False
+        
         email_hash = hashlib.sha256(email.encode('utf-8')).hexdigest()
-        return self.filter(email_hash=email_hash).exists()
+        
+        from .oracle_utils import is_oracle_db
+        
+        if is_oracle_db():
+            # Use extra() to add TO_CHAR for Oracle
+            return self.extra(
+                where=["TO_CHAR(email_hash) = TO_CHAR(%s)"],
+                params=[email_hash]
+            ).exists()
+        else:
+            return self.filter(email_hash=email_hash).exists()
 
 
 class OracleCompatibleSurveyManager(models.Manager):

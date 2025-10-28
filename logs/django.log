@@ -3059,3 +3059,27 @@ INFO 2025-10-28 11:11:33,166 dual_auth 24208 8980 User seif778811@gmail.com auth
 INFO 2025-10-28 11:22:55,134 dual_auth 24208 18464 User seif778811@gmail.com authenticated with regular JWT (universal)
 INFO 2025-10-28 11:22:55,135 views 24208 18464 User logged out without token blacklisting: seif778811@gmail.com
 INFO 2025-10-28 11:36:32,855 signals 15216 19140 Sent welcome notification to new user test_user@example.com
+INFO 2025-10-28 12:05:46,953 serializers 12556 20000 Looking for user with email: seif778811@gmail.com
+INFO 2025-10-28 12:05:49,091 serializers 12556 20000 User found: seif778811@gmail.com
+INFO 2025-10-28 12:05:49,091 serializers 12556 20000 Authenticating with username: seif778811@gmail.com
+INFO 2025-10-28 12:05:50,844 serializers 12556 20000 Authentication result: Success
+INFO 2025-10-28 12:05:50,845 serializers 12556 20000 Validation successful
+INFO 2025-10-28 12:05:50,926 views 12556 20000 User logged in: seif778811@gmail.com
+INFO 2025-10-28 12:05:51,877 dual_auth 12556 20000 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 12:05:51,877 views 12556 20000 Building queryset for user seif778811@gmail.com
+INFO 2025-10-28 12:05:51,954 views 12556 20000 Successfully built queryset for user seif778811@gmail.com
+INFO 2025-10-28 12:14:55,020 managers 3380 21436 Looking for user with email: seif778811@gmail.com
+INFO 2025-10-28 12:14:55,057 managers 3380 21436 Looking for user with email: nonexistent@example.com
+INFO 2025-10-28 12:14:55,062 managers 3380 21436 Looking for user with email: seif778811@gmail.com
+INFO 2025-10-28 12:17:51,830 dual_auth 23284 10308 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 12:17:51,831 views 23284 10308 User logged out without token blacklisting: seif778811@gmail.com
+INFO 2025-10-28 12:17:55,093 serializers 23284 10308 Looking for user with email: seif778811@gmail.com
+INFO 2025-10-28 12:17:55,093 managers 23284 10308 Looking for user with email: seif778811@gmail.com
+INFO 2025-10-28 12:17:56,045 serializers 23284 10308 User found: seif778811@gmail.com
+INFO 2025-10-28 12:17:56,045 serializers 23284 10308 Authenticating with username: seif778811@gmail.com
+INFO 2025-10-28 12:17:57,928 serializers 23284 10308 Authentication result: Success
+INFO 2025-10-28 12:17:57,928 serializers 23284 10308 Validation successful
+INFO 2025-10-28 12:17:58,006 views 23284 10308 User logged in: seif778811@gmail.com
+INFO 2025-10-28 12:17:58,922 dual_auth 23284 10308 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 12:17:58,922 views 23284 10308 Building queryset for user seif778811@gmail.com
+INFO 2025-10-28 12:17:59,000 views 23284 10308 Successfully built queryset for user seif778811@gmail.com

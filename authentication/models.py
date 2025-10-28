@@ -117,19 +117,41 @@ class User(AbstractBaseUser):
         
         # For Oracle, use hash-based uniqueness validation
         if is_oracle_db():
+            from django.db import connection
+            
             if self.email:
                 email_hash = hashlib.sha256(self.email.encode('utf-8')).hexdigest()
-                existing_user = User.objects.filter(email_hash=email_hash).exclude(pk=self.pk).first()
-                if existing_user:
-                    from django.core.exceptions import ValidationError
-                    raise ValidationError({'email': 'A user with this email already exists.'})
+                # Use raw SQL with TO_CHAR to avoid type conversion issues
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT id FROM auth_user 
+                        WHERE TO_CHAR(email_hash) = TO_CHAR(:email_hash)
+                        AND id != :current_id
+                        AND ROWNUM = 1
+                        """,
+                        {'email_hash': email_hash, 'current_id': self.pk or 0}
+                    )
+                    if cursor.fetchone():
+                        from django.core.exceptions import ValidationError
+                        raise ValidationError({'email': 'A user with this email already exists.'})
             
             if self.username:
                 username_hash = hashlib.sha256(self.username.encode('utf-8')).hexdigest()
-                existing_user = User.objects.filter(username_hash=username_hash).exclude(pk=self.pk).first()
-                if existing_user:
-                    from django.core.exceptions import ValidationError
-                    raise ValidationError({'username': 'A user with this username already exists.'})
+                # Use raw SQL with TO_CHAR to avoid type conversion issues
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT id FROM auth_user 
+                        WHERE TO_CHAR(username_hash) = TO_CHAR(:username_hash)
+                        AND id != :current_id
+                        AND ROWNUM = 1
+                        """,
+                        {'username_hash': username_hash, 'current_id': self.pk or 0}
+                    )
+                    if cursor.fetchone():
+                        from django.core.exceptions import ValidationError
+                        raise ValidationError({'username': 'A user with this username already exists.'})
     
     def save(self, *args, **kwargs):
         """Override save to generate hash fields and validate uniqueness."""
