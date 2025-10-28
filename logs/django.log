@@ -3083,3 +3083,6 @@ INFO 2025-10-28 12:17:58,006 views 23284 10308 User logged in: seif778811@gmail.
 INFO 2025-10-28 12:17:58,922 dual_auth 23284 10308 User seif778811@gmail.com authenticated with regular JWT (universal)
 INFO 2025-10-28 12:17:58,922 views 23284 10308 Building queryset for user seif778811@gmail.com
 INFO 2025-10-28 12:17:59,000 views 23284 10308 Successfully built queryset for user seif778811@gmail.com
+INFO 2025-10-28 13:03:37,776 views 23296 9532 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-10-28 13:03:38,693 dual_auth 23296 9532 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-28 13:03:38,693 views 23296 9532 User logged out without token blacklisting: seif778811@gmail.com

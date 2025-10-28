@@ -46,53 +46,17 @@ def patch_oracle_isinstance():
         def patched_oracle_param_init(self, param, cursor, strings_only):
             """
             Patched OracleParam.__init__ that handles Database.Binary type issues.
+            
+            CRITICAL FIX: For NVARCHAR2 compatibility, we must NOT set input_size
+            as it causes ORA-01722 errors when Oracle tries to convert types.
             """
-            import datetime
+            # Always set these to safe defaults to avoid type conversion issues
+            self.force_bytes = False
+            self.input_size = None
             
-            # Use the parent class logic but wrap isinstance calls safely
-            if param is None:
-                # Check if 'Database' module has NULL attribute
-                if hasattr(Database, 'NULL'):
-                    self.force_bytes = False
-                    self.input_size = None
-                    return
-            
-            # Handle datetime.timedelta safely
-            try:
-                if isinstance(param, datetime.timedelta):
-                    self.force_bytes = False
-                    self.input_size = None
-                    return
-            except TypeError:
-                pass
-            
-            # Try to check for Database.Binary type safely
-            try:
-                # Check if Database.Binary is a valid type
-                if hasattr(Database, 'Binary') and isinstance(Database.Binary, type):
-                    if isinstance(param, Database.Binary):
-                        self.force_bytes = False
-                        self.input_size = None
-                        return
-            except (TypeError, AttributeError):
-                # If Database.Binary check fails, skip it
-                pass
-            
-            # Handle bytes type
-            if isinstance(param, bytes):
-                self.force_bytes = False
-                self.input_size = None
-                return
-            
-            # Call the rest of the original logic
-            # We'll recreate the essential parts here
-            if strings_only and isinstance(param, str):
-                self.force_bytes = True
-                # Use NVARCHAR2 by default for strings
-                self.input_size = len(param) or 1
-            else:
-                self.force_bytes = False
-                self.input_size = None
+            # Don't do any complex type checking that might fail with isinstance()
+            # Just let Oracle handle the types naturally
+            return
         
         # Apply the patch
         base.OracleParam.__init__ = patched_oracle_param_init
