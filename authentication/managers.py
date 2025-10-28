@@ -110,12 +110,12 @@ class OracleCompatibleUserManager(BaseUserManager):
             
             if is_oracle_db():
                 # Use raw SQL with explicit type handling for Oracle
-                # This prevents Oracle from trying to implicitly convert types
+                # CRITICAL: NVARCHAR2 fields need explicit casting to avoid ORA-01722
                 with connection.cursor() as cursor:
-                    # Use TO_CHAR to ensure string comparison
+                    # Cast both sides to NVARCHAR2 explicitly to avoid type conversion errors
                     sql = """
                         SELECT id FROM auth_user 
-                        WHERE TO_CHAR(email_hash) = TO_CHAR(:email_hash)
+                        WHERE email_hash = CAST(:email_hash AS NVARCHAR2(128))
                         AND ROWNUM = 1
                     """
                     cursor.execute(sql, {'email_hash': email_hash})
@@ -166,10 +166,11 @@ class OracleCompatibleUserManager(BaseUserManager):
         
         if is_oracle_db():
             # Use raw SQL with explicit type handling for Oracle
+            # CRITICAL: NVARCHAR2 fields need explicit casting
             with connection.cursor() as cursor:
                 sql = """
                     SELECT id FROM auth_user 
-                    WHERE TO_CHAR(username_hash) = TO_CHAR(:username_hash)
+                    WHERE username_hash = CAST(:username_hash AS NVARCHAR2(128))
                     AND ROWNUM = 1
                 """
                 cursor.execute(sql, {'username_hash': username_hash})
@@ -199,11 +200,18 @@ class OracleCompatibleUserManager(BaseUserManager):
         from .oracle_utils import is_oracle_db
         
         if is_oracle_db():
-            # Use extra() to add TO_CHAR for Oracle
-            return self.extra(
-                where=["TO_CHAR(email_hash) = TO_CHAR(%s)"],
-                params=[email_hash]
-            )
+            # Use raw SQL with NVARCHAR2 cast for Oracle
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT id FROM auth_user WHERE email_hash = CAST(:hash AS NVARCHAR2(128))",
+                    {'hash': email_hash}
+                )
+                rows = cursor.fetchall()
+                if rows:
+                    ids = [row[0] for row in rows]
+                    return self.filter(id__in=ids)
+                return self.none()
         else:
             return self.filter(email_hash=email_hash)
     
@@ -225,11 +233,18 @@ class OracleCompatibleUserManager(BaseUserManager):
         from .oracle_utils import is_oracle_db
         
         if is_oracle_db():
-            # Use extra() to add TO_CHAR for Oracle
-            return self.extra(
-                where=["TO_CHAR(username_hash) = TO_CHAR(%s)"],
-                params=[username_hash]
-            )
+            # Use raw SQL with NVARCHAR2 cast for Oracle
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT id FROM auth_user WHERE username_hash = CAST(:hash AS NVARCHAR2(128))",
+                    {'hash': username_hash}
+                )
+                rows = cursor.fetchall()
+                if rows:
+                    ids = [row[0] for row in rows]
+                    return self.filter(id__in=ids)
+                return self.none()
         else:
             return self.filter(username_hash=username_hash)
     
@@ -251,11 +266,15 @@ class OracleCompatibleUserManager(BaseUserManager):
         from .oracle_utils import is_oracle_db
         
         if is_oracle_db():
-            # Use extra() to add TO_CHAR for Oracle
-            return self.extra(
-                where=["TO_CHAR(email_hash) = TO_CHAR(%s)"],
-                params=[email_hash]
-            ).exists()
+            # Use raw SQL with NVARCHAR2 cast for Oracle
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT COUNT(*) FROM auth_user WHERE email_hash = CAST(:hash AS NVARCHAR2(128))",
+                    {'hash': email_hash}
+                )
+                count = cursor.fetchone()[0]
+                return count > 0
         else:
             return self.filter(email_hash=email_hash).exists()
 

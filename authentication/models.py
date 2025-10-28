@@ -121,12 +121,12 @@ class User(AbstractBaseUser):
             
             if self.email:
                 email_hash = hashlib.sha256(self.email.encode('utf-8')).hexdigest()
-                # Use raw SQL with TO_CHAR to avoid type conversion issues
+                # Use CAST for NVARCHAR2 comparison
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
                         SELECT id FROM auth_user 
-                        WHERE TO_CHAR(email_hash) = TO_CHAR(:email_hash)
+                        WHERE email_hash = CAST(:email_hash AS NVARCHAR2(128))
                         AND id != :current_id
                         AND ROWNUM = 1
                         """,
@@ -138,12 +138,12 @@ class User(AbstractBaseUser):
             
             if self.username:
                 username_hash = hashlib.sha256(self.username.encode('utf-8')).hexdigest()
-                # Use raw SQL with TO_CHAR to avoid type conversion issues
+                # Use CAST for NVARCHAR2 comparison
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
                         SELECT id FROM auth_user 
-                        WHERE TO_CHAR(username_hash) = TO_CHAR(:username_hash)
+                        WHERE username_hash = CAST(:username_hash AS NVARCHAR2(128))
                         AND id != :current_id
                         AND ROWNUM = 1
                         """,

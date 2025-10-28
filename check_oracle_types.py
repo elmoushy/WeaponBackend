@@ -62,39 +62,66 @@ def check_table_structure():
         
         # Method 1: Direct comparison
         print(f"\n   Method 1: Direct comparison (email_hash = :hash)")
-        cursor.execute("SELECT COUNT(*) FROM auth_user WHERE email_hash = :hash", {'hash': test_hash})
-        count = cursor.fetchone()[0]
-        print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        try:
+            cursor.execute("SELECT COUNT(*) FROM auth_user WHERE email_hash = :hash", {'hash': test_hash})
+            count = cursor.fetchone()[0]
+            print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        except Exception as e:
+            print(f"   Result: ❌ Error - {e}")
         
         # Method 2: TO_CHAR on both sides
         print(f"\n   Method 2: TO_CHAR(email_hash) = TO_CHAR(:hash)")
-        cursor.execute("SELECT COUNT(*) FROM auth_user WHERE TO_CHAR(email_hash) = TO_CHAR(:hash)", {'hash': test_hash})
-        count = cursor.fetchone()[0]
-        print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        try:
+            cursor.execute("SELECT COUNT(*) FROM auth_user WHERE TO_CHAR(email_hash) = TO_CHAR(:hash)", {'hash': test_hash})
+            count = cursor.fetchone()[0]
+            print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        except Exception as e:
+            print(f"   Result: ❌ Error - {e}")
         
         # Method 3: TO_CHAR on hash only
         print(f"\n   Method 3: TO_CHAR(email_hash) = :hash")
-        cursor.execute("SELECT COUNT(*) FROM auth_user WHERE TO_CHAR(email_hash) = :hash", {'hash': test_hash})
-        count = cursor.fetchone()[0]
-        print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        try:
+            cursor.execute("SELECT COUNT(*) FROM auth_user WHERE TO_CHAR(email_hash) = :hash", {'hash': test_hash})
+            count = cursor.fetchone()[0]
+            print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        except Exception as e:
+            print(f"   Result: ❌ Error - {e}")
         
         # Method 4: UPPER comparison
         print(f"\n   Method 4: UPPER(email_hash) = UPPER(:hash)")
-        cursor.execute("SELECT COUNT(*) FROM auth_user WHERE UPPER(email_hash) = UPPER(:hash)", {'hash': test_hash})
-        count = cursor.fetchone()[0]
-        print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        try:
+            cursor.execute("SELECT COUNT(*) FROM auth_user WHERE UPPER(email_hash) = UPPER(:hash)", {'hash': test_hash})
+            count = cursor.fetchone()[0]
+            print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        except Exception as e:
+            print(f"   Result: ❌ Error - {e}")
         
         # Method 5: TRIM comparison
         print(f"\n   Method 5: TRIM(email_hash) = TRIM(:hash)")
-        cursor.execute("SELECT COUNT(*) FROM auth_user WHERE TRIM(email_hash) = TRIM(:hash)", {'hash': test_hash})
-        count = cursor.fetchone()[0]
-        print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        try:
+            cursor.execute("SELECT COUNT(*) FROM auth_user WHERE TRIM(email_hash) = TRIM(:hash)", {'hash': test_hash})
+            count = cursor.fetchone()[0]
+            print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        except Exception as e:
+            print(f"   Result: ❌ Error - {e}")
         
         # Method 6: RTRIM comparison (Oracle pads CHAR fields)
         print(f"\n   Method 6: RTRIM(email_hash) = :hash")
-        cursor.execute("SELECT COUNT(*) FROM auth_user WHERE RTRIM(email_hash) = :hash", {'hash': test_hash})
-        count = cursor.fetchone()[0]
-        print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        try:
+            cursor.execute("SELECT COUNT(*) FROM auth_user WHERE RTRIM(email_hash) = :hash", {'hash': test_hash})
+            count = cursor.fetchone()[0]
+            print(f"   Result: {count} rows found {'✅' if count > 0 else '❌'}")
+        except Exception as e:
+            print(f"   Result: ❌ Error - {e}")
+        
+        # Method 7: CAST to NVARCHAR2 (THE FIX)
+        print(f"\n   Method 7: email_hash = CAST(:hash AS NVARCHAR2(128)) ⭐ THE FIX")
+        try:
+            cursor.execute("SELECT COUNT(*) FROM auth_user WHERE email_hash = CAST(:hash AS NVARCHAR2(128))", {'hash': test_hash})
+            count = cursor.fetchone()[0]
+            print(f"   Result: {count} rows found {'✅ SUCCESS!' if count > 0 else '❌'}")
+        except Exception as e:
+            print(f"   Result: ❌ Error - {e}")
         
         # Check if it's a CHAR vs VARCHAR2 issue
         print("\n4. Checking for padding issues:")
