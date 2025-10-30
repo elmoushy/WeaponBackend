@@ -386,6 +386,15 @@ class Question(models.Model):
         ('yes_no', 'Yes/No'),
     ]
     
+    # Validation types for text/textarea questions
+    VALIDATION_TYPES = [
+        ('none', 'No Validation'),
+        ('email', 'Email Address'),
+        ('phone', 'Phone Number'),
+        ('number', 'Numeric Only'),
+        ('url', 'URL'),
+    ]
+    
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -413,6 +422,14 @@ class Question(models.Model):
     )
     is_required = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
+    
+    # Validation type for text/textarea questions
+    validation_type = models.CharField(
+        max_length=20,
+        choices=VALIDATION_TYPES,
+        default='none',
+        help_text='Validation type for text input (auto-detected from question text or manually set)'
+    )
     
     # Analytics calculation flags (PRIMARY approach for 100% accuracy)
     NPS_Calculate = models.BooleanField(
@@ -508,10 +525,64 @@ class Question(models.Model):
                 })
     
     def save(self, *args, **kwargs):
-        """Override save to generate text hash for searching"""
+        """Override save to generate text hash and auto-detect validation type"""
         if self.text:
             self.text_hash = hashlib.sha256(self.text.encode('utf-8')).hexdigest()
+            
+            # Auto-detect validation type from question text if not manually set
+            if self.validation_type == 'none' and self.question_type in ['text', 'textarea']:
+                self.validation_type = self._detect_validation_type()
+        
         super().save(*args, **kwargs)
+    
+    def _detect_validation_type(self):
+        """
+        Auto-detect validation type based on question text (supports Arabic and English).
+        
+        Returns:
+            str: Detected validation type ('email', 'phone', 'number', 'url', or 'none')
+        """
+        if not self.text:
+            return 'none'
+        
+        text_lower = self.text.lower()
+        
+        # Email detection (Arabic and English)
+        email_keywords = [
+            'بريد', 'ايميل', 'إيميل', 'البريد الإلكتروني', 'بريد إلكتروني',
+            'email', 'e-mail', 'mail address', 'electronic mail'
+        ]
+        if any(keyword in text_lower for keyword in email_keywords):
+            return 'email'
+        
+        # Phone detection (Arabic and English)
+        phone_keywords = [
+            'هاتف', 'جوال', 'موبايل', 'رقم الهاتف', 'رقم الجوال', 'تليفون',
+            'phone', 'mobile', 'telephone', 'cell', 'contact number'
+        ]
+        if any(keyword in text_lower for keyword in phone_keywords):
+            return 'phone'
+        
+        # Number detection (Arabic and English)
+        number_keywords = [
+            'رقم', 'عدد', 'كمية',
+            'number', 'quantity', 'amount', 'count'
+        ]
+        # Only detect as number if it's not already detected as phone
+        if any(keyword in text_lower for keyword in number_keywords):
+            # Avoid false positives with phone
+            if not any(keyword in text_lower for keyword in phone_keywords):
+                return 'number'
+        
+        # URL detection (Arabic and English)
+        url_keywords = [
+            'رابط', 'موقع', 'لينك', 'url',
+            'link', 'website', 'url', 'web address'
+        ]
+        if any(keyword in text_lower for keyword in url_keywords):
+            return 'url'
+        
+        return 'none'
     
     def validate_csat_options(self):
         """

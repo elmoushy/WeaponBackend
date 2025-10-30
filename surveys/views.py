@@ -1647,8 +1647,8 @@ class SurveyViewSet(ModelViewSet):
             # Generate unique token
             token = PublicAccessToken.generate_token()
             
-            # Set expiration (default 30 days from now)
-            days_to_expire = request.data.get('days_to_expire', 30)
+            # Set expiration (default 365 days from now - 1 year)
+            days_to_expire = request.data.get('days_to_expire', 365)
             expires_at = timezone.now() + timedelta(days=days_to_expire)
             
             # Deactivate any existing non-password-protected tokens for this survey
@@ -1697,7 +1697,7 @@ class SurveyViewSet(ModelViewSet):
         POST /api/surveys/surveys/{survey_id}/generate-password-link/
         Body:
         {
-            "days_to_expire": 30,  // optional, default 30
+            "days_to_expire": 365,  // optional, default 365 (1 year)
             "restricted_email": ["user1@example.com", "user2@example.com"],  // optional, restrict to these emails
             "restricted_phone": ["+1234567890", "+0987654321"]  // optional, restrict to these phones
         }
@@ -1741,8 +1741,8 @@ class SurveyViewSet(ModelViewSet):
             token = PublicAccessToken.generate_token()
             password = PublicAccessToken.generate_password()
             
-            # Set expiration (default 30 days from now)
-            days_to_expire = request.data.get('days_to_expire', 30)
+            # Set expiration (default 365 days from now - 1 year)
+            days_to_expire = request.data.get('days_to_expire', 365)
             expires_at = timezone.now() + timedelta(days=days_to_expire)
             
             # Close ALL existing tokens to ensure only one is active at a time
@@ -1874,8 +1874,8 @@ class SurveyViewSet(ModelViewSet):
                         # Generate unique token
                         token = PublicAccessToken.generate_token()
                         
-                        # Set expiration (default 30 days from now)
-                        expires_at = timezone.now() + timedelta(days=30)
+                        # Set expiration (default 365 days from now - 1 year)
+                        expires_at = timezone.now() + timedelta(days=365)
                         
                         # Create the new token record
                         public_token = PublicAccessToken.objects.create(
@@ -3925,22 +3925,50 @@ class SurveyResponseSubmissionView(APIView):
                 from .models import DeviceResponse
                 DeviceResponse.create_device_tracking(survey, request, survey_response)
             
-            # Create answers
-            created_answers = []
+            # Import answer validator
+            from .validators import validate_answer
+            
+            # Validate all answers first before creating any
+            validation_errors = []
             for answer_data in answers_data:
                 try:
                     question = Question.objects.get(
                         id=answer_data['question_id'], 
                         survey=survey
                     )
+                    
+                    # Validate answer based on question's validation_type
+                    is_valid, error_message = validate_answer(question, answer_data['answer'])
+                    if not is_valid:
+                        validation_errors.append({
+                            'question_id': str(question.id),
+                            'question_text': question.text,
+                            'error': error_message
+                        })
+                        
                 except Question.DoesNotExist:
-                    # Delete the response if any question is invalid
-                    survey_response.delete()
-                    return uniform_response(
-                        success=False,
-                        message=f"Question {answer_data['question_id']} not found in survey",
-                        status_code=status.HTTP_400_BAD_REQUEST
-                    )
+                    validation_errors.append({
+                        'question_id': answer_data['question_id'],
+                        'error': f"Question {answer_data['question_id']} not found in survey"
+                    })
+            
+            # If validation errors exist, delete response and return errors
+            if validation_errors:
+                survey_response.delete()
+                return uniform_response(
+                    success=False,
+                    message="فشل التحقق من صحة البيانات / Validation failed",
+                    data={'validation_errors': validation_errors},
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Create answers (validation passed)
+            created_answers = []
+            for answer_data in answers_data:
+                question = Question.objects.get(
+                    id=answer_data['question_id'], 
+                    survey=survey
+                )
                 
                 answer = Answer.objects.create(
                     response=survey_response,

@@ -3086,3 +3086,236 @@ INFO 2025-10-28 12:17:59,000 views 23284 10308 Successfully built queryset for u
 INFO 2025-10-28 13:03:37,776 views 23296 9532 JWT tokens refreshed with rotation for user: seif778811@gmail.com
 INFO 2025-10-28 13:03:38,693 dual_auth 23296 9532 User seif778811@gmail.com authenticated with regular JWT (universal)
 INFO 2025-10-28 13:03:38,693 views 23296 9532 User logged out without token blacklisting: seif778811@gmail.com
+INFO 2025-10-29 10:41:26,384 serializers 1376 3164 Looking for user with email: seif778811@gmail.com
+INFO 2025-10-29 10:41:26,395 managers 1376 3164 Looking for user with email: seif778811@gmail.com
+INFO 2025-10-29 10:41:26,432 serializers 1376 3164 User found: seif778811@gmail.com
+INFO 2025-10-29 10:41:26,433 serializers 1376 3164 Authenticating with username: seif778811@gmail.com
+INFO 2025-10-29 10:41:29,046 serializers 1376 3164 Authentication result: Success
+INFO 2025-10-29 10:41:29,047 serializers 1376 3164 Validation successful
+INFO 2025-10-29 10:41:29,093 views 1376 3164 User logged in: seif778811@gmail.com
+INFO 2025-10-29 10:41:30,034 dual_auth 1376 10296 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:41:30,037 views 1376 10296 Building queryset for user seif778811@gmail.com
+INFO 2025-10-29 10:41:30,046 views 1376 10296 Successfully built queryset for user seif778811@gmail.com
+INFO 2025-10-29 10:41:38,811 dual_auth 1376 10296 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:41:38,816 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:42:24,289 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:47:06,187 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:47:24,228 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:47:26,730 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:47:26,733 views 1376 5780 Successfully retrieved survey f995b32b-46f1-47d6-9f6f-d1526d75378a: معلومات التواصل
+INFO 2025-10-29 10:47:26,733 views 1376 5780 Successfully serialized survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 10:47:56,138 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:47:57,693 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:47:57,695 views 1376 5780 Found survey f995b32b-46f1-47d6-9f6f-d1526d75378a: معلومات التواصل
+INFO 2025-10-29 10:47:57,696 views 1376 5780 Analytics access granted to user 1 (role: super_admin) for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 10:47:57,696 views 1376 5780 Successfully parsed query parameters for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 10:47:57,698 views 1376 5780 Retrieved 1 responses for survey f995b32b-46f1-47d6-9f6f-d1526d75378a analytics
+INFO 2025-10-29 10:47:57,788 views 1376 5780 CSAT tracking aggregated 2 questions with CSAT_Calculate=True for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 10:47:57,788 views 1376 5780 Successfully generated analytics dashboard for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 10:47:57,836 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:47:57,840 views 1376 5780 Successfully retrieved survey f995b32b-46f1-47d6-9f6f-d1526d75378a: معلومات التواصل
+INFO 2025-10-29 10:47:57,848 views 1376 5780 Successfully serialized survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 10:48:51,199 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:49:12,692 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:50:05,419 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 10:51:18,854 dual_auth 1376 5780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 11:11:31,232 views 1376 21396 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-10-29 11:11:31,243 dual_auth 1376 21396 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 11:11:31,246 dual_auth 1376 7832 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:32:28,409 views 1376 9624 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-10-29 14:32:28,565 dual_auth 1376 9624 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:32:28,570 views 1376 9624 User profile accessed: seif778811@gmail.com
+INFO 2025-10-29 14:32:28,675 dual_auth 1376 9624 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:32:28,678 views 1376 9624 Building queryset for user seif778811@gmail.com
+INFO 2025-10-29 14:32:28,687 views 1376 9624 Successfully built queryset for user seif778811@gmail.com
+INFO 2025-10-29 14:32:29,620 dual_auth 1376 15836 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:32:34,073 dual_auth 1376 9624 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:32:34,079 dual_auth 1376 5792 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:47:53,713 views 1376 5812 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-10-29 14:47:53,738 dual_auth 1376 5812 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:47:53,740 views 1376 5812 User profile accessed: seif778811@gmail.com
+INFO 2025-10-29 14:47:56,677 dual_auth 1376 5812 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:47:56,678 dual_auth 1376 7500 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:52:40,766 dual_auth 12392 12056 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:52:40,767 views 12392 12056 Building queryset for user seif778811@gmail.com
+INFO 2025-10-29 14:52:40,772 views 12392 12056 Successfully built queryset for user seif778811@gmail.com
+INFO 2025-10-29 14:52:43,095 dual_auth 12392 12056 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:53:52,886 views 12392 12056 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-10-29 14:53:53,002 dual_auth 12392 12056 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 14:53:53,003 views 12392 12056 User profile accessed: seif778811@gmail.com
+INFO 2025-10-29 14:53:53,159 dual_auth 12392 12056 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:02:24,595 dual_auth 12392 16744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:02:24,620 signals 12392 16744 Sent survey completed notification to seif778811@gmail.com for response 32fccb2f-d4d3-45e8-8110-b59156803169 to survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:02:24,675 views 12392 16744 Authenticated survey response submitted: 32fccb2f-d4d3-45e8-8110-b59156803169 for survey f995b32b-46f1-47d6-9f6f-d1526d75378a by seif778811@gmail.com
+INFO 2025-10-29 15:02:45,318 dual_auth 12392 16744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:02:45,319 views 12392 16744 Building queryset for user seif778811@gmail.com
+INFO 2025-10-29 15:02:45,322 views 12392 16744 Successfully built queryset for user seif778811@gmail.com
+INFO 2025-10-29 15:03:06,235 dual_auth 12392 16744 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:03:06,236 dual_auth 12392 9748 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:03:30,242 dual_auth 12392 9748 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:08:38,284 dual_auth 12392 10144 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:09:00,290 dual_auth 12392 10144 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:12:29,859 dual_auth 12392 24288 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:12:29,861 views 12392 24288 Found survey f995b32b-46f1-47d6-9f6f-d1526d75378a: معلومات التواصل
+INFO 2025-10-29 15:12:29,861 views 12392 24288 Analytics access granted to user 1 (role: super_admin) for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:12:29,862 views 12392 24288 Successfully parsed query parameters for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:12:29,864 views 12392 24288 Retrieved 2 responses for survey f995b32b-46f1-47d6-9f6f-d1526d75378a analytics
+INFO 2025-10-29 15:12:29,915 views 12392 24288 CSAT tracking aggregated 2 questions with CSAT_Calculate=True for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:12:29,916 views 12392 24288 Successfully generated analytics dashboard for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:12:29,984 dual_auth 12392 24288 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:12:29,988 views 12392 24288 Successfully retrieved survey f995b32b-46f1-47d6-9f6f-d1526d75378a: معلومات التواصل
+INFO 2025-10-29 15:12:29,989 views 12392 24288 Successfully serialized survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:12:34,724 dual_auth 12392 24288 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:12:34,727 dual_auth 12392 7180 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:13:52,947 dual_auth 12392 24288 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:13:54,650 dual_auth 12392 24288 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:13:54,652 views 12392 24288 Found survey f995b32b-46f1-47d6-9f6f-d1526d75378a: معلومات التواصل
+INFO 2025-10-29 15:13:54,652 views 12392 24288 Analytics access granted to user 1 (role: super_admin) for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:13:54,652 views 12392 24288 Successfully parsed query parameters for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:13:54,653 views 12392 24288 Retrieved 2 responses for survey f995b32b-46f1-47d6-9f6f-d1526d75378a analytics
+INFO 2025-10-29 15:13:54,694 views 12392 24288 CSAT tracking aggregated 2 questions with CSAT_Calculate=True for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:13:54,694 views 12392 24288 Successfully generated analytics dashboard for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:13:54,738 dual_auth 12392 24288 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:13:54,740 views 12392 24288 Successfully retrieved survey f995b32b-46f1-47d6-9f6f-d1526d75378a: معلومات التواصل
+INFO 2025-10-29 15:13:54,741 views 12392 24288 Successfully serialized survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:14:49,388 dual_auth 12392 24288 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:14:49,399 dual_auth 12392 7180 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:14:54,712 dual_auth 12392 7180 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:14:54,716 views 12392 7180 Successfully retrieved survey dd18bd79-26c1-41ac-849e-2e9067e622be: Flag False Test
+INFO 2025-10-29 15:14:54,717 views 12392 7180 Successfully serialized survey dd18bd79-26c1-41ac-849e-2e9067e622be
+INFO 2025-10-29 15:21:10,783 dual_auth 12392 16640 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:21:12,798 dual_auth 12392 16640 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:21:12,799 views 12392 16640 Found survey f995b32b-46f1-47d6-9f6f-d1526d75378a: معلومات التواصل
+INFO 2025-10-29 15:21:12,800 views 12392 16640 Analytics access granted to user 1 (role: super_admin) for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:21:12,800 views 12392 16640 Successfully parsed query parameters for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:21:12,801 views 12392 16640 Retrieved 2 responses for survey f995b32b-46f1-47d6-9f6f-d1526d75378a analytics
+INFO 2025-10-29 15:21:12,849 views 12392 16640 CSAT tracking aggregated 2 questions with CSAT_Calculate=True for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:21:12,849 views 12392 16640 Successfully generated analytics dashboard for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:21:12,900 dual_auth 12392 16640 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:21:12,904 views 12392 16640 Successfully retrieved survey f995b32b-46f1-47d6-9f6f-d1526d75378a: معلومات التواصل
+INFO 2025-10-29 15:21:12,905 views 12392 16640 Successfully serialized survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:37:33,576 0011_ensure_oracle_boolean_field 18992 952 Not Oracle database, skipping Oracle-specific fixes
+INFO 2025-10-29 15:37:33,595 0012_fix_oracle_default_value 18992 952 Not Oracle database, skipping Oracle-specific fixes
+INFO 2025-10-29 15:37:36,182 signals 18992 952 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:37:36,209 models 18992 952 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:37:36,210 models 18992 952 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:37:37,593 signals 18992 952 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:37:37,593 models 18992 952 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:37:37,593 models 18992 952 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:37:38,742 signals 18992 952 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:37:38,742 models 18992 952 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:37:38,742 models 18992 952 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:37:39,928 signals 18992 952 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:37:39,928 models 18992 952 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:37:39,928 models 18992 952 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:37:40,975 signals 18992 952 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:37:40,975 models 18992 952 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:37:40,975 models 18992 952 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:37:42,024 signals 18992 952 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:37:42,024 models 18992 952 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:37:42,024 models 18992 952 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:37:43,040 signals 18992 952 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:37:43,041 models 18992 952 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:37:43,041 models 18992 952 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:37:44,222 signals 18992 952 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:37:44,222 models 18992 952 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:37:44,223 models 18992 952 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:37:45,297 signals 18992 952 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:37:45,297 models 18992 952 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:37:45,297 models 18992 952 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:37:46,265 signals 18992 952 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:37:46,265 models 18992 952 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:37:46,265 models 18992 952 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:37:47,391 signals 18992 952 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:37:47,391 models 18992 952 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:37:47,392 models 18992 952 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:38:10,036 0011_ensure_oracle_boolean_field 13628 19096 Not Oracle database, skipping Oracle-specific fixes
+INFO 2025-10-29 15:38:10,055 0012_fix_oracle_default_value 13628 19096 Not Oracle database, skipping Oracle-specific fixes
+INFO 2025-10-29 15:38:21,175 0011_ensure_oracle_boolean_field 9504 22660 Not Oracle database, skipping Oracle-specific fixes
+INFO 2025-10-29 15:38:21,196 0012_fix_oracle_default_value 9504 22660 Not Oracle database, skipping Oracle-specific fixes
+INFO 2025-10-29 15:38:23,694 signals 9504 22660 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:38:23,705 models 9504 22660 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:38:23,705 models 9504 22660 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:38:24,790 signals 9504 22660 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:38:24,790 models 9504 22660 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:38:24,790 models 9504 22660 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:38:25,952 signals 9504 22660 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:38:25,953 models 9504 22660 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:38:25,953 models 9504 22660 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:38:27,245 signals 9504 22660 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:38:27,245 models 9504 22660 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:38:27,245 models 9504 22660 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:38:28,484 signals 9504 22660 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:38:28,485 models 9504 22660 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:38:28,485 models 9504 22660 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:38:29,605 signals 9504 22660 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:38:29,605 models 9504 22660 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:38:29,606 models 9504 22660 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:38:30,689 signals 9504 22660 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:38:30,689 models 9504 22660 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:38:30,690 models 9504 22660 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:38:31,684 signals 9504 22660 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:38:31,685 models 9504 22660 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:38:31,685 models 9504 22660 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:38:32,699 signals 9504 22660 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:38:32,700 models 9504 22660 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:38:32,700 models 9504 22660 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:38:33,867 signals 9504 22660 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:38:33,868 models 9504 22660 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:38:33,868 models 9504 22660 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:38:34,947 signals 9504 22660 Sent welcome notification to new user test@example.com
+INFO 2025-10-29 15:38:34,947 models 9504 22660 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:38:34,947 models 9504 22660 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:47:11,912 views 13540 6108 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-10-29 15:47:11,927 dual_auth 13540 6108 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:47:11,933 dual_auth 13540 21236 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:47:15,272 dual_auth 13540 6108 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:47:16,463 dual_auth 13540 6108 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:47:16,465 views 13540 6108 Found survey f995b32b-46f1-47d6-9f6f-d1526d75378a: معلومات التواصل
+INFO 2025-10-29 15:47:16,466 views 13540 6108 Analytics access granted to user 1 (role: super_admin) for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:47:16,466 views 13540 6108 Successfully parsed query parameters for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:47:16,467 views 13540 6108 Retrieved 2 responses for survey f995b32b-46f1-47d6-9f6f-d1526d75378a analytics
+INFO 2025-10-29 15:47:16,512 views 13540 6108 CSAT tracking aggregated 2 questions with CSAT_Calculate=True for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:47:16,512 views 13540 6108 Successfully generated analytics dashboard for survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:47:16,550 dual_auth 13540 6108 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:47:16,554 views 13540 6108 Successfully retrieved survey f995b32b-46f1-47d6-9f6f-d1526d75378a: معلومات التواصل
+INFO 2025-10-29 15:47:16,554 views 13540 6108 Successfully serialized survey f995b32b-46f1-47d6-9f6f-d1526d75378a
+INFO 2025-10-29 15:47:19,262 dual_auth 13540 6108 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:47:19,262 dual_auth 13540 21236 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:47:24,738 dual_auth 13540 6108 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:47:24,743 views 13540 6108 Successfully retrieved survey dd18bd79-26c1-41ac-849e-2e9067e622be: Flag False Test
+INFO 2025-10-29 15:47:24,744 views 13540 6108 Successfully serialized survey dd18bd79-26c1-41ac-849e-2e9067e622be
+INFO 2025-10-29 15:56:49,851 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:56:49,891 models 13944 4032 Survey.save() - per_device_access before check: False (type: <class 'bool'>)
+INFO 2025-10-29 15:56:49,891 models 13944 4032 Survey.save() - per_device_access final value: False
+INFO 2025-10-29 15:56:49,947 serializers 13944 4032 Survey updated: dd18bd79-26c1-41ac-849e-2e9067e622be with 3 questions
+INFO 2025-10-29 15:56:49,948 views 13944 4032 Survey dd18bd79-26c1-41ac-849e-2e9067e622be updated by seif778811@gmail.com (role: super_admin)
+INFO 2025-10-29 15:56:53,652 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:56:53,660 models 13944 4032 Survey.save() - per_device_access before check: True (type: <class 'bool'>)
+INFO 2025-10-29 15:56:53,661 models 13944 4032 Survey.save() - per_device_access final value: True
+INFO 2025-10-29 15:56:53,692 serializers 13944 4032 Survey updated: dd18bd79-26c1-41ac-849e-2e9067e622be with 0 questions
+INFO 2025-10-29 15:56:53,693 views 13944 4032 Survey dd18bd79-26c1-41ac-849e-2e9067e622be visibility changed to PUBLIC from AUTH. Existing tokens remain active.
+INFO 2025-10-29 15:56:53,693 views 13944 4032 Survey dd18bd79-26c1-41ac-849e-2e9067e622be updated by seif778811@gmail.com (role: super_admin)
+INFO 2025-10-29 15:56:54,921 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:56:54,965 views 13944 4032 Auto-generated public link for survey dd18bd79-26c1-41ac-849e-2e9067e622be by seif778811@gmail.com
+INFO 2025-10-29 15:56:54,982 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:56:54,984 models 13944 4032 Survey.save() - per_device_access before check: True (type: <class 'bool'>)
+INFO 2025-10-29 15:56:54,985 models 13944 4032 Survey.save() - per_device_access final value: True
+INFO 2025-10-29 15:56:54,994 signals 13944 4032 Survey dd18bd79-26c1-41ac-849e-2e9067e622be was published, sending availability notifications
+INFO 2025-10-29 15:56:54,995 views 13944 4032 Skipped sending survey availability notifications for survey dd18bd79-26c1-41ac-849e-2e9067e622be as send_notifications was not requested
+INFO 2025-10-29 15:56:55,992 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:56:55,993 dual_auth 13944 16248 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:56:56,127 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:57:01,001 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:57:01,006 views 13944 4032 Current link retrieved for survey dd18bd79-26c1-41ac-849e-2e9067e622be by seif778811@gmail.com
+INFO 2025-10-29 15:57:01,014 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:57:01,020 views 13944 4032 Current link retrieved for survey dd18bd79-26c1-41ac-849e-2e9067e622be by seif778811@gmail.com
+INFO 2025-10-29 15:58:03,410 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:58:03,453 views 13944 4032 Current link retrieved for survey dd18bd79-26c1-41ac-849e-2e9067e622be by seif778811@gmail.com
+INFO 2025-10-29 15:58:03,462 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:58:03,470 views 13944 4032 Current link retrieved for survey dd18bd79-26c1-41ac-849e-2e9067e622be by seif778811@gmail.com
+INFO 2025-10-29 15:58:26,309 signals 13944 4032 Sent survey completed notification to seif778811@gmail.com for response 5a6c4f4d-db5a-4225-9f50-622f566fb7c8 to survey dd18bd79-26c1-41ac-849e-2e9067e622be
+INFO 2025-10-29 15:58:26,342 views 13944 4032 Survey response submitted: 5a6c4f4d-db5a-4225-9f50-622f566fb7c8 for survey dd18bd79-26c1-41ac-849e-2e9067e622be by email None
+INFO 2025-10-29 15:58:38,051 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:58:47,389 dual_auth 13944 16248 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-10-29 15:58:47,392 dual_auth 13944 4032 User seif778811@gmail.com authenticated with regular JWT (universal)

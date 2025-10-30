@@ -122,7 +122,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = [
             'id', 'survey', 'text', 'question_type', 'options', 
-            'is_required', 'order', 
+            'is_required', 'order', 'validation_type',
             'NPS_Calculate', 'CSAT_Calculate', 'min_scale', 'max_scale', 'semantic_tag',
             'options_satisfaction_values', 'set_satisfaction_values',
             'created_at', 'updated_at'
