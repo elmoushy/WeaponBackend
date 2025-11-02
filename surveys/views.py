@@ -642,6 +642,165 @@ class SurveyViewSet(ModelViewSet):
         
         return queryset
     
+    def _calculate_trend(self, current_count, previous_count):
+        """
+        Calculate percentage change from previous month to current month.
+        
+        Args:
+            current_count: Count in current month
+            previous_count: Count in previous month
+            
+        Returns:
+            float: Percentage change (positive for increase, negative for decrease)
+        """
+        if previous_count == 0:
+            if current_count == 0:
+                return 0.0
+            else:
+                return 100.0  # 100% increase from zero
+        
+        trend = ((current_count - previous_count) / previous_count) * 100
+        return round(trend, 1)  # Round to 1 decimal place
+    
+    def _get_date_ranges(self):
+        """
+        Get date ranges for current month and previous month in UAE timezone.
+        
+        Returns:
+            dict: Contains 'current_start', 'current_end', 'previous_start', 'previous_end'
+        """
+        # Use UAE timezone
+        uae_tz = pytz.timezone('Asia/Dubai')
+        now = timezone.now().astimezone(uae_tz)
+        
+        # Current month range
+        current_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        # Next month's first day minus 1 microsecond to get end of current month
+        if now.month == 12:
+            next_month = now.replace(year=now.year + 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        else:
+            next_month = now.replace(month=now.month + 1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        current_month_end = next_month - timedelta(microseconds=1)
+        
+        # Previous month range
+        if now.month == 1:
+            previous_month_start = now.replace(year=now.year - 1, month=12, day=1, hour=0, minute=0, second=0, microsecond=0)
+        else:
+            previous_month_start = now.replace(month=now.month - 1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        previous_month_end = current_month_start - timedelta(microseconds=1)
+        
+        return {
+            'current_start': current_month_start,
+            'current_end': current_month_end,
+            'previous_start': previous_month_start,
+            'previous_end': previous_month_end
+        }
+    
+    def _calculate_analytics_with_trends(self, user):
+        """
+        Calculate analytics including trends for total, active surveys and responses.
+        
+        Args:
+            user: The authenticated user
+            
+        Returns:
+            dict: Analytics data with trends
+        """
+        # Get user's surveys (surveys they created)
+        user_surveys = Survey.objects.filter(creator=user, deleted_at__isnull=True)
+        
+        # Get date ranges
+        date_ranges = self._get_date_ranges()
+        
+        # Current counts
+        total_surveys = user_surveys.count()
+        active_surveys = user_surveys.filter(is_active=True, status='submitted').count()
+        total_responses = SurveyResponse.objects.filter(survey__creator=user, survey__deleted_at__isnull=True).count()
+        
+        # Calculate average response rate
+        surveys_with_responses = user_surveys.filter(status='submitted')
+        if surveys_with_responses.exists():
+            response_rates = []
+            for survey in surveys_with_responses:
+                responses_count = survey.responses.count()
+                # Assuming target is not defined, we'll calculate based on actual participation
+                # You can adjust this logic based on your business requirements
+                if responses_count > 0:
+                    response_rates.append(100.0)  # Placeholder logic
+            avg_response_rate = sum(response_rates) / len(response_rates) if response_rates else 0.0
+        else:
+            avg_response_rate = 0.0
+        
+        # Current month counts for trends
+        current_month_surveys = user_surveys.filter(
+            created_at__gte=date_ranges['current_start'],
+            created_at__lte=date_ranges['current_end']
+        ).count()
+        
+        current_month_active = user_surveys.filter(
+            is_active=True,
+            status='submitted',
+            created_at__gte=date_ranges['current_start'],
+            created_at__lte=date_ranges['current_end']
+        ).count()
+        
+        current_month_responses = SurveyResponse.objects.filter(
+            survey__creator=user,
+            survey__deleted_at__isnull=True,
+            submitted_at__gte=date_ranges['current_start'],
+            submitted_at__lte=date_ranges['current_end']
+        ).count()
+        
+        # Previous month counts for trends
+        previous_month_surveys = user_surveys.filter(
+            created_at__gte=date_ranges['previous_start'],
+            created_at__lte=date_ranges['previous_end']
+        ).count()
+        
+        previous_month_active = user_surveys.filter(
+            is_active=True,
+            status='submitted',
+            created_at__gte=date_ranges['previous_start'],
+            created_at__lte=date_ranges['previous_end']
+        ).count()
+        
+        previous_month_responses = SurveyResponse.objects.filter(
+            survey__creator=user,
+            survey__deleted_at__isnull=True,
+            submitted_at__gte=date_ranges['previous_start'],
+            submitted_at__lte=date_ranges['previous_end']
+        ).count()
+        
+        # Calculate trends
+        total_trend = self._calculate_trend(current_month_surveys, previous_month_surveys)
+        active_trend = self._calculate_trend(current_month_active, previous_month_active)
+        responses_trend = self._calculate_trend(current_month_responses, previous_month_responses)
+        
+        # Recent activity (this week)
+        week_start = timezone.now() - timedelta(days=7)
+        new_surveys_this_week = user_surveys.filter(created_at__gte=week_start).count()
+        new_responses_this_week = SurveyResponse.objects.filter(
+            survey__creator=user,
+            survey__deleted_at__isnull=True,
+            submitted_at__gte=week_start
+        ).count()
+        
+        return {
+            'total_surveys': total_surveys,
+            'active_surveys': active_surveys,
+            'total_responses': total_responses,
+            'avg_response_rate': round(avg_response_rate, 1),
+            'recent_activity': {
+                'new_surveys_this_week': new_surveys_this_week,
+                'new_responses_this_week': new_responses_this_week
+            },
+            'trends': {
+                'total': total_trend,
+                'active': active_trend,
+                'responses': responses_trend
+            }
+        }
+    
     def list(self, request, *args, **kwargs):
         """List surveys with uniform response and enhanced filtering"""
         try:
@@ -651,13 +810,17 @@ class SurveyViewSet(ModelViewSet):
             # Get filter information for response
             applied_filters = self._get_applied_filters_info()
             
+            # Calculate analytics with trends
+            analytics = self._calculate_analytics_with_trends(request.user)
+            
             if page is not None:
                 serializer = self.get_serializer(page, many=True)
                 response_data = self.get_paginated_response(serializer.data)
                 
-                # Add filter information to paginated response
+                # Add filter information and analytics to paginated response
                 if hasattr(response_data, 'data') and isinstance(response_data.data, dict):
                     response_data.data['applied_filters'] = applied_filters
+                    response_data.data.update(analytics)
                 
                 return response_data
             
@@ -667,7 +830,8 @@ class SurveyViewSet(ModelViewSet):
                 message="Surveys retrieved successfully",
                 data={
                     'results': serializer.data,
-                    'applied_filters': applied_filters
+                    'applied_filters': applied_filters,
+                    **analytics
                 }
             )
         except Exception as e:
@@ -3322,6 +3486,62 @@ class MySharedSurveysView(generics.ListAPIView):
                 # Return empty queryset to prevent 500 errors
                 return Survey.objects.none()
     
+    def _calculate_trend(self, current_count, previous_count):
+        """
+        Calculate percentage change from previous month to current month.
+        
+        Args:
+            current_count: Number of surveys in current month
+            previous_count: Number of surveys in previous month
+            
+        Returns:
+            float: Percentage change (positive for increase, negative for decrease)
+                   Returns 0 if previous count is 0 and current is also 0
+                   Returns 100 if previous count is 0 but current count > 0
+        """
+        if previous_count == 0:
+            if current_count == 0:
+                return 0.0
+            else:
+                return 100.0  # 100% increase from zero
+        
+        trend = ((current_count - previous_count) / previous_count) * 100
+        return round(trend, 1)  # Round to 1 decimal place
+    
+    def _get_date_ranges(self):
+        """
+        Get date ranges for current month and previous month in UAE timezone.
+        
+        Returns:
+            dict: Contains 'current_start', 'current_end', 'previous_start', 'previous_end'
+        """
+        # Use UAE timezone
+        uae_tz = pytz.timezone('Asia/Dubai')
+        now = timezone.now().astimezone(uae_tz)
+        
+        # Current month range
+        current_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        # Next month's first day minus 1 microsecond to get end of current month
+        if now.month == 12:
+            next_month = now.replace(year=now.year + 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        else:
+            next_month = now.replace(month=now.month + 1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        current_month_end = next_month - timedelta(microseconds=1)
+        
+        # Previous month range
+        if now.month == 1:
+            previous_month_start = now.replace(year=now.year - 1, month=12, day=1, hour=0, minute=0, second=0, microsecond=0)
+        else:
+            previous_month_start = now.replace(month=now.month - 1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        previous_month_end = current_month_start - timedelta(microseconds=1)
+        
+        return {
+            'current_start': current_month_start,
+            'current_end': current_month_end,
+            'previous_start': previous_month_start,
+            'previous_end': previous_month_end
+        }
+    
     def list(self, request, *args, **kwargs):
         """List shared surveys with uniform response format"""
         try:
@@ -3391,23 +3611,64 @@ class MySharedSurveysView(generics.ListAPIView):
                 
                 surveys_data.append(survey_data)
             
+            # Calculate trend data for auth_surveys and private_shared
+            date_ranges = self._get_date_ranges()
+            
+            # Current month counts (for AUTH + PUBLIC combined)
+            current_auth_count = queryset.filter(
+                Q(visibility='AUTH') | Q(visibility='PUBLIC'),
+                created_at__gte=date_ranges['current_start'],
+                created_at__lte=date_ranges['current_end']
+            ).count()
+            
+            # Current month counts (for PRIVATE + GROUPS combined)
+            current_private_shared_count = queryset.filter(
+                Q(visibility='PRIVATE') | Q(visibility='GROUPS'),
+                created_at__gte=date_ranges['current_start'],
+                created_at__lte=date_ranges['current_end']
+            ).count()
+            
+            # Previous month counts (for AUTH + PUBLIC combined)
+            previous_auth_count = queryset.filter(
+                Q(visibility='AUTH') | Q(visibility='PUBLIC'),
+                created_at__gte=date_ranges['previous_start'],
+                created_at__lte=date_ranges['previous_end']
+            ).count()
+            
+            # Previous month counts (for PRIVATE + GROUPS combined)
+            previous_private_shared_count = queryset.filter(
+                Q(visibility='PRIVATE') | Q(visibility='GROUPS'),
+                created_at__gte=date_ranges['previous_start'],
+                created_at__lte=date_ranges['previous_end']
+            ).count()
+            
+            # Calculate trends
+            auth_surveys_trend = self._calculate_trend(current_auth_count, previous_auth_count)
+            private_shared_trend = self._calculate_trend(current_private_shared_count, previous_private_shared_count)
+            
+            # Build access_summary object
+            access_summary = {
+                'auth_surveys': queryset.filter(Q(visibility='AUTH') | Q(visibility='PUBLIC')).count(),
+                'private_shared': queryset.filter(Q(visibility='PRIVATE') | Q(visibility='GROUPS')).count(),
+                'auth_surveys_trend': auth_surveys_trend,
+                'private_shared_trend': private_shared_trend
+            }
+            
             if page is not None:
-                # Return paginated response
+                # Return paginated response with access_summary
                 paginated_response = self.get_paginated_response(surveys_data)
+                # Add access_summary to the paginated response
+                paginated_response.data['access_summary'] = access_summary
                 return paginated_response
             
+            # Non-paginated response
             return uniform_response(
                 success=True,
                 message="Shared surveys retrieved successfully",
                 data={
                     'surveys': surveys_data,
                     'total_count': queryset.count(),
-                    'access_summary': {
-                        'public_surveys': queryset.filter(visibility='PUBLIC').count(),
-                        'auth_surveys': queryset.filter(visibility='AUTH').count(),
-                        'private_shared': queryset.filter(visibility='PRIVATE').count(),
-                        'group_shared': queryset.filter(visibility='GROUPS').count()
-                    }
+                    'access_summary': access_summary
                 }
             )
             
