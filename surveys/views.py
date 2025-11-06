@@ -2190,6 +2190,49 @@ class SurveyViewSet(ModelViewSet):
             valid_tokens = [token for token in active_tokens if token.is_valid()]
             
             if not valid_tokens:
+                # Auto-generate a public link for PUBLIC/AUTH surveys if none exists
+                if survey.visibility in ['PUBLIC', 'AUTH'] and survey.is_active and request.user.is_authenticated:
+                    try:
+                        # Generate unique token
+                        token = PublicAccessToken.generate_token()
+                        
+                        # Set expiration (default 365 days from now - 1 year)
+                        expires_at = timezone.now() + timedelta(days=365)
+                        
+                        # Create the new token record
+                        public_token = PublicAccessToken.objects.create(
+                            survey=survey,
+                            token=token,
+                            expires_at=expires_at,
+                            created_by=request.user
+                        )
+                        
+                        logger.info(f"Auto-generated public link for survey {survey.id} via current-link endpoint by {request.user.email}")
+                        
+                        # Build the response data
+                        response_data = {
+                            'token': token,
+                            'expires_at': expires_at.isoformat(),
+                            'survey_visibility': survey.visibility,
+                            'auto_generated': True,
+                            'note': 'This link will become invalid if survey visibility changes from PUBLIC/AUTH'
+                        }
+                        
+                        return uniform_response(
+                            success=True,
+                            message="Public link auto-generated successfully",
+                            data=response_data
+                        )
+                        
+                    except Exception as e:
+                        logger.error(f"Error auto-generating public link for survey {pk}: {e}")
+                        return uniform_response(
+                            success=False,
+                            message="Failed to generate public link for this survey.",
+                            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+                        )
+                
+                # If we can't auto-generate, return 404
                 return uniform_response(
                     success=False,
                     message="No active link found for this survey.",
@@ -8710,77 +8753,31 @@ class TemplateGalleryView(APIView):
 class PredefinedTemplatesView(APIView):
     """
     GET /api/surveys/templates/predefined/
-    Returns only predefined templates from JSON file
+    Returns only predefined templates from the database
     """
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        """Get predefined templates from JSON file"""
+        """Get predefined templates from database"""
         try:
-            import os
-            from django.conf import settings
+            from .serializers import SurveyTemplateSerializer
             
-            json_file_path = os.path.join(settings.BASE_DIR, 'predefined_templates_arabic.json')
-            predefined_data = []
+            # Get all predefined templates from the database
+            predefined_templates = SurveyTemplate.objects.filter(
+                is_predefined=True
+            ).prefetch_related('questions').order_by('-created_at')
             
-            try:
-                with open(json_file_path, 'r', encoding='utf-8') as f:
-                    json_data = json.load(f)
-                    
-                # Group templates and questions
-                templates_dict = {}
-                for item in json_data:
-                    if item['model'] == 'surveys.surveytemplate':
-                        template_id = item['pk']
-                        templates_dict[template_id] = {
-                            'id': template_id,
-                            'name': item['fields']['name'],
-                            'name_ar': item['fields']['name_ar'],
-                            'description': item['fields']['description'],
-                            'description_ar': item['fields']['description_ar'],
-                            'category': item['fields']['category'],
-                            'icon': item['fields']['icon'],
-                            'preview_image': item['fields']['preview_image'],
-                            'is_predefined': item['fields']['is_predefined'],
-                            'usage_count': item['fields']['usage_count'],
-                            'created_at': item['fields']['created_at'],
-                            'updated_at': item['fields']['updated_at'],
-                            'questions': []
-                        }
-                    elif item['model'] == 'surveys.templatequestion':
-                        template_id = item['fields']['template']
-                        if template_id in templates_dict:
-                            templates_dict[template_id]['questions'].append({
-                                'id': item['pk'],
-                                'text': item['fields']['text'],
-                                'text_ar': item['fields']['text_ar'],
-                                'question_type': item['fields']['question_type'],
-                                'options': item['fields']['options'],
-                                'is_required': item['fields']['is_required'],
-                                'order': item['fields']['order'],
-                                'placeholder': item['fields']['placeholder'],
-                                'placeholder_ar': item['fields']['placeholder_ar']
-                            })
-                
-                # Sort questions by order
-                for template in templates_dict.values():
-                    template['questions'].sort(key=lambda q: q['order'])
-                
-                predefined_data = list(templates_dict.values())
-                
-            except FileNotFoundError:
-                logger.warning(f"Predefined templates JSON file not found: {json_file_path}")
-                predefined_data = []
-            except json.JSONDecodeError as e:
-                logger.error(f"Error parsing JSON file: {e}")
-                predefined_data = []
+            # Serialize the templates
+            serializer = SurveyTemplateSerializer(predefined_templates, many=True)
+            
+            logger.info(f"Retrieved {len(serializer.data)} predefined templates for {request.user.email}")
             
             return uniform_response(
                 success=True,
                 message="Predefined templates retrieved successfully",
                 data={
-                    'templates': predefined_data,
-                    'total': len(predefined_data)
+                    'templates': serializer.data,
+                    'total': len(serializer.data)
                 },
                 status_code=status.HTTP_200_OK
             )
