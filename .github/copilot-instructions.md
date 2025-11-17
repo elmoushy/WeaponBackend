@@ -92,7 +92,7 @@ Survey.objects.filter(title=title)  # ❌ Fails on Oracle/SQL Server
 **Azure AD specifics** (`authentication/azure_auth.py`):
 - Uses `username=Object_ID` (not email) for Azure users
 - JWKS keys cached for 5 minutes
-- Always creates users with `auth_type='azure'` and `role='employee'`
+- Always creates users with `auth_type='azure'` and `role='user'`
 
 **Regular auth** (`authentication/views.py`):
 - Uses `username=email` for regular users

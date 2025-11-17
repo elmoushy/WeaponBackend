@@ -331,7 +331,7 @@ class AzureADAuthentication(authentication.BaseAuthentication):
                 email=email,             # User's email
                 first_name=given_name,   # Optional: for better UX
                 last_name=family_name,   # Optional: for better UX
-                role='employee',         # Default role
+                role='user',             # Default role (matches User.ROLE_CHOICES)
                 is_active=True,          # Active by default
                 # date_joined is set automatically by the model
             )

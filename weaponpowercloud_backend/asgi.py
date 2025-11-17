@@ -9,35 +9,25 @@ https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
 
 import os
 import django
-# from channels.routing import ProtocolTypeRouter, URLRouter  # COMMENTED OUT FOR PRODUCTION
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
-# from django.urls import re_path  # COMMENTED OUT FOR PRODUCTION
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'weaponpowercloud_backend.settings')
 django.setup()
 
-# WebSocket imports - COMMENTED OUT FOR PRODUCTION
-# from notifications.routing import websocket_urlpatterns
-# from notifications.middleware import JWTWebSocketMiddleware
-# from notifications.test_consumers import TestNotificationsConsumer
-# from notifications.consumers import NotificationsConsumer
+# Import WebSocket routing and middleware after Django setup
+from internal_chat.middleware import TokenAuthMiddleware
+from internal_chat.routing import websocket_urlpatterns
 
 django_asgi_app = get_asgi_application()
 
-# WebSocket routing - COMMENTED OUT FOR PRODUCTION
-# Separate routing for authenticated and test WebSocket connections
-# websocket_routing = URLRouter([
-#     # Test route without authentication
-#     re_path(r'ws/test/$', TestNotificationsConsumer.as_asgi()),
-#     # Authenticated notifications route
-#     re_path(r'ws/notifications/$', JWTWebSocketMiddleware(NotificationsConsumer.as_asgi())),
-# ])
-
-# Standard ASGI application for production without WebSocket support
-application = django_asgi_app
-
-# WebSocket-enabled application - COMMENTED OUT FOR PRODUCTION
-# application = ProtocolTypeRouter({
-#     "http": django_asgi_app,
-#     "websocket": websocket_routing,
-# })
+# WebSocket-enabled ASGI application - Phase 2 Real-Time Features
+application = ProtocolTypeRouter({
+    "http": django_asgi_app,
+    "websocket": AllowedHostsOriginValidator(
+        TokenAuthMiddleware(
+            URLRouter(websocket_urlpatterns)
+        )
+    ),
+})

@@ -23,7 +23,7 @@ class Command(BaseCommand):
             '--role',
             type=str,
             required=True,
-            choices=['employee', 'manager', 'admin'],
+            choices=['user', 'admin', 'super_admin'],
             help='New role for the user'
         )
         parser.add_argument(

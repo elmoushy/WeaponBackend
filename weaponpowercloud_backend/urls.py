@@ -32,6 +32,7 @@ def api_root(request):
             'authentication': '/api/auth/',
             'surveys': '/api/surveys/',
             'notifications': '/api/notifications/',
+            'internal_chat': '/api/internal-chat/',
             'admin': '/admin/',
             'api_docs': '/api/' if settings.DEBUG else None,
         },
@@ -54,6 +55,9 @@ urlpatterns = [
     
     # Notifications endpoints
     path('api/notifications/', include('notifications.urls')),
+    
+    # Internal Chat endpoints
+    path('api/internal-chat/', include('internal_chat.urls', namespace='internal_chat')),
     
     # Add your other app URLs here
     # path('api/weapons/', include('weapons.urls')),

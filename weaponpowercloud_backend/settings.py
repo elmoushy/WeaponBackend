@@ -67,6 +67,7 @@ else:
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',  # Must be FIRST for ASGI support
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -80,11 +81,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_extensions',
     "django_filters",
-    # 'channels',  # WebSocket support - COMMENTED OUT FOR PRODUCTION
+    'channels',  # WebSocket support - Phase 2 enabled
     # Local apps
     'authentication',
     'surveys',
     'notifications',  # New app for real-time notifications
+    'internal_chat',  # Internal chat system
 ]
 
 # Custom User Model Configuration
@@ -382,6 +384,16 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'internal_chat': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',  # DEBUG level to catch WebSocket issues
+            'propagate': True,
+        },
+        'daphne': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
         'django': {
             'handlers': ['console'],
             'level': 'INFO',
@@ -392,26 +404,28 @@ LOGGING = {
 # Create logs directory if it doesn't exist
 os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
-# Channels Configuration - COMMENTED OUT FOR PRODUCTION
-# ASGI_APPLICATION = 'weaponpowercloud_backend.asgi.application'
+# Channels Configuration - Phase 2 Real-Time Features
+ASGI_APPLICATION = 'weaponpowercloud_backend.asgi.application'
 
-# Redis Channel Layer Configuration - COMMENTED OUT FOR PRODUCTION
-# CHANNEL_LAYERS = {
-#     'default': {
-#         # Temporarily using in-memory backend for compatibility with Redis 3.2
-#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#         # 'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         # 'CONFIG': {
-#         #     "hosts": [(os.getenv('REDIS_HOST', '127.0.0.1'), int(os.getenv('REDIS_PORT', 6379)))],
-#         #     "symmetric_encryption_keys": [SECRET_KEY[:32]],  # Use first 32 chars of SECRET_KEY
-#         #     "capacity": 1500,  # Maximum number of messages in a channel
-#         #     "expiry": 60,  # Message expiry time in seconds
-#         # },
-#     },
-# }
+# Redis Channel Layer Configuration
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(os.getenv('REDIS_HOST', '127.0.0.1'), int(os.getenv('REDIS_PORT', 6379)))],
+            "capacity": 1500,  # Maximum number of messages in a channel
+            "expiry": 10,  # Message expiry time in seconds
+        },
+    },
+}
 
-# WebSocket Configuration - COMMENTED OUT FOR PRODUCTION
-# WEBSOCKET_URL = os.getenv('WEBSOCKET_URL', 'ws://localhost:8000/ws/')
+# WebSocket Configuration
+WEBSOCKET_ACCEPT_ALL = False  # Require authentication
+WEBSOCKET_HEARTBEAT_INTERVAL = 30  # Ping/pong interval in seconds
+
+# WebSocket CORS - Allow connections from frontend origins
+# This is used by AllowedHostsOriginValidator in asgi.py
+ALLOWED_HOSTS_ORIGINS = CORS_ALLOWED_ORIGINS  # Reuse CORS origins for WebSocket
 
 # Security Configuration
 # Brute Force Protection Settings
@@ -472,3 +486,35 @@ ALLOWED_FILE_TYPES = [
     'image/jpeg', 'image/jpg', 'image/png', 'image/gif',
     'application/pdf', 'text/plain', 'text/csv'
 ]
+
+# ============================================================================
+# INTERNAL CHAT CONFIGURATION
+# ============================================================================
+
+# Internal Chat Feature Toggle
+INTERNAL_CHAT_ENABLED = os.getenv('INTERNAL_CHAT_ENABLED', 'True').lower() == 'true'
+
+# Default group posting mode for new groups ('all' or 'admins_only')
+DEFAULT_GROUP_POSTING_MODE = os.getenv('DEFAULT_GROUP_POSTING_MODE', 'all')
+
+# Attachment configuration for chat
+INTERNAL_CHAT_MAX_ATTACHMENT_SIZE = int(
+    os.getenv('INTERNAL_CHAT_MAX_ATTACHMENT_SIZE', str(10 * 1024 * 1024))  # 10MB default
+)
+
+INTERNAL_CHAT_ALLOWED_CONTENT_TYPES = [
+    'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'text/plain',
+    'text/csv',
+]
+
+# Rate limiting for chat messages (format: 'number/period')
+# Example: '60/minute' = 60 messages per minute
+INTERNAL_CHAT_MESSAGE_RATE_LIMIT = os.getenv('INTERNAL_CHAT_MESSAGE_RATE_LIMIT', '60/minute')

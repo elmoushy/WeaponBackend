@@ -1,0 +1,49 @@
+"""
+URL Configuration for Internal Chat
+"""
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views
+
+app_name = 'internal_chat'
+
+router = DefaultRouter()
+router.register(r'threads', views.ThreadViewSet, basename='thread')
+router.register(r'attachments', views.AttachmentViewSet, basename='attachment')
+router.register(r'users', views.UserListView, basename='user')
+
+# Nested routes for messages within threads
+urlpatterns = [
+    path('', include(router.urls)),
+    
+    # Messages endpoints
+    path(
+        'threads/<uuid:thread_id>/messages/',
+        views.MessageViewSet.as_view({'get': 'list', 'post': 'create'}),
+        name='thread-messages'
+    ),
+    path(
+        'messages/<uuid:pk>/',
+        views.MessageViewSet.as_view({
+            'get': 'retrieve',
+            'patch': 'partial_update',
+            'delete': 'destroy'
+        }),
+        name='message-detail'
+    ),
+    path(
+        'messages/<uuid:pk>/read/',
+        views.MessageViewSet.as_view({'post': 'read'}),
+        name='message-read'
+    ),
+    path(
+        'messages/<uuid:pk>/reactions/',
+        views.MessageViewSet.as_view({'post': 'reactions'}),
+        name='message-reactions'
+    ),
+    path(
+        'messages/<uuid:pk>/reactions/<str:emoji>/',
+        views.MessageViewSet.as_view({'delete': 'reactions'}),
+        name='message-reaction-remove'
+    ),
+]

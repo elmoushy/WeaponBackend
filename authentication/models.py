@@ -98,6 +98,17 @@ class User(AbstractBaseUser):
         help_text='Last time user logged in'
     )
     
+    # Real-time presence tracking (Phase 2)
+    is_online = models.BooleanField(
+        default=False,
+        help_text='Whether user is currently online (WebSocket connected)'
+    )
+    last_seen = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='Last time user was seen online'
+    )
+    
     objects = OracleCompatibleUserManager()
     
     USERNAME_FIELD = 'username'

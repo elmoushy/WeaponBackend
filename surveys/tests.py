@@ -62,7 +62,7 @@ class SurveyAPITest(APITestCase):
         self.user = User.objects.create_user(
             email='test@example.com',
             password='testpass123',
-            role='employee'
+            role='user'
         )
         self.admin_user = User.objects.create_user(
             email='admin@example.com',
