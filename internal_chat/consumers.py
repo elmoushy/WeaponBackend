@@ -5,6 +5,7 @@ import json
 import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
+from channels.layers import get_channel_layer
 from .models import Thread, ThreadParticipant, Message, MessageReaction
 from .services import MessageService
 
@@ -323,6 +324,18 @@ class ThreadConsumer(AsyncWebsocketConsumer):
             'thread': event['thread'],
         }))
     
+    async def unread_count_update(self, event):
+        """Unread count update for this thread"""
+        # Only send to the specific user this count is for
+        if 'user_id' in event and event['user_id'] != self.user.id:
+            return  # Skip sending to other users
+        
+        await self.send(text_data=json.dumps({
+            'type': 'unread.count.update',
+            'thread_id': event['thread_id'],
+            'unread_count': event['unread_count'],
+        }))
+    
     # Database operations (async wrappers)
     @database_sync_to_async
     def check_participant(self):
@@ -394,6 +407,23 @@ class ThreadConsumer(AsyncWebsocketConsumer):
             ).delete()
         except Exception as e:
             logger.error(f"Error removing reaction: {str(e)}")
+    
+    @staticmethod
+    async def send_unread_count_update(thread_id, user_id, unread_count):
+        """
+        Send updated unread count for a specific thread to a user
+        This is a static method that can be called from services
+        """
+        channel_layer = get_channel_layer()
+        await channel_layer.group_send(
+            f'thread_{thread_id}',
+            {
+                'type': 'unread_count_update',
+                'thread_id': str(thread_id),
+                'unread_count': unread_count
+            }
+        )
+        logger.debug(f"Sent unread count update for thread {thread_id} to user {user_id}: {unread_count}")
 
 
 class PresenceConsumer(AsyncWebsocketConsumer):
@@ -484,3 +514,84 @@ class PresenceConsumer(AsyncWebsocketConsumer):
         self.user.is_online = is_online
         self.user.last_seen = timezone.now()
         self.user.save(update_fields=['is_online', 'last_seen'])
+
+
+class UserNotificationConsumer(AsyncWebsocketConsumer):
+    """
+    Global user notification WebSocket consumer
+    Works across all pages for real-time updates (unread counts, notifications, etc.)
+    """
+    
+    async def connect(self):
+        """
+        Called when WebSocket connection is established
+        """
+        self.user = self.scope['user']
+        
+        if self.user.is_anonymous:
+            await self.close(code=4001)
+            return
+        
+        # Join user's personal notification group
+        self.group_name = f'user_{self.user.id}'
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+        
+        await self.accept()
+        
+        # Send initial unread counts
+        await self.send_initial_unread_counts()
+        
+        logger.info(f"User {self.user.id} connected to notification WebSocket")
+    
+    async def disconnect(self, close_code):
+        """
+        Called when WebSocket connection is closed
+        """
+        # Leave user's notification group (only if it was set)
+        if hasattr(self, 'group_name'):
+            await self.channel_layer.group_discard(
+                self.group_name,
+                self.channel_name
+            )
+        
+        if hasattr(self, 'user') and not self.user.is_anonymous:
+            logger.info(f"User {self.user.id} disconnected from notification WebSocket")
+    
+    async def send_initial_unread_counts(self):
+        """
+        Send current unread counts when user connects
+        """
+        total_unread = await self.get_total_unread()
+        
+        await self.send(text_data=json.dumps({
+            'type': 'unread.counts.initial',
+            'total_unread': total_unread
+        }))
+    
+    async def chat_unread_update(self, event):
+        """
+        Forward chat unread updates to user
+        """
+        await self.send(text_data=json.dumps({
+            'type': 'chat.unread.update',
+            'thread_id': event['thread_id'],
+            'unread_count': event['unread_count'],
+            'total_unread': event.get('total_unread')
+        }))
+    
+    @database_sync_to_async
+    def get_total_unread(self):
+        """
+        Get total unread count across all threads
+        """
+        from django.db.models import Sum
+        total = ThreadParticipant.objects.filter(
+            user=self.user,
+            left_at__isnull=True
+        ).aggregate(
+            total=Sum('unread_count')
+        )['total'] or 0
+        return total

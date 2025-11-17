@@ -16,6 +16,13 @@ router.register(r'users', views.UserListView, basename='user')
 urlpatterns = [
     path('', include(router.urls)),
     
+    # Total unread count endpoint
+    path(
+        'unread-count/',
+        views.get_total_unread_count,
+        name='total-unread-count'
+    ),
+    
     # Messages endpoints
     path(
         'threads/<uuid:thread_id>/messages/',
@@ -37,13 +44,13 @@ urlpatterns = [
         name='message-read'
     ),
     path(
-        'messages/<uuid:pk>/reactions/',
-        views.MessageViewSet.as_view({'post': 'reactions'}),
-        name='message-reactions'
+        'messages/<uuid:pk>/react/',
+        views.MessageViewSet.as_view({'post': 'add_reaction'}),
+        name='message-react'
     ),
     path(
-        'messages/<uuid:pk>/reactions/<str:emoji>/',
-        views.MessageViewSet.as_view({'delete': 'reactions'}),
+        'messages/<uuid:pk>/react/<str:emoji>/',
+        views.MessageViewSet.as_view({'delete': 'remove_reaction'}),
         name='message-reaction-remove'
     ),
 ]

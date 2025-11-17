@@ -83,6 +83,7 @@ class ThreadParticipant(models.Model):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default=ROLE_MEMBER, db_index=True)
     is_muted = models.BooleanField(default=False)
+    unread_count = models.IntegerField(default=0, db_index=True)
     last_read_at = models.DateTimeField(null=True, blank=True)
     joined_at = models.DateTimeField(auto_now_add=True)
     left_at = models.DateTimeField(null=True, blank=True)
@@ -96,6 +97,7 @@ class ThreadParticipant(models.Model):
             models.Index(fields=['thread', 'user']),
             models.Index(fields=['user', 'joined_at']),
             models.Index(fields=['thread', 'role']),
+            models.Index(fields=['user', 'unread_count']),
         ]
     
     def __str__(self):
@@ -180,9 +182,10 @@ class MessageReaction(models.Model):
     
     class Meta:
         db_table = 'internal_chat_reaction'
-        unique_together = [['message', 'user', 'emoji']]
+        unique_together = [['message', 'user']]
         indexes = [
             models.Index(fields=['message', 'emoji']),
+            models.Index(fields=['message', 'user']),
         ]
     
     def __str__(self):

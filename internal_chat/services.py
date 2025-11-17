@@ -333,6 +333,28 @@ class MessageService:
         thread.updated_at = timezone.now()
         thread.save(update_fields=['updated_at'])
         
+        # Increment unread count for all participants except sender
+        participants = ThreadParticipant.objects.filter(
+            thread=thread,
+            left_at__isnull=True
+        ).exclude(user=sender)
+        
+        for participant in participants:
+            # Use F() expression to prevent race conditions
+            from django.db.models import F
+            ThreadParticipant.objects.filter(id=participant.id).update(
+                unread_count=F('unread_count') + 1
+            )
+            # Refresh to get updated count
+            participant.refresh_from_db()
+            
+            # Broadcast unread count update to the user's WebSocket
+            MessageService._broadcast_unread_count_update(
+                thread.id,
+                participant.user.id,
+                participant.unread_count
+            )
+        
         # Broadcast to WebSocket clients (Phase 2 real-time)
         MessageService._broadcast_message_new(message)
         
@@ -402,7 +424,17 @@ class MessageService:
         else:
             participant.last_read_at = timezone.now()
         
-        participant.save(update_fields=['last_read_at'])
+        # Reset unread count to 0
+        participant.unread_count = 0
+        participant.save(update_fields=['last_read_at', 'unread_count'])
+        
+        # Broadcast unread count update
+        MessageService._broadcast_unread_count_update(
+            thread.id,
+            user.id,
+            0
+        )
+        
         logger.info(f"User {user.id} marked thread {thread.id} as read")
     
     @staticmethod
@@ -410,6 +442,7 @@ class MessageService:
     def add_reaction(message, user, emoji):
         """
         Add emoji reaction to message
+        User can only have one reaction per message - old reaction is deleted if exists
         """
         # Check if reactions are enabled
         if message.thread.type == Thread.TYPE_GROUP:
@@ -428,14 +461,20 @@ class MessageService:
         ).exists():
             raise PermissionDenied("You must be a participant to react")
         
-        reaction, created = MessageReaction.objects.get_or_create(
+        # Delete existing reaction if any (user can only have one reaction per message)
+        MessageReaction.objects.filter(
+            message=message,
+            user=user
+        ).delete()
+        
+        # Create new reaction
+        reaction = MessageReaction.objects.create(
             message=message,
             user=user,
             emoji=emoji
         )
         
-        if created:
-            logger.info(f"User {user.id} reacted {emoji} to message {message.id}")
+        logger.info(f"User {user.id} reacted {emoji} to message {message.id}")
         
         return reaction
     
@@ -526,6 +565,53 @@ class MessageService:
             logger.debug(f"Broadcasted message deletion {message.id} to group {thread_group_name}")
         except Exception as e:
             logger.error(f"Error broadcasting message deletion: {str(e)}")
+    
+    @staticmethod
+    def _broadcast_unread_count_update(thread_id, user_id, unread_count):
+        """
+        Broadcast unread count update to a specific user's WebSocket connection
+        Sends to both thread-specific and global user notification channels
+        """
+        try:
+            from django.db.models import Sum
+            channel_layer = get_channel_layer()
+            thread_group_name = f'thread_{thread_id}'
+            user_group_name = f'user_{user_id}'
+            
+            # Send to thread group (for users currently viewing the thread)
+            async_to_sync(channel_layer.group_send)(
+                thread_group_name,
+                {
+                    'type': 'unread_count_update',
+                    'thread_id': str(thread_id),
+                    'unread_count': unread_count,
+                    'user_id': user_id,
+                }
+            )
+            
+            # Calculate total unread for sidebar badge
+            total_unread = ThreadParticipant.objects.filter(
+                user_id=user_id,
+                left_at__isnull=True
+            ).aggregate(
+                total=Sum('unread_count')
+            )['total'] or 0
+            
+            # Send to user's global notification channel (for cross-page updates)
+            async_to_sync(channel_layer.group_send)(
+                user_group_name,
+                {
+                    'type': 'chat_unread_update',
+                    'thread_id': str(thread_id),
+                    'unread_count': unread_count,
+                    'total_unread': total_unread,
+                }
+            )
+            
+            logger.debug(f"Broadcasted unread count update for thread {thread_id} to user {user_id}: {unread_count} (total: {total_unread})")
+        except Exception as e:
+            logger.error(f"Error broadcasting unread count update: {str(e)}")
+
 
 
 class ValidationService:

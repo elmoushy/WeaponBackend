@@ -204,7 +204,6 @@ class ThreadParticipantSerializer(serializers.ModelSerializer):
     Serializer for thread participants
     """
     user = UserBasicSerializer(read_only=True)
-    unread_count = serializers.SerializerMethodField()
     
     class Meta:
         model = ThreadParticipant
@@ -213,11 +212,6 @@ class ThreadParticipantSerializer(serializers.ModelSerializer):
             'joined_at', 'unread_count'
         ]
         read_only_fields = ['id', 'user', 'joined_at', 'unread_count']
-    
-    def get_unread_count(self, obj):
-        if obj.left_at:
-            return 0
-        return ThreadService.get_unread_count(obj.thread, obj.user)
 
 
 class GroupSettingsSerializer(serializers.ModelSerializer):
@@ -283,8 +277,19 @@ class ThreadSerializer(serializers.ModelSerializer):
         return None
     
     def get_unread_count(self, obj):
+        """
+        Get unread count for current user from stored field
+        """
         user = self.context['request'].user
-        return ThreadService.get_unread_count(obj, user)
+        try:
+            participant = ThreadParticipant.objects.get(
+                thread=obj,
+                user=user,
+                left_at__isnull=True
+            )
+            return participant.unread_count
+        except ThreadParticipant.DoesNotExist:
+            return 0
     
     def get_my_role(self, obj):
         user = self.context['request'].user

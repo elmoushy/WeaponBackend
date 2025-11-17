@@ -3,11 +3,11 @@ API Views for Internal Chat
 """
 import logging
 from rest_framework import viewsets, status, filters
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import CursorPagination
-from django.db.models import Q, Prefetch
+from django.db.models import Q, Prefetch, Sum
 from django.shortcuts import get_object_or_404
 
 from .models import (
@@ -613,3 +613,25 @@ class UserListView(viewsets.ViewSet):
             'count': len(users_data),
             'users': users_data
         })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_total_unread_count(request):
+    """
+    Get total unread message count across all threads for current user
+    Used for sidebar badge
+    """
+    user = request.user
+    
+    # Sum all unread counts from user's thread participations
+    total_unread = ThreadParticipant.objects.filter(
+        user=user,
+        left_at__isnull=True
+    ).aggregate(
+        total=Sum('unread_count')
+    )['total'] or 0
+    
+    return Response({
+        'total_unread_count': total_unread
+    })
