@@ -235,12 +235,15 @@ class Attachment(models.Model):
     message = models.ForeignKey(
         Message,
         on_delete=models.CASCADE,
-        related_name='attachments'
+        related_name='attachments',
+        null=True,
+        blank=True
     )
     file = models.FileField(upload_to='chat/attachments/%Y/%m/%d/')
     file_name = models.CharField(max_length=255)
     content_type = models.CharField(max_length=100)
     size = models.BigIntegerField()  # Size in bytes
+    caption = models.TextField(blank=True, null=True)  # Optional caption/comment
     checksum = models.CharField(max_length=64, null=True, blank=True)  # SHA256
     created_at = models.DateTimeField(auto_now_add=True)
     

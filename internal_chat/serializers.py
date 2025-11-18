@@ -42,7 +42,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Attachment
-        fields = ['id', 'file_name', 'content_type', 'size', 'size_mb', 'url', 'created_at']
+        fields = ['id', 'file_name', 'content_type', 'size', 'size_mb', 'url', 'caption', 'created_at']
         read_only_fields = ['id', 'size', 'size_mb', 'created_at']
     
     def get_url(self, obj):
@@ -59,10 +59,12 @@ class AttachmentUploadSerializer(serializers.ModelSerializer):
     Serializer for uploading attachments
     """
     file = serializers.FileField()
+    file_name = serializers.CharField(required=False, allow_blank=True)
+    caption = serializers.CharField(required=False, allow_blank=True, max_length=2000)
     
     class Meta:
         model = Attachment
-        fields = ['id', 'file', 'file_name', 'content_type', 'size']
+        fields = ['id', 'file', 'file_name', 'caption', 'content_type', 'size']
         read_only_fields = ['id', 'size', 'content_type']
     
     def validate_file(self, value):
@@ -83,13 +85,28 @@ class AttachmentUploadSerializer(serializers.ModelSerializer):
         return value
     
     def create(self, validated_data):
+        import uuid
+        import os
         file = validated_data['file']
+        
+        # Extract filename from uploaded file
+        original_filename = file.name
+        file_name = validated_data.get('file_name')
+        
+        # If no filename provided, generate one with unique ID
+        if not file_name:
+            # Extract file extension
+            name, ext = os.path.splitext(original_filename)
+            # Generate unique filename: originalname_uuid.ext
+            unique_id = str(uuid.uuid4())[:8]  # Short UUID
+            file_name = f"{name}_{unique_id}{ext}"
         
         # Create attachment without message (will be linked later)
         attachment = Attachment.objects.create(
             message=None,  # Will be set when message is created
             file=file,
-            file_name=validated_data.get('file_name', file.name),
+            file_name=file_name,
+            caption=validated_data.get('caption', ''),
             content_type=file.content_type,
             size=file.size
         )
@@ -173,7 +190,7 @@ class MessageCreateSerializer(serializers.Serializer):
     """
     Serializer for creating messages
     """
-    content = serializers.CharField(max_length=10000)
+    content = serializers.CharField(max_length=10000, required=False, allow_blank=True)
     reply_to = serializers.UUIDField(required=False, allow_null=True)
     attachment_ids = serializers.ListField(
         child=serializers.UUIDField(),
@@ -181,10 +198,21 @@ class MessageCreateSerializer(serializers.Serializer):
         allow_empty=True
     )
     
-    def validate_content(self, value):
-        if not value or not value.strip():
-            raise serializers.ValidationError("Message content cannot be empty")
-        return value.strip()
+    def validate(self, data):
+        """
+        Validate that either content or attachments are provided
+        """
+        content = data.get('content', '').strip()
+        attachment_ids = data.get('attachment_ids', [])
+        
+        if not content and not attachment_ids:
+            raise serializers.ValidationError(
+                "Message must have either content or attachments"
+            )
+        
+        # Store cleaned content
+        data['content'] = content
+        return data
 
 
 class MessageUpdateSerializer(serializers.Serializer):

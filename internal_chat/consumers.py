@@ -388,11 +388,7 @@ class ThreadConsumer(AsyncWebsocketConsumer):
         """Add reaction to message"""
         try:
             message = Message.objects.get(id=message_id, thread_id=self.thread_id)
-            MessageReaction.objects.get_or_create(
-                message=message,
-                user=self.user,
-                emoji=emoji
-            )
+            MessageService.add_reaction(message, self.user, emoji)
         except Exception as e:
             logger.error(f"Error adding reaction: {str(e)}")
     
@@ -400,11 +396,8 @@ class ThreadConsumer(AsyncWebsocketConsumer):
     def remove_reaction(self, message_id, emoji):
         """Remove reaction from message"""
         try:
-            MessageReaction.objects.filter(
-                message_id=message_id,
-                user=self.user,
-                emoji=emoji
-            ).delete()
+            message = Message.objects.get(id=message_id, thread_id=self.thread_id)
+            MessageService.remove_reaction(message, self.user, emoji)
         except Exception as e:
             logger.error(f"Error removing reaction: {str(e)}")
     

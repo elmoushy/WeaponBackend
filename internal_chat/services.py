@@ -476,6 +476,9 @@ class MessageService:
         
         logger.info(f"User {user.id} reacted {emoji} to message {message.id}")
         
+        # Broadcast reaction added via WebSocket
+        MessageService._broadcast_reaction_added(message, user, emoji)
+        
         return reaction
     
     @staticmethod
@@ -491,6 +494,9 @@ class MessageService:
             )
             reaction.delete()
             logger.info(f"User {user.id} removed reaction {emoji} from message {message.id}")
+            
+            # Broadcast reaction removed via WebSocket
+            MessageService._broadcast_reaction_removed(message, user, emoji)
         except MessageReaction.DoesNotExist:
             pass
     
@@ -503,6 +509,12 @@ class MessageService:
         try:
             channel_layer = get_channel_layer()
             thread_group_name = f'thread_{message.thread_id}'
+            
+            # Reload message with all relationships to ensure attachments are included
+            from .models import Message
+            message = Message.objects.select_related(
+                'sender', 'reply_to', 'thread'
+            ).prefetch_related('attachments', 'reactions__user').get(id=message.id)
             
             # Serialize message
             from .serializers import MessageSerializer
@@ -611,6 +623,50 @@ class MessageService:
             logger.debug(f"Broadcasted unread count update for thread {thread_id} to user {user_id}: {unread_count} (total: {total_unread})")
         except Exception as e:
             logger.error(f"Error broadcasting unread count update: {str(e)}")
+    
+    @staticmethod
+    def _broadcast_reaction_added(message, user, emoji):
+        """
+        Broadcast reaction added via WebSocket
+        """
+        try:
+            channel_layer = get_channel_layer()
+            thread_group_name = f'thread_{message.thread_id}'
+            
+            async_to_sync(channel_layer.group_send)(
+                thread_group_name,
+                {
+                    'type': 'reaction_added',
+                    'message_id': str(message.id),
+                    'user_id': user.id,
+                    'emoji': emoji,
+                }
+            )
+            logger.info(f"Broadcasted reaction added: {emoji} by user {user.id} to message {message.id}")
+        except Exception as e:
+            logger.error(f"Error broadcasting reaction added: {str(e)}")
+    
+    @staticmethod
+    def _broadcast_reaction_removed(message, user, emoji):
+        """
+        Broadcast reaction removed via WebSocket
+        """
+        try:
+            channel_layer = get_channel_layer()
+            thread_group_name = f'thread_{message.thread_id}'
+            
+            async_to_sync(channel_layer.group_send)(
+                thread_group_name,
+                {
+                    'type': 'reaction_removed',
+                    'message_id': str(message.id),
+                    'user_id': user.id,
+                    'emoji': emoji,
+                }
+            )
+            logger.info(f"Broadcasted reaction removed: {emoji} by user {user.id} from message {message.id}")
+        except Exception as e:
+            logger.error(f"Error broadcasting reaction removed: {str(e)}")
 
 
 

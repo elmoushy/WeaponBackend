@@ -9056,3 +9056,2325 @@ INFO 2025-11-17 16:04:57,683 consumers 4468 3644 User 1 disconnected from thread
 INFO 2025-11-17 16:04:58,990 consumers 4468 3644 User 8 disconnected from notification WebSocket
 INFO 2025-11-17 16:04:59,000 consumers 4468 3644 User 8 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
 INFO 2025-11-17 16:05:48,045 server 4468 3644 Killed 0 pending application instances
+INFO 2025-11-18 15:00:07,050 cli 19736 16976 Starting server at tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 15:00:07,051 server 19736 16976 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+INFO 2025-11-18 15:00:07,052 server 19736 16976 Configuring endpoint tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 15:00:07,053 server 19736 16976 Listening on TCP address 0.0.0.0:8000
+INFO 2025-11-18 15:00:09,061 server 19736 16976 Killed 0 pending application instances
+INFO 2025-11-18 15:00:11,833 cli 9504 4068 Starting server at tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 15:00:11,834 server 9504 4068 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+INFO 2025-11-18 15:00:11,835 server 9504 4068 Configuring endpoint tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 15:00:11,835 server 9504 4068 Listening on TCP address 0.0.0.0:8000
+INFO 2025-11-18 15:01:06,178 serializers 9504 18948 Looking for user with email: seif778811@gmail.com
+INFO 2025-11-18 15:01:06,180 managers 9504 18948 Looking for user with email: seif778811@gmail.com
+INFO 2025-11-18 15:01:06,222 serializers 9504 18948 User found: seif778811@gmail.com
+INFO 2025-11-18 15:01:06,222 serializers 9504 18948 Authenticating with username: seif778811@gmail.com
+INFO 2025-11-18 15:01:07,220 serializers 9504 18948 Authentication result: Success
+INFO 2025-11-18 15:01:07,221 serializers 9504 18948 Validation successful
+INFO 2025-11-18 15:01:07,243 views 9504 18948 User logged in: seif778811@gmail.com
+INFO 2025-11-18 15:01:07,791 dual_auth 9504 21620 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:01:07,792 views 9504 21620 Building queryset for user seif778811@gmail.com
+INFO 2025-11-18 15:01:07,794 views 9504 21620 Successfully built queryset for user seif778811@gmail.com
+ERROR 2025-11-18 15:01:10,121 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:01:14,281 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+INFO 2025-11-18 15:01:18,479 serializers 9504 7524 Looking for user with email: alice@weaponpower.com
+INFO 2025-11-18 15:01:18,479 managers 9504 7524 Looking for user with email: alice@weaponpower.com
+INFO 2025-11-18 15:01:18,486 serializers 9504 7524 User found: alice@weaponpower.com
+INFO 2025-11-18 15:01:18,486 serializers 9504 7524 Authenticating with username: alice@weaponpower.com
+ERROR 2025-11-18 15:01:19,317 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 57, in await_many_dispatch
+    await task
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 347, in receive
+    message_channel, message = await self.receive_single(
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        real_channel
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 402, in receive_single
+    content = await self._brpop_with_clean(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        index, channel_key, timeout=self.brpop_timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 238, in _brpop_with_clean
+    await connection.eval(cleanup_script, 0, channel, backup_queue)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+INFO 2025-11-18 15:01:19,744 serializers 9504 7524 Authentication result: Success
+INFO 2025-11-18 15:01:19,745 serializers 9504 7524 Validation successful
+INFO 2025-11-18 15:01:19,759 views 9504 7524 User logged in: alice@weaponpower.com
+INFO 2025-11-18 15:01:19,971 dual_auth 9504 14348 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:01:19,972 views 9504 14348 Building queryset for user alice@weaponpower.com
+INFO 2025-11-18 15:01:19,974 views 9504 14348 Successfully built queryset for user alice@weaponpower.com
+INFO 2025-11-18 15:01:22,068 dual_auth 9504 20208 User seif778811@gmail.com authenticated with regular JWT (universal)
+ERROR 2025-11-18 15:01:22,350 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+INFO 2025-11-18 15:01:22,409 dual_auth 9504 6788 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:01:23,088 dual_auth 9504 21700 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:01:23,089 views 9504 21700 Building queryset for user alice@weaponpower.com
+INFO 2025-11-18 15:01:23,091 views 9504 21700 Successfully built queryset for user alice@weaponpower.com
+ERROR 2025-11-18 15:01:26,377 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:01:26,388 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+INFO 2025-11-18 15:01:27,351 dual_auth 9504 20292 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:01:27,412 dual_auth 9504 19484 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:01:27,695 dual_auth 9504 780 User seif778811@gmail.com authenticated with regular JWT (universal)
+ERROR 2025-11-18 15:01:29,746 services 9504 780 Error broadcasting unread count update: Error 10061 connecting to 127.0.0.1:6379. 10061.
+INFO 2025-11-18 15:01:29,747 services 9504 780 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+ERROR 2025-11-18 15:01:31,431 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:01:32,452 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 41, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+INFO 2025-11-18 15:01:32,860 dual_auth 9504 19116 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:01:32,880 signals 9504 19116 Sent notifications for message fc332b37-4315-44e2-a2d6-4a0a8a2f0063 to 1 participants
+ERROR 2025-11-18 15:01:34,931 services 9504 19116 Error broadcasting unread count update: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:01:36,481 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 41, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:01:36,976 services 9504 19116 Error broadcasting new message: Error 10061 connecting to 127.0.0.1:6379. 10061.
+INFO 2025-11-18 15:01:36,976 services 9504 19116 Created message fc332b37-4315-44e2-a2d6-4a0a8a2f0063 in thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc by user 1
+ERROR 2025-11-18 15:01:37,498 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:01:39,520 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:01:42,548 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 41, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:01:47,598 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:01:48,611 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 41, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:01:57,705 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 57, in await_many_dispatch
+    await task
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 347, in receive
+    message_channel, message = await self.receive_single(
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        real_channel
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 402, in receive_single
+    content = await self._brpop_with_clean(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        index, channel_key, timeout=self.brpop_timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 238, in _brpop_with_clean
+    await connection.eval(cleanup_script, 0, channel, backup_queue)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:02:00,736 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 41, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+ERROR 2025-11-18 15:02:05,854 server 9504 4068 Exception inside application: Error 10061 connecting to 127.0.0.1:6379. 10061.
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 243, in connect
+    await self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect()
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\retry.py", line 59, in call_with_retry
+    return await do()
+           ^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 650, in _connect
+    reader, writer = await asyncio.open_connection(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **self._connection_arguments()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\asyncio\streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1166, in create_connection
+    raise exceptions[0]
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1141, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\base_events.py", line 1044, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 641, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "C:\Python313\Lib\asyncio\selector_events.py", line 681, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 10061] Connect call failed ('127.0.0.1', 6379)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 62, in __call__
+    return await application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\security\websocket.py", line 37, in __call__
+    return await self.application(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\middleware.py", line 51, in __call__
+    return await super().__call__(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\middleware.py", line 24, in __call__
+    return await self.inner(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\routing.py", line 116, in __call__
+    return await application(
+           ^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 94, in app
+    return await consumer(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 58, in __call__
+    await await_many_dispatch(
+        [receive, self.channel_receive], self.dispatch
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\utils.py", line 50, in await_many_dispatch
+    await dispatch(result)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\consumer.py", line 73, in dispatch
+    await handler(message)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels\generic\websocket.py", line 173, in websocket_connect
+    await self.connect()
+  File "C:\Users\iP\Music\Weapon Backend survey v2\WeaponBackend\internal_chat\consumers.py", line 530, in connect
+    await self.channel_layer.group_add(
+    ...<2 lines>...
+    )
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\channels_redis\core.py", line 498, in group_add
+    await connection.zadd(group_key, {channel: time.time()})
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\client.py", line 601, in execute_command
+    conn = self.connection or await pool.get_connection(command_name, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1040, in get_connection
+    await self.ensure_connection(connection)
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 1062, in ensure_connection
+    await connection.connect()
+  File "c:\Users\iP\Full Stack\السلاح backend\.venv\Lib\site-packages\redis\asyncio\connection.py", line 251, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. 10061.
+INFO 2025-11-18 15:02:16,887 consumers 9504 4068 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:02:33,003 dual_auth 9504 15168 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:02:33,026 signals 9504 15168 Sent notifications for message 12c0766e-6277-47d1-8e7a-a33362f5e334 to 1 participants
+DEBUG 2025-11-18 15:02:33,040 services 9504 15168 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 2 (total: 2)
+DEBUG 2025-11-18 15:02:33,049 services 9504 15168 Broadcasted new message 12c0766e-6277-47d1-8e7a-a33362f5e334 to group thread_3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:02:33,050 services 9504 15168 Created message 12c0766e-6277-47d1-8e7a-a33362f5e334 in thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc by user 1
+INFO 2025-11-18 15:02:40,140 dual_auth 9504 11508 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:02:40,141 views 9504 11508 User logged out without token blacklisting: alice@weaponpower.com
+INFO 2025-11-18 15:02:43,386 serializers 9504 15184 Looking for user with email: alice@weaponpower.com
+INFO 2025-11-18 15:02:43,387 managers 9504 15184 Looking for user with email: alice@weaponpower.com
+INFO 2025-11-18 15:02:43,390 serializers 9504 15184 User found: alice@weaponpower.com
+INFO 2025-11-18 15:02:43,390 serializers 9504 15184 Authenticating with username: alice@weaponpower.com
+INFO 2025-11-18 15:02:44,364 serializers 9504 15184 Authentication result: Success
+INFO 2025-11-18 15:02:44,365 serializers 9504 15184 Validation successful
+INFO 2025-11-18 15:02:44,378 views 9504 15184 User logged in: alice@weaponpower.com
+INFO 2025-11-18 15:02:44,519 dual_auth 9504 6124 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:02:44,519 views 9504 6124 Building queryset for user alice@weaponpower.com
+INFO 2025-11-18 15:02:44,521 views 9504 6124 Successfully built queryset for user alice@weaponpower.com
+INFO 2025-11-18 15:02:44,610 consumers 9504 4068 User 8 connected to notification WebSocket
+INFO 2025-11-18 15:02:51,767 dual_auth 9504 1844 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:02:51,785 signals 9504 1844 Sent notifications for message bb89c4f5-6f29-440d-9e7d-1df1bcc53799 to 1 participants
+DEBUG 2025-11-18 15:02:51,804 services 9504 1844 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 3 (total: 3)
+DEBUG 2025-11-18 15:02:51,822 services 9504 1844 Broadcasted new message bb89c4f5-6f29-440d-9e7d-1df1bcc53799 to group thread_3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:02:51,824 services 9504 1844 Created message bb89c4f5-6f29-440d-9e7d-1df1bcc53799 in thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc by user 1
+INFO 2025-11-18 15:02:51,852 dual_auth 9504 11004 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:02:58,323 dual_auth 9504 21792 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:02:59,308 dual_auth 9504 6224 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:02:59,358 dual_auth 9504 14216 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:02:59,536 dual_auth 9504 12044 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:02:59,561 services 9504 12044 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 15:02:59,562 services 9504 12044 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:02:59,589 consumers 9504 4068 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:03:03,724 services 9504 18768 User 8 reacted ❤️ to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:03:03,732 services 9504 18768 Broadcasted reaction added: ❤️ by user 8 to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:03:14,270 consumers 9504 4068 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:03:14,710 views 9504 15660 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 15:03:14,759 dual_auth 9504 18948 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:03:14,761 views 9504 18948 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 15:03:14,840 dual_auth 9504 8328 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:03:15,205 consumers 9504 4068 User 1 connected to notification WebSocket
+INFO 2025-11-18 15:03:16,137 dual_auth 9504 9116 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:03:16,207 dual_auth 9504 20212 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:03:16,338 dual_auth 9504 16688 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:03:16,361 services 9504 16688 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 15:03:16,361 services 9504 16688 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:03:16,386 consumers 9504 4068 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:03:22,697 services 9504 18768 User 8 reacted ❤️ to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:03:22,705 services 9504 18768 Broadcasted reaction added: ❤️ by user 8 to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:03:24,877 services 9504 18768 User 1 reacted ❤️ to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:03:24,885 services 9504 18768 Broadcasted reaction added: ❤️ by user 1 to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:04:25,460 consumers 9504 4068 User 1 disconnected from notification WebSocket
+INFO 2025-11-18 15:04:25,493 consumers 9504 4068 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:04:25,916 views 9504 9316 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 15:04:25,953 dual_auth 9504 6688 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:04:25,984 views 9504 6688 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 15:04:26,005 consumers 9504 4068 User 1 connected to notification WebSocket
+INFO 2025-11-18 15:04:26,044 dual_auth 9504 3944 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:04:27,266 dual_auth 9504 12732 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:04:27,296 dual_auth 9504 22232 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:04:27,409 dual_auth 9504 20676 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:04:27,442 services 9504 20676 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 15:04:27,442 services 9504 20676 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:04:27,466 consumers 9504 4068 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:06:59,776 consumers 9504 4068 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:06:59,993 consumers 9504 4068 User 8 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:08:25,254 dual_auth 9504 19756 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:08:25,255 dual_auth 9504 20472 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:08:25,510 dual_auth 9504 20324 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:08:25,592 dual_auth 9504 17316 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:08:29,146 dual_auth 9504 20852 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:08:29,179 dual_auth 9504 18224 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:08:29,367 dual_auth 9504 6636 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:08:29,412 services 9504 6636 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 15:08:29,412 services 9504 6636 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:08:29,436 consumers 9504 4068 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:08:43,402 dual_auth 9504 7560 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:08:43,429 dual_auth 9504 9644 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:08:43,566 dual_auth 9504 7000 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:08:43,599 services 9504 7000 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 15:08:43,600 services 9504 7000 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:08:43,634 consumers 9504 4068 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:08:47,564 dual_auth 9504 20460 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:08:47,593 services 9504 20460 User 1 reacted 👍 to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:08:47,601 services 9504 20460 Broadcasted reaction added: 👍 by user 1 to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:08:56,626 dual_auth 9504 21144 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:08:56,639 services 9504 21144 User 1 reacted ❤️ to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:08:56,645 services 9504 21144 Broadcasted reaction added: ❤️ by user 1 to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:09:01,841 consumers 9504 4068 User 8 disconnected from notification WebSocket
+INFO 2025-11-18 15:09:01,848 consumers 9504 4068 User 8 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:09:02,377 views 9504 14196 JWT tokens refreshed with rotation for user: alice@weaponpower.com
+INFO 2025-11-18 15:09:02,506 dual_auth 9504 14828 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:09:02,507 views 9504 14828 User profile accessed: alice@weaponpower.com
+INFO 2025-11-18 15:09:02,536 consumers 9504 4068 User 8 connected to notification WebSocket
+INFO 2025-11-18 15:09:02,670 dual_auth 9504 764 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:09:04,590 dual_auth 9504 20272 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:09:04,626 dual_auth 9504 1384 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:09:04,796 dual_auth 9504 1844 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:09:04,838 services 9504 1844 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 15:09:04,838 services 9504 1844 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:09:04,862 consumers 9504 4068 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:09:14,017 dual_auth 9504 20992 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:09:14,027 services 9504 20992 User 1 reacted ❤️ to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:09:14,035 services 9504 20992 Broadcasted reaction added: ❤️ by user 1 to message bb89c4f5-6f29-440d-9e7d-1df1bcc53799
+INFO 2025-11-18 15:09:26,347 consumers 9504 4068 User 8 disconnected from notification WebSocket
+INFO 2025-11-18 15:09:26,366 consumers 9504 4068 User 8 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:09:26,955 views 9504 2236 JWT tokens refreshed with rotation for user: alice@weaponpower.com
+INFO 2025-11-18 15:09:27,054 dual_auth 9504 2680 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:09:27,055 views 9504 2680 User profile accessed: alice@weaponpower.com
+INFO 2025-11-18 15:09:27,157 dual_auth 9504 16232 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:09:27,389 consumers 9504 4068 User 8 connected to notification WebSocket
+INFO 2025-11-18 15:09:28,604 consumers 9504 4068 User 1 disconnected from notification WebSocket
+INFO 2025-11-18 15:09:28,615 consumers 9504 4068 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:09:29,056 views 9504 20188 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 15:09:29,107 dual_auth 9504 12344 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:09:29,111 views 9504 12344 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 15:09:29,127 consumers 9504 4068 User 1 connected to notification WebSocket
+INFO 2025-11-18 15:09:29,200 dual_auth 9504 296 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:09:33,904 dual_auth 9504 15388 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:09:33,940 dual_auth 9504 20400 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:09:34,137 dual_auth 9504 15424 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:09:34,161 services 9504 15424 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 15:09:34,162 services 9504 15424 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:09:34,195 consumers 9504 4068 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:09:39,539 services 9504 18768 User 8 reacted ❤️ to message 12c0766e-6277-47d1-8e7a-a33362f5e334
+INFO 2025-11-18 15:09:39,547 services 9504 18768 Broadcasted reaction added: ❤️ by user 8 to message 12c0766e-6277-47d1-8e7a-a33362f5e334
+INFO 2025-11-18 15:11:46,731 dual_auth 9504 9412 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:11:46,803 dual_auth 9504 9512 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:11:47,422 consumers 9504 4068 User 8 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:11:47,451 dual_auth 9504 12360 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:11:47,492 dual_auth 9504 20976 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:12:12,905 dual_auth 9504 8344 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:12:12,996 dual_auth 9504 8980 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:12:13,054 dual_auth 9504 4140 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:12:13,135 dual_auth 9504 6016 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:12:13,171 dual_auth 9504 4520 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:12:13,207 dual_auth 9504 20728 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:14:18,733 dual_auth 9504 20972 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:14:18,760 dual_auth 9504 14648 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:14:18,925 dual_auth 9504 5440 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:14:18,955 services 9504 5440 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 15:14:18,955 services 9504 5440 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:14:18,979 consumers 9504 4068 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:14:24,539 dual_auth 9504 17948 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:14:24,568 services 9504 17948 User 8 reacted ❤️ to message 12c0766e-6277-47d1-8e7a-a33362f5e334
+INFO 2025-11-18 15:14:24,576 services 9504 17948 Broadcasted reaction added: ❤️ by user 8 to message 12c0766e-6277-47d1-8e7a-a33362f5e334
+INFO 2025-11-18 15:14:27,125 dual_auth 9504 13580 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:14:27,134 services 9504 13580 User 8 reacted ❤️ to message 12c0766e-6277-47d1-8e7a-a33362f5e334
+INFO 2025-11-18 15:14:27,141 services 9504 13580 Broadcasted reaction added: ❤️ by user 8 to message 12c0766e-6277-47d1-8e7a-a33362f5e334
+INFO 2025-11-18 15:14:28,734 dual_auth 9504 18952 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:14:28,744 services 9504 18952 User 8 reacted ❤️ to message 12c0766e-6277-47d1-8e7a-a33362f5e334
+INFO 2025-11-18 15:14:28,753 services 9504 18952 Broadcasted reaction added: ❤️ by user 8 to message 12c0766e-6277-47d1-8e7a-a33362f5e334
+INFO 2025-11-18 15:14:33,653 dual_auth 9504 21224 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:14:33,686 dual_auth 9504 22200 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:14:33,822 dual_auth 9504 11720 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:14:33,866 services 9504 11720 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 15:14:33,866 services 9504 11720 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:14:33,888 consumers 9504 4068 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:14:37,823 dual_auth 9504 2528 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:14:37,836 services 9504 2528 User 1 reacted 👍 to message fc332b37-4315-44e2-a2d6-4a0a8a2f0063
+INFO 2025-11-18 15:14:37,841 services 9504 2528 Broadcasted reaction added: 👍 by user 1 to message fc332b37-4315-44e2-a2d6-4a0a8a2f0063
+INFO 2025-11-18 15:14:53,151 dual_auth 9504 3664 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:14:53,179 services 9504 3664 User 8 reacted 😂 to message e5b3aa5f-c291-4700-a7b9-1a1c46bbb82e
+INFO 2025-11-18 15:14:53,186 services 9504 3664 Broadcasted reaction added: 😂 by user 8 to message e5b3aa5f-c291-4700-a7b9-1a1c46bbb82e
+INFO 2025-11-18 15:15:27,076 dual_auth 9504 10048 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:18:21,146 server 9504 4068 Killed 4 pending application instances
+INFO 2025-11-18 15:18:54,250 cli 10084 10712 Starting server at tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 15:18:54,251 server 10084 10712 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+INFO 2025-11-18 15:18:54,251 server 10084 10712 Configuring endpoint tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 15:18:54,252 server 10084 10712 Listening on TCP address 0.0.0.0:8000
+INFO 2025-11-18 15:19:00,597 consumers 10084 10712 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:19:02,496 consumers 10084 10712 User 8 connected to notification WebSocket
+INFO 2025-11-18 15:19:04,222 consumers 10084 10712 User 1 connected to notification WebSocket
+INFO 2025-11-18 15:19:06,228 consumers 10084 10712 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:19:08,239 dual_auth 10084 12508 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:24:12,510 server 10084 10712 Killed 4 pending application instances
+INFO 2025-11-18 15:26:40,732 cli 8204 15280 Starting server at tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 15:26:40,733 server 8204 15280 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+INFO 2025-11-18 15:26:40,733 server 8204 15280 Configuring endpoint tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 15:26:40,734 server 8204 15280 Listening on TCP address 0.0.0.0:8000
+INFO 2025-11-18 15:26:49,319 dual_auth 8204 15844 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:26:53,363 dual_auth 8204 13852 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:27:06,177 views 8204 19304 JWT tokens refreshed with rotation for user: alice@weaponpower.com
+INFO 2025-11-18 15:27:06,220 dual_auth 8204 21268 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:27:06,221 views 8204 21268 User profile accessed: alice@weaponpower.com
+INFO 2025-11-18 15:27:06,339 dual_auth 8204 10456 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:27:06,666 consumers 8204 15280 User 8 connected to notification WebSocket
+INFO 2025-11-18 15:27:08,627 dual_auth 8204 4844 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:27:08,668 dual_auth 8204 14884 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:27:08,832 dual_auth 8204 16940 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:27:08,875 services 8204 16940 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 15:27:08,875 services 8204 16940 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:27:08,894 consumers 8204 15280 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:27:37,303 dual_auth 8204 2432 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:34:30,516 dual_auth 8204 1408 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:34:36,557 views 8204 15644 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 15:34:36,604 dual_auth 8204 12308 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:34:36,607 views 8204 12308 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 15:34:36,616 consumers 8204 15280 User 1 connected to notification WebSocket
+INFO 2025-11-18 15:34:36,680 dual_auth 8204 15108 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:34:38,768 dual_auth 8204 5976 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:34:38,820 dual_auth 8204 17580 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:34:39,003 dual_auth 8204 17800 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:34:39,032 services 8204 17800 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 15:34:39,033 services 8204 17800 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:34:39,062 consumers 8204 15280 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:47:15,934 server 8204 15280 Killed 4 pending application instances
+INFO 2025-11-18 15:47:24,082 cli 20336 8752 Starting server at tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 15:47:24,083 server 20336 8752 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+INFO 2025-11-18 15:47:24,083 server 20336 8752 Configuring endpoint tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 15:47:24,084 server 20336 8752 Listening on TCP address 0.0.0.0:8000
+INFO 2025-11-18 15:47:24,195 consumers 20336 8752 User 8 connected to notification WebSocket
+INFO 2025-11-18 15:47:24,266 consumers 20336 8752 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:47:24,300 consumers 20336 8752 User 1 connected to notification WebSocket
+INFO 2025-11-18 15:47:27,089 consumers 20336 8752 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:47:41,079 dual_auth 20336 17424 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:47:50,688 dual_auth 20336 9448 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:48:01,908 consumers 20336 8752 User 8 disconnected from notification WebSocket
+INFO 2025-11-18 15:48:01,931 consumers 20336 8752 User 8 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 15:48:02,468 views 20336 16664 JWT tokens refreshed with rotation for user: alice@weaponpower.com
+INFO 2025-11-18 15:48:02,502 dual_auth 20336 7924 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:48:02,505 views 20336 7924 User profile accessed: alice@weaponpower.com
+INFO 2025-11-18 15:48:02,579 dual_auth 20336 11280 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:48:02,870 consumers 20336 8752 User 8 connected to notification WebSocket
+INFO 2025-11-18 15:48:04,043 dual_auth 20336 7724 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:48:04,084 dual_auth 20336 22480 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 15:48:04,261 dual_auth 20336 9896 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 15:48:04,299 services 20336 9896 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 15:48:04,300 services 20336 9896 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 15:48:04,319 consumers 20336 8752 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 16:25:16,438 server 20336 8752 Killed 4 pending application instances
+INFO 2025-11-18 17:06:37,981 cli 17892 9632 Starting server at tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:06:37,981 server 17892 9632 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+INFO 2025-11-18 17:06:37,982 server 17892 9632 Configuring endpoint tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:06:37,983 server 17892 9632 Listening on TCP address 0.0.0.0:8000
+INFO 2025-11-18 17:06:43,085 views 17892 11032 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 17:06:43,114 dual_auth 17892 5900 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:06:43,119 dual_auth 17892 13524 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:06:43,121 views 17892 13524 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 17:06:51,440 dual_auth 17892 3836 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:06:51,482 dual_auth 17892 7068 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:06:51,654 dual_auth 17892 18764 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 17:06:51,769 services 17892 18764 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 17:06:51,770 services 17892 18764 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 17:06:51,793 consumers 17892 9632 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 17:06:55,626 views 17892 6756 JWT tokens refreshed with rotation for user: alice@weaponpower.com
+INFO 2025-11-18 17:06:55,676 dual_auth 17892 14704 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:06:55,683 views 17892 14704 User profile accessed: alice@weaponpower.com
+INFO 2025-11-18 17:06:55,765 dual_auth 17892 11344 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:06:56,022 consumers 17892 9632 User 8 connected to notification WebSocket
+INFO 2025-11-18 17:07:00,063 dual_auth 17892 16020 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:07:00,098 dual_auth 17892 6288 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:07:00,239 dual_auth 17892 20956 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 17:07:00,271 services 17892 20956 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 17:07:00,271 services 17892 20956 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 17:07:00,296 consumers 17892 9632 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 17:07:00,412 dual_auth 17892 1888 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:07:00,433 dual_auth 17892 19736 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:07:00,521 dual_auth 17892 12508 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 17:07:00,551 services 17892 12508 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 17:07:00,551 services 17892 12508 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 17:07:10,697 dual_auth 17892 22356 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:07:10,714 signals 17892 22356 Sent notifications for message 9ac7d245-5fe0-45d8-a20f-2a5e83a2dbc4 to 1 participants
+DEBUG 2025-11-18 17:07:10,731 services 17892 22356 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 1 (total: 1)
+DEBUG 2025-11-18 17:07:10,751 services 17892 22356 Broadcasted new message 9ac7d245-5fe0-45d8-a20f-2a5e83a2dbc4 to group thread_3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 17:07:10,752 services 17892 22356 Created message 9ac7d245-5fe0-45d8-a20f-2a5e83a2dbc4 in thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc by user 1
+INFO 2025-11-18 17:07:18,013 dual_auth 17892 13596 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:07:32,920 dual_auth 17892 12688 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:13:57,338 server 17892 9632 Killed 3 pending application instances
+INFO 2025-11-18 17:15:30,867 cli 14660 1700 Starting server at tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:15:30,868 server 14660 1700 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+INFO 2025-11-18 17:15:30,868 server 14660 1700 Configuring endpoint tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:15:30,869 server 14660 1700 Listening on TCP address 0.0.0.0:8000
+INFO 2025-11-18 17:16:00,940 dual_auth 14660 20004 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:16:04,131 dual_auth 14660 8152 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:16:04,161 signals 14660 8152 Sent notifications for message fe69cfeb-d760-4260-a4f2-b548a52c8f2f to 1 participants
+DEBUG 2025-11-18 17:16:04,253 services 14660 8152 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 2 (total: 2)
+DEBUG 2025-11-18 17:16:04,263 services 14660 8152 Broadcasted new message fe69cfeb-d760-4260-a4f2-b548a52c8f2f to group thread_3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 17:16:04,263 services 14660 8152 Created message fe69cfeb-d760-4260-a4f2-b548a52c8f2f in thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc by user 1
+INFO 2025-11-18 17:19:57,772 server 14660 1700 Killed 0 pending application instances
+INFO 2025-11-18 17:29:24,253 cli 6432 15160 Starting server at tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:29:24,254 server 6432 15160 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+INFO 2025-11-18 17:29:24,255 server 6432 15160 Configuring endpoint tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:29:24,255 server 6432 15160 Listening on TCP address 0.0.0.0:8000
+INFO 2025-11-18 17:29:33,001 views 6432 11572 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 17:29:33,019 dual_auth 6432 5460 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:29:33,019 dual_auth 6432 12776 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:29:33,026 views 6432 12776 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 17:29:35,275 dual_auth 6432 19424 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:29:35,343 dual_auth 6432 14384 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:29:35,490 dual_auth 6432 19448 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 17:29:35,593 services 6432 19448 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 17:29:35,593 services 6432 19448 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 17:29:35,623 consumers 6432 15160 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 17:29:38,264 dual_auth 6432 20980 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:30:32,001 dual_auth 6432 13740 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:30:35,723 dual_auth 6432 12712 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:30:35,744 signals 6432 12712 Sent notifications for message 413cef34-be25-41a2-9fac-0249b8e0a3e0 to 1 participants
+DEBUG 2025-11-18 17:30:35,761 services 6432 12712 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 3 (total: 3)
+DEBUG 2025-11-18 17:30:35,774 services 6432 12712 Broadcasted new message 413cef34-be25-41a2-9fac-0249b8e0a3e0 to group thread_3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 17:30:35,775 services 6432 12712 Created message 413cef34-be25-41a2-9fac-0249b8e0a3e0 in thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc by user 1
+INFO 2025-11-18 17:30:41,706 dual_auth 6432 14892 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:35:02,692 dual_auth 6432 7072 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:35:10,111 dual_auth 6432 6764 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:36:07,818 server 6432 15160 Killed 1 pending application instances
+INFO 2025-11-18 17:36:42,538 cli 17428 5284 Starting server at tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:36:42,538 server 17428 5284 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+INFO 2025-11-18 17:36:42,539 server 17428 5284 Configuring endpoint tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:36:42,539 server 17428 5284 Listening on TCP address 0.0.0.0:8000
+INFO 2025-11-18 17:36:50,337 consumers 17428 5284 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 17:36:51,972 dual_auth 17428 1932 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:42:55,522 server 17428 5284 Killed 1 pending application instances
+INFO 2025-11-18 17:43:07,575 cli 8452 19684 Starting server at tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:43:07,576 server 8452 19684 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+INFO 2025-11-18 17:43:07,576 server 8452 19684 Configuring endpoint tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:43:07,577 server 8452 19684 Listening on TCP address 0.0.0.0:8000
+INFO 2025-11-18 17:46:38,076 dual_auth 8452 7040 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:46:38,123 views 8452 22204 JWT tokens refreshed with rotation for user: alice@weaponpower.com
+INFO 2025-11-18 17:46:38,147 dual_auth 8452 3880 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:46:38,149 dual_auth 8452 14468 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:46:38,151 dual_auth 8452 16480 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:46:38,163 views 8452 16480 JWT tokens refreshed with rotation for user: alice@weaponpower.com
+INFO 2025-11-18 17:46:38,226 dual_auth 8452 12224 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:46:38,266 dual_auth 8452 15464 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:13,768 dual_auth 8452 17336 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:13,806 dual_auth 8452 15856 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:13,994 dual_auth 8452 17932 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 17:47:14,101 services 8452 17932 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 17:47:14,101 services 8452 17932 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 17:47:14,132 consumers 8452 19684 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 17:47:19,092 dual_auth 8452 10456 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:32,797 dual_auth 8452 11232 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:32,865 consumers 8452 19684 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 17:47:32,930 dual_auth 8452 9556 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,005 dual_auth 8452 18764 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,067 dual_auth 8452 18508 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,123 dual_auth 8452 15988 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,179 dual_auth 8452 22232 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,209 dual_auth 8452 8220 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,258 dual_auth 8452 19840 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,296 dual_auth 8452 10708 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,349 dual_auth 8452 12736 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,378 dual_auth 8452 2488 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,409 dual_auth 8452 5436 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,438 dual_auth 8452 11928 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,467 dual_auth 8452 12256 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,500 dual_auth 8452 21196 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:33,534 dual_auth 8452 19484 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:40,541 server 8452 19684 Killed 0 pending application instances
+INFO 2025-11-18 17:47:46,520 cli 7380 4028 Starting server at tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:47:46,521 server 7380 4028 HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+INFO 2025-11-18 17:47:46,522 server 7380 4028 Configuring endpoint tcp:port=8000:interface=0.0.0.0
+INFO 2025-11-18 17:47:46,522 server 7380 4028 Listening on TCP address 0.0.0.0:8000
+INFO 2025-11-18 17:47:51,302 dual_auth 7380 2304 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:51,337 dual_auth 7380 20292 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:47:51,506 dual_auth 7380 22268 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 17:47:51,608 services 7380 22268 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 17:47:51,608 services 7380 22268 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 17:47:51,641 consumers 7380 4028 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 17:48:08,031 dual_auth 7380 21756 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:57:40,542 dual_auth 7380 12692 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:58:49,720 dual_auth 7380 8300 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:58:52,425 dual_auth 7380 16068 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:58:52,441 signals 7380 16068 Sent notifications for message 8e3baf74-f70d-4cfe-a412-61dd86cef2aa to 1 participants
+DEBUG 2025-11-18 17:58:52,463 services 7380 16068 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 4 (total: 4)
+DEBUG 2025-11-18 17:58:52,479 services 7380 16068 Broadcasted new message 8e3baf74-f70d-4cfe-a412-61dd86cef2aa to group thread_3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 17:58:52,480 services 7380 16068 Created message 8e3baf74-f70d-4cfe-a412-61dd86cef2aa in thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc by user 1
+INFO 2025-11-18 17:58:55,493 dual_auth 7380 10920 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 17:59:15,135 consumers 7380 4028 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 18:00:00,672 views 7380 22620 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 18:00:00,730 dual_auth 7380 14456 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:00,742 views 7380 14456 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 18:00:00,807 dual_auth 7380 15056 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:00,823 views 7380 15056 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 18:00:00,839 dual_auth 7380 5936 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:00,909 dual_auth 7380 11252 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:00,967 dual_auth 7380 3508 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:01,035 dual_auth 7380 15540 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:01,067 dual_auth 7380 6116 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:01,132 dual_auth 7380 22760 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:01,137 dual_auth 7380 6148 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:01,250 dual_auth 7380 23028 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:01,297 dual_auth 7380 19604 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:01,346 dual_auth 7380 17044 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:01,390 dual_auth 7380 17036 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:08,099 dual_auth 7380 22548 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:30,974 dual_auth 7380 8300 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:30,985 signals 7380 8300 Sent member added notification to user 1
+INFO 2025-11-18 18:00:30,988 signals 7380 8300 Sent member added notification to user 8
+INFO 2025-11-18 18:00:30,990 signals 7380 8300 Sent member added notification to user 9
+INFO 2025-11-18 18:00:30,992 signals 7380 8300 Sent member added notification to user 10
+INFO 2025-11-18 18:00:30,994 services 7380 8300 Created group thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 by user 1
+INFO 2025-11-18 18:00:31,042 dual_auth 7380 22760 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:31,091 dual_auth 7380 8180 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:31,114 dual_auth 7380 20292 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 18:00:31,144 services 7380 20292 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 0 (total: 0)
+INFO 2025-11-18 18:00:31,145 services 7380 20292 User 1 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 18:00:31,228 consumers 7380 4028 User 1 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:00:31,239 consumers 7380 4028 User 1 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:00:41,871 dual_auth 7380 13272 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:41,899 dual_auth 7380 3124 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:00:41,915 dual_auth 7380 2620 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 18:00:41,957 services 7380 2620 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 0 (total: 0)
+INFO 2025-11-18 18:00:41,958 services 7380 2620 User 1 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 18:00:41,982 consumers 7380 4028 User 1 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:01:03,019 dual_auth 7380 3960 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:03,156 consumers 7380 4028 User 1 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:01:03,287 dual_auth 7380 15280 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:03,381 dual_auth 7380 21712 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:03,467 dual_auth 7380 6756 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:03,584 dual_auth 7380 11480 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:03,670 dual_auth 7380 6548 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:03,766 dual_auth 7380 18972 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:03,837 dual_auth 7380 22112 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:03,905 dual_auth 7380 2020 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:03,976 dual_auth 7380 23112 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:04,039 dual_auth 7380 9908 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:04,090 dual_auth 7380 23116 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:04,139 dual_auth 7380 8180 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:36,038 dual_auth 7380 17780 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:36,072 dual_auth 7380 20020 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:36,088 dual_auth 7380 23400 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 18:01:36,133 services 7380 23400 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 0 (total: 0)
+INFO 2025-11-18 18:01:36,134 services 7380 23400 User 1 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 18:01:36,157 consumers 7380 4028 User 1 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:01:37,435 dual_auth 7380 9368 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:37,462 dual_auth 7380 13368 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:37,687 dual_auth 7380 20860 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 18:01:37,736 services 7380 20860 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 18:01:37,736 services 7380 20860 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 18:01:37,817 consumers 7380 4028 User 1 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:01:37,822 consumers 7380 4028 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 18:01:46,888 dual_auth 7380 6980 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:46,917 dual_auth 7380 23408 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:47,184 dual_auth 7380 4368 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 18:01:47,228 services 7380 4368 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 18:01:47,228 services 7380 4368 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 18:01:47,248 consumers 7380 4028 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 18:01:50,470 dual_auth 7380 11424 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:50,494 dual_auth 7380 12896 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:50,520 dual_auth 7380 20020 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 18:01:50,541 services 7380 20020 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 8: 0 (total: 0)
+INFO 2025-11-18 18:01:50,541 services 7380 20020 User 8 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 18:01:50,561 consumers 7380 4028 User 8 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 18:01:50,569 consumers 7380 4028 User 8 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:01:54,207 dual_auth 7380 20860 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:54,238 signals 7380 20860 Sent notifications for message 970cf1b2-5e58-48b1-8449-c08a47d70a35 to 3 participants
+DEBUG 2025-11-18 18:01:54,263 services 7380 20860 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 9: 1 (total: 1)
+DEBUG 2025-11-18 18:01:54,285 services 7380 20860 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 10: 1 (total: 1)
+DEBUG 2025-11-18 18:01:54,304 services 7380 20860 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 1 (total: 1)
+DEBUG 2025-11-18 18:01:54,318 services 7380 20860 Broadcasted new message 970cf1b2-5e58-48b1-8449-c08a47d70a35 to group thread_21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:01:54,319 services 7380 20860 Created message 970cf1b2-5e58-48b1-8449-c08a47d70a35 in thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 by user 8
+INFO 2025-11-18 18:01:58,642 dual_auth 7380 23112 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:58,677 dual_auth 7380 21528 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:01:58,718 dual_auth 7380 6840 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 18:01:58,755 services 7380 6840 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 0 (total: 0)
+INFO 2025-11-18 18:01:58,756 services 7380 6840 User 1 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 18:01:58,778 consumers 7380 4028 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 18:01:58,783 consumers 7380 4028 User 1 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:02:04,550 dual_auth 7380 22856 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:04,564 signals 7380 22856 Sent notifications for message e20e18f3-9c40-49ee-85ff-0a0fe86ba227 to 3 participants
+DEBUG 2025-11-18 18:02:04,576 services 7380 22856 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 9: 2 (total: 2)
+DEBUG 2025-11-18 18:02:04,587 services 7380 22856 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 10: 2 (total: 2)
+DEBUG 2025-11-18 18:02:04,600 services 7380 22856 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 1 (total: 1)
+DEBUG 2025-11-18 18:02:04,610 services 7380 22856 Broadcasted new message e20e18f3-9c40-49ee-85ff-0a0fe86ba227 to group thread_21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:02:04,611 services 7380 22856 Created message e20e18f3-9c40-49ee-85ff-0a0fe86ba227 in thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 by user 8
+INFO 2025-11-18 18:02:20,821 dual_auth 7380 12344 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:20,853 signals 7380 12344 Sent notifications for message afd4f1d4-f2f4-4a02-a95c-6514b59abaad to 3 participants
+DEBUG 2025-11-18 18:02:20,869 services 7380 12344 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 8: 1 (total: 1)
+DEBUG 2025-11-18 18:02:20,879 services 7380 12344 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 9: 3 (total: 3)
+DEBUG 2025-11-18 18:02:20,892 services 7380 12344 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 10: 3 (total: 3)
+DEBUG 2025-11-18 18:02:20,904 services 7380 12344 Broadcasted new message afd4f1d4-f2f4-4a02-a95c-6514b59abaad to group thread_21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:02:20,904 services 7380 12344 Created message afd4f1d4-f2f4-4a02-a95c-6514b59abaad in thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 by user 1
+INFO 2025-11-18 18:02:24,499 consumers 7380 4028 User 1 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:02:24,906 views 7380 16792 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 18:02:24,963 dual_auth 7380 20292 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:24,971 views 7380 20292 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 18:02:24,984 consumers 7380 4028 User 1 connected to notification WebSocket
+INFO 2025-11-18 18:02:25,044 dual_auth 7380 9492 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:26,984 dual_auth 7380 17944 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:27,010 dual_auth 7380 6068 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:27,036 dual_auth 7380 1564 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 18:02:27,079 services 7380 1564 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 0 (total: 0)
+INFO 2025-11-18 18:02:27,079 services 7380 1564 User 1 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 18:02:27,106 consumers 7380 4028 User 1 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:02:35,088 consumers 7380 4028 User 8 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:02:35,595 views 7380 20748 JWT tokens refreshed with rotation for user: alice@weaponpower.com
+INFO 2025-11-18 18:02:35,696 dual_auth 7380 15540 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:35,696 views 7380 15540 User profile accessed: alice@weaponpower.com
+INFO 2025-11-18 18:02:35,740 consumers 7380 4028 User 8 connected to notification WebSocket
+INFO 2025-11-18 18:02:35,820 dual_auth 7380 11064 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:37,988 dual_auth 7380 6548 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:38,013 dual_auth 7380 15328 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:38,048 dual_auth 7380 10692 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 18:02:38,088 services 7380 10692 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 8: 0 (total: 0)
+INFO 2025-11-18 18:02:38,089 services 7380 10692 User 8 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 18:02:38,123 consumers 7380 4028 User 8 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:02:44,624 dual_auth 7380 4244 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:44,645 dual_auth 7380 20780 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:44,759 dual_auth 7380 23472 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 18:02:44,794 services 7380 23472 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 18:02:44,795 services 7380 23472 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 18:02:44,820 consumers 7380 4028 User 8 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:02:44,825 consumers 7380 4028 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 18:02:49,792 dual_auth 7380 12108 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:49,802 signals 7380 12108 Sent notifications for message d5a8e82b-31d5-4844-96bb-00148fb8854b to 1 participants
+DEBUG 2025-11-18 18:02:49,816 services 7380 12108 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 1 (total: 1)
+DEBUG 2025-11-18 18:02:49,831 services 7380 12108 Broadcasted new message d5a8e82b-31d5-4844-96bb-00148fb8854b to group thread_3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 18:02:49,833 services 7380 12108 Created message d5a8e82b-31d5-4844-96bb-00148fb8854b in thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc by user 8
+INFO 2025-11-18 18:02:53,724 dual_auth 7380 7092 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:53,774 dual_auth 7380 2528 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:02:53,900 dual_auth 7380 12076 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 18:02:53,923 services 7380 12076 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 18:02:53,924 services 7380 12076 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 18:02:53,949 consumers 7380 4028 User 1 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 18:02:53,955 consumers 7380 4028 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 18:03:13,168 dual_auth 7380 23424 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:03:16,039 dual_auth 7380 11728 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:03:16,067 signals 7380 11728 Sent notifications for message c715c33b-ed3d-4ae5-b453-a6256de60001 to 1 participants
+DEBUG 2025-11-18 18:03:16,084 services 7380 11728 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 1 (total: 1)
+DEBUG 2025-11-18 18:03:16,103 services 7380 11728 Broadcasted new message c715c33b-ed3d-4ae5-b453-a6256de60001 to group thread_3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 18:03:16,104 services 7380 11728 Created message c715c33b-ed3d-4ae5-b453-a6256de60001 in thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc by user 1
+INFO 2025-11-18 18:53:38,275 consumers 7380 4028 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 18:53:38,333 views 7380 4532 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 18:53:38,351 dual_auth 7380 24224 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:53:38,411 dual_auth 7380 1940 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:53:38,481 consumers 7380 4028 User 8 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 18:53:38,515 views 7380 23284 JWT tokens refreshed with rotation for user: alice@weaponpower.com
+INFO 2025-11-18 18:53:38,529 dual_auth 7380 8664 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:53:38,563 dual_auth 7380 20396 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:54:16,428 dual_auth 7380 8300 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:54:16,455 dual_auth 7380 13452 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:54:16,480 dual_auth 7380 11636 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:54:16,565 dual_auth 7380 10592 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:54:16,566 dual_auth 7380 23872 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 18:54:16,639 dual_auth 7380 1152 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:12,656 dual_auth 7380 15708 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:12,697 dual_auth 7380 1436 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:12,740 dual_auth 7380 21012 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:12,802 dual_auth 7380 22496 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:12,856 dual_auth 7380 19152 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:12,876 dual_auth 7380 12812 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:12,942 dual_auth 7380 11580 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:12,943 dual_auth 7380 14456 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:22,434 dual_auth 7380 23196 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:22,469 dual_auth 7380 13252 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:22,646 dual_auth 7380 19780 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:05:22,716 services 7380 19780 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 19:05:22,716 services 7380 19780 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 19:05:22,752 consumers 7380 4028 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:05:23,695 dual_auth 7380 21452 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:23,721 dual_auth 7380 23996 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:23,758 dual_auth 7380 23220 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:05:23,779 services 7380 23220 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 8: 0 (total: 0)
+INFO 2025-11-18 19:05:23,779 services 7380 23220 User 8 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 19:05:23,801 consumers 7380 4028 User 8 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:05:23,806 consumers 7380 4028 User 8 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:05:26,217 dual_auth 7380 10732 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:26,247 dual_auth 7380 19640 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:26,289 dual_auth 7380 21964 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:05:26,332 services 7380 21964 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 0 (total: 0)
+INFO 2025-11-18 19:05:26,333 services 7380 21964 User 1 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 19:05:26,364 consumers 7380 4028 User 1 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:05:28,713 dual_auth 7380 23224 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:28,744 signals 7380 23224 Sent notifications for message 56f520ad-6b0b-48f1-ade2-b911e882af41 to 3 participants
+DEBUG 2025-11-18 19:05:28,762 services 7380 23224 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 8: 1 (total: 1)
+DEBUG 2025-11-18 19:05:28,779 services 7380 23224 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 9: 4 (total: 4)
+DEBUG 2025-11-18 19:05:28,795 services 7380 23224 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 10: 4 (total: 4)
+DEBUG 2025-11-18 19:05:28,809 services 7380 23224 Broadcasted new message 56f520ad-6b0b-48f1-ade2-b911e882af41 to group thread_21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:05:28,809 services 7380 23224 Created message 56f520ad-6b0b-48f1-ade2-b911e882af41 in thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 by user 1
+INFO 2025-11-18 19:05:31,474 dual_auth 7380 16840 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:31,499 dual_auth 7380 14136 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:31,528 dual_auth 7380 19620 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:05:31,554 services 7380 19620 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 8: 0 (total: 0)
+INFO 2025-11-18 19:05:31,555 services 7380 19620 User 8 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 19:05:35,237 dual_auth 7380 3840 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:35,259 dual_auth 7380 23608 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:35,386 dual_auth 7380 12348 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:05:35,416 services 7380 12348 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 19:05:35,416 services 7380 12348 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 19:05:35,439 consumers 7380 4028 User 8 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:05:35,445 consumers 7380 4028 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:05:42,918 dual_auth 7380 2516 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:42,950 signals 7380 2516 Sent notifications for message f5a07911-ce42-4a44-bd4e-89d70fbbbbdf to 3 participants
+DEBUG 2025-11-18 19:05:42,965 services 7380 2516 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 8: 1 (total: 1)
+DEBUG 2025-11-18 19:05:42,981 services 7380 2516 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 9: 5 (total: 5)
+DEBUG 2025-11-18 19:05:42,997 services 7380 2516 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 10: 5 (total: 5)
+DEBUG 2025-11-18 19:05:43,013 services 7380 2516 Broadcasted new message f5a07911-ce42-4a44-bd4e-89d70fbbbbdf to group thread_21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:05:43,013 services 7380 2516 Created message f5a07911-ce42-4a44-bd4e-89d70fbbbbdf in thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 by user 1
+INFO 2025-11-18 19:05:48,792 dual_auth 7380 19780 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:48,831 dual_auth 7380 23372 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:05:48,873 dual_auth 7380 20404 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:05:48,896 services 7380 20404 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 8: 0 (total: 0)
+INFO 2025-11-18 19:05:48,896 services 7380 20404 User 8 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 19:05:48,920 consumers 7380 4028 User 8 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:05:48,925 consumers 7380 4028 User 8 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:06:05,604 dual_auth 7380 8352 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:06:05,625 dual_auth 7380 19804 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:06:05,748 dual_auth 7380 8984 User alice@weaponpower.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:06:05,785 services 7380 8984 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 8: 0 (total: 0)
+INFO 2025-11-18 19:06:05,785 services 7380 8984 User 8 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 19:06:05,808 consumers 7380 4028 User 8 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:06:05,811 consumers 7380 4028 User 8 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:08:13,563 consumers 7380 4028 User 1 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:08:13,667 consumers 7380 4028 User 8 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:08:39,547 dual_auth 7380 23828 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:08:39,700 dual_auth 7380 21948 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:08:39,852 dual_auth 7380 8600 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:08:39,901 services 7380 8600 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 19:08:39,901 services 7380 8600 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 19:08:39,923 consumers 7380 4028 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:09:38,092 dual_auth 7380 17076 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:09:38,129 dual_auth 7380 7088 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:09:38,183 dual_auth 7380 13580 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:09:38,200 services 7380 13580 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 0 (total: 0)
+INFO 2025-11-18 19:09:38,202 services 7380 13580 User 1 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 19:09:38,227 consumers 7380 4028 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:09:38,230 consumers 7380 4028 User 1 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:13:11,971 consumers 7380 4028 User 8 disconnected from notification WebSocket
+INFO 2025-11-18 19:13:12,904 consumers 7380 4028 User 1 disconnected from notification WebSocket
+INFO 2025-11-18 19:13:13,112 consumers 7380 4028 User 1 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:13:13,577 views 7380 1592 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 19:13:13,641 dual_auth 7380 3728 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:13:13,642 views 7380 3728 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 19:13:13,861 views 7380 14244 JWT tokens refreshed with rotation for user: alice@weaponpower.com
+INFO 2025-11-18 19:13:13,899 dual_auth 7380 18920 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:13:13,899 views 7380 18920 User profile accessed: alice@weaponpower.com
+INFO 2025-11-18 19:13:14,000 consumers 7380 4028 User 1 connected to notification WebSocket
+INFO 2025-11-18 19:13:14,253 dual_auth 7380 3880 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:13:14,432 consumers 7380 4028 User 8 connected to notification WebSocket
+INFO 2025-11-18 19:13:14,523 dual_auth 7380 640 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:13:30,447 dual_auth 7380 24048 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:13:30,514 dual_auth 7380 5976 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:13:30,653 dual_auth 7380 19796 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:13:30,714 services 7380 19796 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 19:13:30,716 services 7380 19796 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 19:13:30,740 consumers 7380 4028 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:18:04,653 dual_auth 7380 1160 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:18:54,454 dual_auth 7380 9568 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:18:54,459 consumers 7380 4028 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:18:54,541 dual_auth 7380 23968 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:18:54,926 dual_auth 7380 19164 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:18:55,037 dual_auth 7380 4568 User alice@weaponpower.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:19:40,440 dual_auth 7380 17348 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:19:40,475 dual_auth 7380 19692 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:19:40,512 dual_auth 7380 15376 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:19:40,537 services 7380 15376 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 0 (total: 0)
+INFO 2025-11-18 19:19:40,537 services 7380 15376 User 1 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 19:19:40,565 consumers 7380 4028 User 1 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:19:42,358 dual_auth 7380 16840 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:19:42,444 dual_auth 7380 12580 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:19:42,597 dual_auth 7380 4400 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:19:42,641 services 7380 4400 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 19:19:42,642 services 7380 4400 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 19:19:42,662 consumers 7380 4028 User 1 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:19:42,668 consumers 7380 4028 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:20:20,772 consumers 7380 4028 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:21:33,874 consumers 7380 4028 User 1 disconnected from notification WebSocket
+INFO 2025-11-18 19:21:35,431 views 7380 17388 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 19:21:35,459 dual_auth 7380 18148 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:21:35,460 views 7380 18148 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 19:21:35,929 consumers 7380 4028 User 1 connected to notification WebSocket
+INFO 2025-11-18 19:21:36,080 dual_auth 7380 12980 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:21:37,950 dual_auth 7380 21184 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:21:37,990 dual_auth 7380 24144 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:21:38,113 dual_auth 7380 10072 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:21:38,156 services 7380 10072 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 19:21:38,157 services 7380 10072 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 19:21:38,209 consumers 7380 4028 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:21:39,477 dual_auth 7380 3760 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:23:22,272 consumers 7380 4028 User 1 disconnected from notification WebSocket
+INFO 2025-11-18 19:23:22,288 consumers 7380 4028 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:23:23,425 views 7380 11712 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 19:23:23,459 dual_auth 7380 20988 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:23:23,460 views 7380 20988 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 19:23:23,844 dual_auth 7380 20200 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:23:24,225 consumers 7380 4028 User 1 connected to notification WebSocket
+INFO 2025-11-18 19:23:44,903 consumers 7380 4028 User 1 disconnected from notification WebSocket
+INFO 2025-11-18 19:23:46,532 views 7380 23924 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 19:23:46,561 dual_auth 7380 23480 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:23:46,562 views 7380 23480 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 19:23:47,033 consumers 7380 4028 User 1 connected to notification WebSocket
+INFO 2025-11-18 19:23:47,105 dual_auth 7380 20748 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:23:49,390 dual_auth 7380 17028 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:23:49,428 dual_auth 7380 20592 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:23:49,554 dual_auth 7380 20612 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:23:49,587 services 7380 20612 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 19:23:49,588 services 7380 20612 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 19:23:49,612 consumers 7380 4028 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:23:51,664 dual_auth 7380 22888 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:25:32,756 consumers 7380 4028 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:25:32,761 dual_auth 7380 24504 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:25:32,800 dual_auth 7380 16064 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:17,874 consumers 7380 4028 User 1 disconnected from notification WebSocket
+INFO 2025-11-18 19:26:19,760 views 7380 15708 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 19:26:19,795 dual_auth 7380 23468 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:19,797 views 7380 23468 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 19:26:20,262 consumers 7380 4028 User 1 connected to notification WebSocket
+INFO 2025-11-18 19:26:20,446 dual_auth 7380 24100 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:21,306 dual_auth 7380 22748 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:21,344 dual_auth 7380 13160 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:21,473 dual_auth 7380 14852 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:26:21,522 services 7380 14852 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 19:26:21,522 services 7380 14852 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 19:26:21,544 consumers 7380 4028 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:26:23,045 dual_auth 7380 2340 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:29,565 dual_auth 7380 18508 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:29,565 consumers 7380 4028 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:26:29,646 dual_auth 7380 22388 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:30,161 consumers 7380 4028 User 1 disconnected from notification WebSocket
+INFO 2025-11-18 19:26:31,109 views 7380 7120 JWT tokens refreshed with rotation for user: seif778811@gmail.com
+INFO 2025-11-18 19:26:31,199 dual_auth 7380 24128 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:31,201 views 7380 24128 User profile accessed: seif778811@gmail.com
+INFO 2025-11-18 19:26:31,247 consumers 7380 4028 User 1 connected to notification WebSocket
+INFO 2025-11-18 19:26:31,644 dual_auth 7380 9020 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:34,058 dual_auth 7380 20200 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:34,087 dual_auth 7380 20916 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:34,116 dual_auth 7380 20704 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:26:34,137 services 7380 20704 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 0 (total: 0)
+INFO 2025-11-18 19:26:34,137 services 7380 20704 User 1 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 19:26:34,157 consumers 7380 4028 User 1 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:26:37,138 dual_auth 7380 23468 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:37,158 dual_auth 7380 18700 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:26:37,274 dual_auth 7380 24532 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:26:37,312 services 7380 24532 Broadcasted unread count update for thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc to user 1: 0 (total: 0)
+INFO 2025-11-18 19:26:37,312 services 7380 24532 User 1 marked thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc as read
+INFO 2025-11-18 19:26:37,330 consumers 7380 4028 User 1 disconnected from thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9
+INFO 2025-11-18 19:26:37,335 consumers 7380 4028 User 1 connected to thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:26:39,030 dual_auth 7380 15220 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:27:07,763 dual_auth 7380 9408 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:27:07,803 dual_auth 7380 12044 User seif778811@gmail.com authenticated with regular JWT (universal)
+INFO 2025-11-18 19:27:07,828 dual_auth 7380 22760 User seif778811@gmail.com authenticated with regular JWT (universal)
+DEBUG 2025-11-18 19:27:07,845 services 7380 22760 Broadcasted unread count update for thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 to user 1: 0 (total: 0)
+INFO 2025-11-18 19:27:07,846 services 7380 22760 User 1 marked thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9 as read
+INFO 2025-11-18 19:27:07,863 consumers 7380 4028 User 1 disconnected from thread 3887e7eb-ad18-4f30-acdb-ee1df302eccc
+INFO 2025-11-18 19:27:07,869 consumers 7380 4028 User 1 connected to thread 21f7fbb5-099a-4ecf-b8c4-2c62229e55c9

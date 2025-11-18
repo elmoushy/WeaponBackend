@@ -432,6 +432,11 @@ class MessageViewSet(viewsets.ModelViewSet):
                 attachment_ids=serializer.validated_data.get('attachment_ids')
             )
             
+            # Reload message with attachments to ensure they're included in response
+            message = Message.objects.select_related('sender', 'reply_to', 'thread').prefetch_related(
+                'attachments', 'reactions__user'
+            ).get(id=message.id)
+            
             output_serializer = MessageSerializer(message, context={'request': request})
             return Response(output_serializer.data, status=status.HTTP_201_CREATED)
         
@@ -576,6 +581,87 @@ class AttachmentViewSet(viewsets.ModelViewSet):
         
         output_serializer = AttachmentSerializer(attachment, context={'request': request})
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['post'], url_path='upload')
+    def upload(self, request):
+        """
+        Upload attachment endpoint (alternative URL)
+        """
+        return self.create(request)
+    
+    @action(detail=True, methods=['get'], url_path='download')
+    def download(self, request, pk=None):
+        """
+        Download attachment with proper headers and optional base64 encoding
+        
+        Query params:
+        - format=base64: Return file as base64 encoded JSON
+        - format=file: Return raw file (default)
+        """
+        import base64
+        from django.http import FileResponse, HttpResponse
+        
+        attachment = self.get_object()
+        
+        # Check if user has access to this attachment
+        if not attachment.message:
+            return Response(
+                {'error': 'Attachment not linked to any message'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Verify user is participant of the thread
+        thread = attachment.message.thread
+        if not thread.participants.filter(
+            user=request.user,
+            left_at__isnull=True
+        ).exists():
+            return Response(
+                {'error': 'You do not have access to this attachment'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Get format parameter
+        response_format = request.query_params.get('format', 'file')
+        
+        if response_format == 'base64':
+            # Return base64 encoded file
+            try:
+                with attachment.file.open('rb') as f:
+                    file_content = f.read()
+                    base64_content = base64.b64encode(file_content).decode('utf-8')
+                
+                return Response({
+                    'id': str(attachment.id),
+                    'file_name': attachment.file_name,
+                    'content_type': attachment.content_type,
+                    'size': attachment.size,
+                    'size_mb': attachment.size_mb,
+                    'caption': attachment.caption,
+                    'base64': base64_content,
+                    'created_at': attachment.created_at
+                })
+            except Exception as e:
+                return Response(
+                    {'error': f'Failed to read file: {str(e)}'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        else:
+            # Return raw file with proper headers
+            try:
+                # Use FileResponse with as_attachment=True for proper download
+                response = FileResponse(
+                    attachment.file.open('rb'),
+                    as_attachment=True,
+                    filename=attachment.file_name,
+                    content_type=attachment.content_type
+                )
+                return response
+            except Exception as e:
+                return Response(
+                    {'error': f'Failed to download file: {str(e)}'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
 
 
 class UserListView(viewsets.ViewSet):
