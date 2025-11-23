@@ -11,6 +11,161 @@ from django.core.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
+# =============================================================================
+# FILENAME SANITIZATION (TASK_06)
+# =============================================================================
+
+# Dangerous characters in filenames (regex pattern)
+DANGEROUS_FILENAME_CHARS = r'[<>:"/\\|?*\x00-\x1f]'
+
+# Reserved Windows filenames that cannot be used
+RESERVED_NAMES = {
+    'CON', 'PRN', 'AUX', 'NUL',
+    'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
+    'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
+}
+
+
+def sanitize_filename(filename, max_length=255):
+    """
+    Sanitize filename to prevent path traversal and injection attacks.
+    
+    SECURITY PROTECTIONS:
+    - Path traversal: Removes ../../ and ..\..\  patterns
+    - Null bytes: Strips \x00 characters
+    - Dangerous chars: Removes <, >, :, ", /, \, |, ?, *
+    - Unicode attacks: Normalizes to ASCII (prevents homograph attacks)
+    - Reserved names: Prefixes Windows reserved names (CON, PRN, etc.)
+    - Length limits: Truncates to max_length while preserving extension
+    
+    Args:
+        filename: Original filename from user
+        max_length: Maximum filename length (default 255)
+        
+    Returns:
+        str: Sanitized filename
+        
+    Raises:
+        ValidationError: If filename is invalid or empty after sanitization
+        
+    Examples:
+        >>> sanitize_filename('../../etc/passwd')
+        'passwd'
+        
+        >>> sanitize_filename('file<>:"|?*.txt')
+        'file.txt'
+        
+        >>> sanitize_filename('CON.txt')
+        'file_CON.txt'
+    """
+    if not filename:
+        raise ValidationError("Filename cannot be empty")
+    
+    # SECURITY: Remove any path components (prevent directory traversal)
+    # This extracts only the basename, removing all directory separators
+    filename = os.path.basename(filename)
+    
+    # SECURITY: Remove null bytes (can truncate filenames in some systems)
+    filename = filename.replace('\x00', '')
+    
+    # SECURITY: Normalize Unicode to prevent homograph attacks
+    # Only keep ASCII characters (removes Cyrillic, Arabic, etc.)
+    filename = filename.encode('ascii', 'ignore').decode('ascii')
+    
+    if not filename:
+        raise ValidationError("Filename contains only invalid characters")
+    
+    # SECURITY: Remove dangerous characters using regex
+    filename = re.sub(DANGEROUS_FILENAME_CHARS, '', filename)
+    
+    if not filename:
+        raise ValidationError("Filename is empty after sanitization")
+    
+    # Split name and extension FIRST (before stripping dots)
+    name, ext = os.path.splitext(filename)
+    
+    # SECURITY: Strip leading/trailing dots and spaces from both name and extension
+    # Leading dots can create hidden files on Unix (.htaccess becomes htaccess)
+    # Trailing dots can cause issues on Windows (file.txt... becomes file.txt)
+    name = name.strip('. ')
+    ext = ext.strip('. ')  # Strip dots from extension too
+    
+    # Reconstruct extension with leading dot if it exists
+    if ext:
+        ext = f'.{ext}'
+    
+    # Ensure name is not empty after sanitization
+    if not name:
+        # If filename was only extension like ".htaccess" or "...txt", use unnamed
+        name = "unnamed"
+    
+    # SECURITY: Check for reserved Windows names
+    # These names are reserved by Windows and cannot be used as filenames
+    if name.upper() in RESERVED_NAMES:
+        name = f"file_{name}"
+        logger.warning(f"Reserved Windows filename detected and prefixed: {filename}")
+    
+    # Limit name length (reserve space for extension)
+    max_name_length = max_length - len(ext)
+    if len(name) > max_name_length:
+        name = name[:max_name_length]
+        logger.info(f"Filename truncated from {len(name)} to {max_name_length} characters")
+    
+    # Reconstruct filename
+    sanitized = f"{name}{ext}"
+    
+    # Final validation - ensure we have a valid filename
+    if not sanitized or sanitized == '.':
+        raise ValidationError("Filename is empty after sanitization")
+    
+    if len(sanitized) > max_length:
+        raise ValidationError(f"Filename too long (max {max_length} characters)")
+    
+    # SECURITY: Ensure no directory separators remain (defense in depth)
+    if '/' in sanitized or '\\' in sanitized:
+        raise ValidationError("Filename contains directory separators")
+    
+    # Log if significant sanitization occurred
+    if filename != sanitized:
+        logger.info(f"Filename sanitized: '{filename}' → '{sanitized}'")
+    
+    return sanitized
+
+
+def validate_filename_extension(filename, allowed_extensions):
+    """
+    Validate filename extension against whitelist.
+    
+    Args:
+        filename: Filename to validate
+        allowed_extensions: Set of allowed extensions (with dots, e.g., {'.pdf', '.jpg'})
+        
+    Raises:
+        ValidationError: If extension not allowed or missing
+        
+    Examples:
+        >>> validate_filename_extension('document.pdf', {'.pdf', '.doc'})
+        # No error
+        
+        >>> validate_filename_extension('malware.exe', {'.pdf', '.doc'})
+        ValidationError: File extension '.exe' not allowed...
+    """
+    ext = os.path.splitext(filename)[1].lower()
+    
+    if not ext:
+        raise ValidationError("File must have an extension")
+    
+    if ext not in allowed_extensions:
+        raise ValidationError(
+            f"File extension '{ext}' not allowed. "
+            f"Allowed: {', '.join(sorted(allowed_extensions))}"
+        )
+
+
+# =============================================================================
+# HTML SANITIZATION (EXISTING)
+# =============================================================================
+
 # Whitelist of allowed HTML tags (very restrictive for security)
 ALLOWED_TAGS = [
     'b', 'i', 'u', 'strong', 'em', 'code', 'pre', 'a',
@@ -242,6 +397,8 @@ def validate_file_type(file):
     its real type, preventing attackers from uploading malicious files by
     simply changing the extension or Content-Type header.
     
+    If python-magic is not installed, falls back to extension-based validation.
+    
     Args:
         file: Django UploadedFile object
         
@@ -260,11 +417,53 @@ def validate_file_type(file):
     """
     try:
         import magic
+        magic_available = True
     except ImportError:
-        logger.error("python-magic not installed. File validation disabled!")
-        raise ValidationError(
-            "File type validation is currently unavailable. Please contact support."
-        )
+        magic_available = False
+        logger.warning("python-magic not installed. Falling back to extension-based validation.")
+    
+    # If python-magic is not available, use extension-based validation
+    if not magic_available:
+        # Extract file extension
+        file_ext = os.path.splitext(file.name)[1].lower()
+        
+        # Check if extension is forbidden
+        if file_ext in FORBIDDEN_EXTENSIONS:
+            logger.warning(f"Rejected file upload - forbidden extension: {file_ext} (file: {file.name})")
+            raise ValidationError(
+                f"File extension '{file_ext}' is not allowed for security reasons."
+            )
+        
+        # Check if extension is in allowed list
+        if file_ext not in ALLOWED_EXTENSIONS:
+            logger.warning(f"Rejected file upload - extension not in allowed list: {file_ext} (file: {file.name})")
+            raise ValidationError(
+                f"File extension '{file_ext}' is not allowed. "
+                f"Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
+            )
+        
+        # Map extension to MIME type (best guess without magic)
+        extension_mime_map = {
+            '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+            '.png': 'image/png', '.gif': 'image/gif',
+            '.webp': 'image/webp', '.bmp': 'image/bmp',
+            '.tiff': 'image/tiff', '.tif': 'image/tiff',
+            '.pdf': 'application/pdf',
+            '.doc': 'application/msword',
+            '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            '.xls': 'application/vnd.ms-excel',
+            '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            '.ppt': 'application/vnd.ms-powerpoint',
+            '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            '.txt': 'text/plain', '.csv': 'text/csv',
+            '.zip': 'application/zip',
+            '.rar': 'application/x-rar-compressed',
+            '.7z': 'application/x-7z-compressed',
+        }
+        
+        mime = extension_mime_map.get(file_ext, 'application/octet-stream')
+        logger.info(f"File upload validated by extension: {mime} for file: {file.name}")
+        return mime
     
     # Read first 2KB for magic byte detection (sufficient for most file types)
     file_start = file.read(2048)

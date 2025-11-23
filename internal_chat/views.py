@@ -6,7 +6,7 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.pagination import CursorPagination
+from rest_framework.pagination import CursorPagination, PageNumberPagination
 from django.db.models import Q, Prefetch, Sum
 from django.shortcuts import get_object_or_404
 
@@ -625,11 +625,9 @@ class AttachmentViewSet(viewsets.ModelViewSet):
         response_format = request.query_params.get('format', 'file')
         
         if response_format == 'base64':
-            # Return base64 encoded file
+            # Return base64 encoded file from blob
             try:
-                with attachment.file.open('rb') as f:
-                    file_content = f.read()
-                    base64_content = base64.b64encode(file_content).decode('utf-8')
+                base64_content = base64.b64encode(attachment.file_data).decode('utf-8')
                 
                 return Response({
                     'id': str(attachment.id),
@@ -647,11 +645,13 @@ class AttachmentViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         else:
-            # Return raw file with proper headers
+            # Return raw file from blob with proper headers
             try:
-                # Use FileResponse with as_attachment=True for proper download
+                from io import BytesIO
+                # Create a file-like object from blob data
+                file_obj = BytesIO(attachment.file_data)
                 response = FileResponse(
-                    attachment.file.open('rb'),
+                    file_obj,
                     as_attachment=True,
                     filename=attachment.file_name,
                     content_type=attachment.content_type
@@ -664,41 +664,88 @@ class AttachmentViewSet(viewsets.ModelViewSet):
                 )
 
 
+class UserListPagination(PageNumberPagination):
+    """
+    Pagination for user list to prevent enumeration attacks
+    """
+    page_size = 50
+    max_page_size = 100
+    page_size_query_param = 'limit'
+
+
 class UserListView(viewsets.ViewSet):
     """
-    ViewSet for listing all users (for chat participant selection)
+    ViewSet for listing users with search requirement (prevents enumeration)
+    SECURITY: Requires search query to prevent user enumeration attacks
     """
     permission_classes = [IsAuthenticated]
+    pagination_class = UserListPagination
     
     def list(self, request):
         """
-        Get all active users in the system (not paginated)
-        Used for dropdown/autocomplete in chat UI
+        List users with REQUIRED search query (minimum 2 characters)
+        
+        SECURITY FEATURES:
+        - Requires search query (prevents full user list enumeration)
+        - Pagination enforced (max 50 per page, 100 max page size)
+        - Hard limit of 100 results total
+        - Excludes current user from results
+        
+        Query Parameters:
+        - search (required): Minimum 2 characters
+        - limit (optional): Results per page (max 100)
+        - page (optional): Page number
+        
+        Returns:
+        - 400: If search query missing or < 2 characters
+        - 200: Paginated user results
         """
         from authentication.models import User
+        from .serializers import UserBasicSerializer
         
-        # Get all active users except current user
+        # SECURITY: Require minimum search query to prevent user enumeration
+        search = request.query_params.get('search', '').strip()
+        
+        if len(search) < 2:
+            logger.warning(
+                f"User enumeration attempt blocked: user={request.user.id}, "
+                f"search='{search}' (length={len(search)})"
+            )
+            return Response({
+                'error': 'Search query required (minimum 2 characters)',
+                'detail': 'For privacy and security reasons, user listing requires a search term of at least 2 characters',
+                'code': 'SEARCH_REQUIRED'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        logger.info(
+            f"User search: user={request.user.id}, query='{search[:50]}'"
+        )
+        
+        # Search across relevant fields
         users = User.objects.filter(
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search) |
+            Q(email__icontains=search) |
+            Q(username__icontains=search),
             is_active=True
         ).exclude(
-            id=request.user.id
-        ).order_by('first_name', 'last_name', 'email')
+            id=request.user.id  # Exclude current user
+        ).select_related().only(
+            'id', 'username', 'email', 'first_name', 'last_name',
+            'is_online', 'last_seen', 'role'
+        ).order_by('first_name', 'last_name', 'email')[:100]  # Hard limit to first 100 results
         
-        # Simple serialization for dropdown
-        users_data = [
-            {
-                'id': user.id,
-                'email': user.email,
-                'full_name': user.full_name,
-                'role': user.role,
-            }
-            for user in users
-        ]
+        # Apply pagination
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(users, request)
         
-        return Response({
-            'count': len(users_data),
-            'users': users_data
-        })
+        if page is not None:
+            serializer = UserBasicSerializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+        
+        # Fallback (shouldn't reach here due to pagination)
+        serializer = UserBasicSerializer(users, many=True)
+        return Response(serializer.data)
 
 
 @api_view(['GET'])

@@ -3,6 +3,7 @@ Internal Chat Models
 Supports Oracle, SQL Server, and SQLite with optimized indexes
 """
 import uuid
+import logging
 from django.db import models
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
@@ -10,6 +11,8 @@ from django.utils import timezone
 from .managers import (
     ThreadManager, MessageManager, ThreadParticipantManager, AttachmentManager
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Thread(models.Model):
@@ -229,8 +232,9 @@ class GroupSettings(models.Model):
 
 class Attachment(models.Model):
     """
-    File attachments for messages
+    File attachments for messages - stored as blobs in database
     """
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     message = models.ForeignKey(
         Message,
@@ -239,8 +243,9 @@ class Attachment(models.Model):
         null=True,
         blank=True
     )
-    file = models.FileField(upload_to='chat/attachments/%Y/%m/%d/')
-    file_name = models.CharField(max_length=255)
+    # Store file content as blob in database
+    file_data = models.BinaryField(null=True, blank=True)
+    file_name = models.CharField(max_length=255)  # Stores sanitized original filename
     content_type = models.CharField(max_length=100)
     size = models.BigIntegerField()  # Size in bytes
     caption = models.TextField(blank=True, null=True)  # Optional caption/comment

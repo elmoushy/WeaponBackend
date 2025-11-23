@@ -46,11 +46,19 @@ class AttachmentSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'size', 'size_mb', 'created_at']
     
     def get_url(self, obj):
+        """
+        Return download URL for blob-stored attachment
+        """
         request = self.context.get('request')
-        if obj.file and hasattr(obj.file, 'url'):
-            if request:
-                return request.build_absolute_uri(obj.file.url)
-            return obj.file.url
+        if request:
+            # Build download URL for blob storage using the router-generated URL
+            try:
+                from django.urls import reverse
+                download_path = reverse('internal_chat:attachment-download', kwargs={'pk': obj.pk})
+                return request.build_absolute_uri(download_path)
+            except Exception:
+                # Fallback: construct URL manually
+                return request.build_absolute_uri(f'/api/internal-chat/attachments/{obj.pk}/download/')
         return None
 
 
@@ -75,10 +83,33 @@ class AttachmentUploadSerializer(serializers.ModelSerializer):
         - File extension spoofing (malware.exe → malware.jpg)
         - MIME type spoofing (claiming image/jpeg for executable)
         - Oversized files (DoS attack via storage exhaustion)
+        - Path traversal attacks (../../etc/passwd)
+        - Dangerous filenames (CON, PRN, null bytes, etc.)
         """
-        from .security_utils import validate_file_type, validate_file_size, sanitize_caption
+        from .security_utils import (
+            validate_file_type, validate_file_size, sanitize_caption,
+            sanitize_filename, validate_filename_extension, ALLOWED_EXTENSIONS
+        )
+        from django.core.exceptions import ValidationError as DjangoValidationError
         
-        # SECURITY: Validate file size first (fail fast for large files)
+        # SECURITY: Sanitize original filename FIRST
+        original_name = value.name
+        
+        try:
+            sanitized_name = sanitize_filename(original_name)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(f"Invalid filename: {str(e)}")
+        
+        # SECURITY: Validate extension against whitelist
+        try:
+            validate_filename_extension(sanitized_name, ALLOWED_EXTENSIONS)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(str(e))
+        
+        # Update file name to sanitized version
+        value.name = sanitized_name
+        
+        # SECURITY: Validate file size (fail fast for large files)
         max_size_mb = getattr(settings, 'INTERNAL_CHAT_MAX_ATTACHMENT_SIZE', 10)
         validate_file_size(value, max_size_mb=max_size_mb)
         
@@ -86,8 +117,9 @@ class AttachmentUploadSerializer(serializers.ModelSerializer):
         # This is the CRITICAL security check - detects actual file content
         detected_mime = validate_file_type(value)
         
-        # Store detected MIME type in context for use in create()
+        # Store for use in create()
         self.context['detected_mime'] = detected_mime
+        self.context['sanitized_filename'] = sanitized_name
         
         return value
     
@@ -102,33 +134,34 @@ class AttachmentUploadSerializer(serializers.ModelSerializer):
         return value
     
     def create(self, validated_data):
-        import uuid
-        import os
+        """
+        Create attachment with file data stored as blob in database.
+        """
+        import hashlib
+        
         file = validated_data['file']
         
-        # Extract filename from uploaded file
-        original_filename = file.name
-        file_name = validated_data.get('file_name')
+        # Read file content into memory
+        file_content = file.read()
         
-        # If no filename provided, generate one with unique ID
-        if not file_name:
-            # Extract file extension
-            name, ext = os.path.splitext(original_filename)
-            # Generate unique filename: originalname_uuid.ext
-            unique_id = str(uuid.uuid4())[:8]  # Short UUID
-            file_name = f"{name}_{unique_id}{ext}"
+        # Calculate SHA256 checksum
+        checksum = hashlib.sha256(file_content).hexdigest()
+        
+        # Use sanitized filename from validation (already cleaned)
+        sanitized_name = self.context.get('sanitized_filename', file.name)
         
         # Use detected MIME type (from magic bytes) instead of client-provided Content-Type
         detected_mime = self.context.get('detected_mime', file.content_type)
         
-        # Create attachment without message (will be linked later)
+        # Create attachment with blob data stored in database
         attachment = Attachment.objects.create(
             message=None,  # Will be set when message is created
-            file=file,
-            file_name=file_name,
+            file_data=file_content,
+            file_name=sanitized_name,  # Store sanitized original name for display
             caption=validated_data.get('caption', ''),
             content_type=detected_mime,  # Use validated MIME type, not header
-            size=file.size
+            size=len(file_content),
+            checksum=checksum
         )
         
         return attachment
