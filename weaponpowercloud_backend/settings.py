@@ -495,6 +495,66 @@ ALLOWED_FILE_TYPES = [
 ]
 
 # ============================================================================
+# CACHE CONFIGURATION
+# ============================================================================
+
+# Cache backend for rate limiting and session management
+# Try Redis first, fall back to LocMemCache for development
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'weaponpower-cache',
+        'TIMEOUT': 300,
+        'OPTIONS': {
+            'MAX_ENTRIES': 10000,
+        }
+    }
+}
+
+# If Redis is available, use it (better for production/distributed systems)
+# Uncomment and configure if Redis is installed:
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#             'SOCKET_CONNECT_TIMEOUT': 5,
+#             'SOCKET_TIMEOUT': 5,
+#             'RETRY_ON_TIMEOUT': True,
+#             'MAX_CONNECTIONS': 50,
+#         },
+#         'KEY_PREFIX': 'weaponpower',
+#         'TIMEOUT': 300,
+#     }
+# }
+
+# ============================================================================
+# WEBSOCKET RATE LIMITING CONFIGURATION
+# ============================================================================
+
+# WebSocket message rate limiting (messages per minute)
+WEBSOCKET_MESSAGE_RATE_LIMIT = int(os.getenv('WEBSOCKET_MESSAGE_RATE_LIMIT', '60'))
+WEBSOCKET_MESSAGE_RATE_WINDOW = int(os.getenv('WEBSOCKET_MESSAGE_RATE_WINDOW', '60'))  # seconds
+
+# WebSocket reaction rate limiting (reactions per minute)
+WEBSOCKET_REACTION_RATE_LIMIT = int(os.getenv('WEBSOCKET_REACTION_RATE_LIMIT', '120'))
+WEBSOCKET_REACTION_RATE_WINDOW = int(os.getenv('WEBSOCKET_REACTION_RATE_WINDOW', '60'))  # seconds
+
+# WebSocket typing indicator rate limiting (typing events per minute)
+WEBSOCKET_TYPING_RATE_LIMIT = int(os.getenv('WEBSOCKET_TYPING_RATE_LIMIT', '30'))
+WEBSOCKET_TYPING_RATE_WINDOW = int(os.getenv('WEBSOCKET_TYPING_RATE_WINDOW', '60'))  # seconds
+
+# Maximum WebSocket payload size (bytes)
+WEBSOCKET_MAX_PAYLOAD_SIZE = int(os.getenv('WEBSOCKET_MAX_PAYLOAD_SIZE', '102400'))  # 100KB
+
+# Maximum message content length (characters)
+WEBSOCKET_MAX_MESSAGE_LENGTH = int(os.getenv('WEBSOCKET_MAX_MESSAGE_LENGTH', '10000'))  # 10K characters
+
+# Maximum concurrent WebSocket connections per user
+WEBSOCKET_MAX_CONNECTIONS_PER_USER = int(os.getenv('WEBSOCKET_MAX_CONNECTIONS_PER_USER', '10'))
+
+# ============================================================================
 # INTERNAL CHAT CONFIGURATION
 # ============================================================================
 

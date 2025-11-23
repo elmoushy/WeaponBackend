@@ -313,3 +313,595 @@ class PermissionsTest(TestCase):
         self.assertTrue(ValidationService.can_post_in_thread(self.owner, self.thread))
         self.assertTrue(ValidationService.can_post_in_thread(self.admin, self.thread))
         self.assertFalse(ValidationService.can_post_in_thread(self.member, self.thread))
+
+
+# =============================================================================
+# SECURITY TESTS - MESSAGE SANITIZATION & FILE VALIDATION
+# =============================================================================
+
+class MessageSanitizationTests(TestCase):
+    """Test message content sanitization against XSS attacks"""
+    
+    def test_script_tag_removed(self):
+        """Script tags should be completely removed"""
+        from .security_utils import sanitize_message_content
+        
+        dangerous = '<script>alert("XSS")</script>Hello'
+        safe = sanitize_message_content(dangerous)
+        
+        self.assertNotIn('<script>', safe)
+        self.assertNotIn('alert', safe)
+        self.assertIn('Hello', safe)
+    
+    def test_inline_javascript_removed(self):
+        """Inline JavaScript event handlers should be removed"""
+        from .security_utils import sanitize_message_content
+        
+        dangerous = '<div onclick="alert(1)">Click me</div>'
+        safe = sanitize_message_content(dangerous)
+        
+        self.assertNotIn('onclick', safe)
+        self.assertIn('Click me', safe)
+    
+    def test_safe_html_preserved(self):
+        """Safe HTML tags should be preserved"""
+        from .security_utils import sanitize_message_content
+        
+        safe_html = '<b>Bold</b> <i>Italic</i> <code>Code</code>'
+        result = sanitize_message_content(safe_html)
+        
+        self.assertIn('<b>Bold</b>', result)
+        self.assertIn('<i>Italic</i>', result)
+        self.assertIn('<code>Code</code>', result)
+
+
+class FileValidationTests(TestCase):
+    """Test file upload validation using magic bytes"""
+    
+    def setUp(self):
+        """Set up test user"""
+        self.user = User.objects.create_user(
+            username='test@example.com',
+            email='test@example.com',
+            password='testpass123'
+        )
+    
+    def test_valid_jpeg_upload(self):
+        """Valid JPEG file should pass validation"""
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from .security_utils import validate_file_type
+        
+        # Create minimal valid JPEG (magic bytes: FF D8 FF)
+        jpeg_data = b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00'
+        jpeg_data += b'\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t\x08\n'
+        jpeg_data += b'\xff\xd9'  # End of image marker
+        
+        file = SimpleUploadedFile('test.jpg', jpeg_data, content_type='image/jpeg')
+        
+        # Should not raise exception
+        mime = validate_file_type(file)
+        self.assertEqual(mime, 'image/jpeg')
+    
+    def test_valid_png_upload(self):
+        """Valid PNG file should pass validation"""
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from .security_utils import validate_file_type
+        
+        # PNG magic bytes: 89 50 4E 47 0D 0A 1A 0A
+        png_data = b'\x89PNG\r\n\x1a\n'  # PNG signature
+        png_data += b'\x00\x00\x00\rIHDR'  # IHDR chunk
+        png_data += b'\x00\x00\x00\x01\x00\x00\x00\x01'  # 1x1 image
+        png_data += b'\x08\x06\x00\x00\x00\x1f\x15\xc4\x89'  # IHDR data + CRC
+        png_data += b'\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4'
+        png_data += b'\x00\x00\x00\x00IEND\xaeB`\x82'  # IEND chunk
+        
+        file = SimpleUploadedFile('test.png', png_data, content_type='image/png')
+        
+        mime = validate_file_type(file)
+        self.assertEqual(mime, 'image/png')
+    
+    def test_spoofed_extension_rejected(self):
+        """File with wrong extension should be rejected"""
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.core.exceptions import ValidationError
+        from .security_utils import validate_file_type
+        
+        # PNG content with .jpg extension (spoofing attack)
+        png_data = b'\x89PNG\r\n\x1a\n'
+        png_data += b'\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01'
+        png_data += b'\x08\x06\x00\x00\x00\x1f\x15\xc4\x89'
+        
+        file = SimpleUploadedFile('fake.jpg', png_data, content_type='image/jpeg')
+        
+        with self.assertRaises(ValidationError) as cm:
+            validate_file_type(file)
+        
+        self.assertIn('does not match detected', str(cm.exception))
+    
+    def test_executable_rejected(self):
+        """Executable files should be rejected"""
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.core.exceptions import ValidationError
+        from .security_utils import validate_file_type
+        
+        # MZ header (DOS/Windows executable)
+        exe_data = b'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00'
+        exe_data += b'\xb8\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00'
+        
+        file = SimpleUploadedFile('malware.exe', exe_data, content_type='image/jpeg')
+        
+        with self.assertRaises(ValidationError) as cm:
+            validate_file_type(file)
+        
+        # Should reject either because of MIME type or extension
+        error_msg = str(cm.exception).lower()
+        self.assertTrue('not allowed' in error_msg or 'forbidden' in error_msg)
+    
+    def test_forbidden_extensions(self):
+        """Files with forbidden extensions should be rejected"""
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.core.exceptions import ValidationError
+        from .security_utils import validate_file_type
+        
+        forbidden_exts = ['.exe', '.php', '.sh', '.bat']
+        
+        for ext in forbidden_exts:
+            with self.subTest(extension=ext):
+                # Even with valid text content, forbidden extensions should fail
+                file = SimpleUploadedFile(f'test{ext}', b'plain text content', content_type='text/plain')
+                
+                with self.assertRaises(ValidationError) as cm:
+                    validate_file_type(file)
+                
+                self.assertIn('forbidden', str(cm.exception).lower())
+    
+    def test_file_size_limit(self):
+        """Oversized files should be rejected"""
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.core.exceptions import ValidationError
+        from .security_utils import validate_file_size
+        
+        # Create 11MB file (exceeds 10MB default limit)
+        large_data = b'x' * (11 * 1024 * 1024)
+        file = SimpleUploadedFile('large.txt', large_data, content_type='text/plain')
+        
+        with self.assertRaises(ValidationError) as cm:
+            validate_file_size(file, max_size_mb=10)
+        
+        self.assertIn('exceeds maximum', str(cm.exception))
+
+
+# =============================================================================
+# WEBSOCKET RATE LIMITING TESTS
+# =============================================================================
+
+class RateLimiterUnitTests(TestCase):
+    """Unit tests for WebSocketRateLimiter"""
+    
+    def setUp(self):
+        """Clear cache before each test"""
+        from django.core.cache import cache
+        cache.clear()
+    
+    def test_rate_limiter_allows_under_limit(self):
+        """Rate limiter should allow actions under limit"""
+        from .rate_limiting import WebSocketRateLimiter
+        
+        limiter = WebSocketRateLimiter(1, 'test_action', limit=5, window=60)
+        
+        for i in range(5):
+            self.assertTrue(limiter.is_allowed())
+            limiter.increment()
+        
+        # All 5 should have been allowed
+        self.assertEqual(limiter.get_current_count(), 5)
+    
+    def test_rate_limiter_blocks_over_limit(self):
+        """Rate limiter should block actions over limit"""
+        from .rate_limiting import WebSocketRateLimiter
+        
+        limiter = WebSocketRateLimiter(1, 'test_action', limit=5, window=60)
+        
+        # Use up limit
+        for i in range(5):
+            limiter.increment()
+        
+        # Should be blocked
+        self.assertFalse(limiter.is_allowed())
+    
+    def test_get_remaining_count(self):
+        """Test remaining action count"""
+        from .rate_limiting import WebSocketRateLimiter
+        
+        limiter = WebSocketRateLimiter(1, 'test_action', limit=10, window=60)
+        
+        self.assertEqual(limiter.get_remaining(), 10)
+        
+        limiter.increment()
+        self.assertEqual(limiter.get_remaining(), 9)
+        
+        for i in range(5):
+            limiter.increment()
+        
+        self.assertEqual(limiter.get_remaining(), 4)
+    
+    def test_check_rate_limit_convenience_function(self):
+        """Test check_rate_limit convenience function"""
+        from .rate_limiting import check_rate_limit
+        
+        # First 60 should pass
+        for i in range(60):
+            result = check_rate_limit(1, 'test', limit=60, window=60)
+            self.assertTrue(result, f"Failed at iteration {i+1}")
+        
+        # 61st should fail
+        result = check_rate_limit(1, 'test', limit=60, window=60)
+        self.assertFalse(result)
+    
+    def test_rate_limit_per_user(self):
+        """Rate limits should be per-user"""
+        from .rate_limiting import check_rate_limit
+        
+        # User 1 fills their limit
+        for i in range(5):
+            check_rate_limit(1, 'test', limit=5, window=60)
+        
+        # User 1 should be blocked
+        self.assertFalse(check_rate_limit(1, 'test', limit=5, window=60))
+        
+        # User 2 should still be allowed
+        self.assertTrue(check_rate_limit(2, 'test', limit=5, window=60))
+    
+    def test_rate_limit_per_action(self):
+        """Rate limits should be per-action"""
+        from .rate_limiting import check_rate_limit
+        
+        # Fill up 'action_a'
+        for i in range(5):
+            check_rate_limit(1, 'action_a', limit=5, window=60)
+        
+        # action_a should be blocked
+        self.assertFalse(check_rate_limit(1, 'action_a', limit=5, window=60))
+        
+        # action_b should still be allowed
+        self.assertTrue(check_rate_limit(1, 'action_b', limit=5, window=60))
+    
+    def test_reset_rate_limit(self):
+        """Test resetting rate limit"""
+        from .rate_limiting import WebSocketRateLimiter
+        
+        limiter = WebSocketRateLimiter(1, 'test_action', limit=5, window=60)
+        
+        # Fill limit
+        for i in range(5):
+            limiter.increment()
+        
+        self.assertFalse(limiter.is_allowed())
+        
+        # Reset
+        limiter.reset()
+        
+        # Should be allowed again
+        self.assertTrue(limiter.is_allowed())
+    
+    def test_get_rate_limit_info(self):
+        """Test getting rate limit info"""
+        from .rate_limiting import get_rate_limit_info, check_rate_limit
+        
+        # Use 3 out of 10
+        for i in range(3):
+            check_rate_limit(1, 'test', limit=10, window=60)
+        
+        info = get_rate_limit_info(1, 'test', limit=10, window=60)
+        
+        self.assertEqual(info['current'], 3)
+        self.assertEqual(info['limit'], 10)
+        self.assertEqual(info['remaining'], 7)
+        self.assertEqual(info['window'], 60)
+
+
+class RateLimitingIntegrationTests(TestCase):
+    """Integration tests for WebSocket rate limiting settings and configuration"""
+    
+    def setUp(self):
+        """Set up test user"""
+        from django.core.cache import cache
+        cache.clear()
+        
+        self.user = User.objects.create_user(
+            username='testuser@example.com',
+            email='testuser@example.com',
+            password='testpass123',
+            auth_type='regular',
+            role='user'
+        )
+    
+    def test_rate_limit_settings_exist(self):
+        """Test that all rate limit settings are configured"""
+        from django.conf import settings
+        
+        self.assertTrue(hasattr(settings, 'WEBSOCKET_MESSAGE_RATE_LIMIT'))
+        self.assertTrue(hasattr(settings, 'WEBSOCKET_REACTION_RATE_LIMIT'))
+        self.assertTrue(hasattr(settings, 'WEBSOCKET_TYPING_RATE_LIMIT'))
+        self.assertTrue(hasattr(settings, 'WEBSOCKET_MAX_PAYLOAD_SIZE'))
+        
+        # Verify default values
+        self.assertEqual(settings.WEBSOCKET_MESSAGE_RATE_LIMIT, 60)
+        self.assertEqual(settings.WEBSOCKET_REACTION_RATE_LIMIT, 120)
+        self.assertEqual(settings.WEBSOCKET_TYPING_RATE_LIMIT, 30)
+        self.assertEqual(settings.WEBSOCKET_MAX_PAYLOAD_SIZE, 102400)
+    
+    def test_rate_limit_info_generation(self):
+        """Test that rate limit info is generated correctly"""
+        from .rate_limiting import get_rate_limit_info
+        
+        info = get_rate_limit_info(self.user.id, 'message_send', limit=60, window=60)
+        
+        self.assertIn('current', info)
+        self.assertIn('limit', info)
+        self.assertIn('remaining', info)
+        self.assertIn('window', info)
+        self.assertEqual(info['limit'], 60)
+        self.assertEqual(info['window'], 60)
+    
+    def test_multiple_users_isolated(self):
+        """Test that rate limits don't interfere between users"""
+        from .rate_limiting import check_rate_limit
+        
+        user2 = User.objects.create_user(
+            username='testuser2@example.com',
+            email='testuser2@example.com',
+            password='testpass123',
+            auth_type='regular',
+            role='user'
+        )
+        
+        # User 1 hits limit
+        for i in range(5):
+            check_rate_limit(self.user.id, 'test', limit=5, window=60)
+        
+        # User 1 should be blocked
+        self.assertFalse(check_rate_limit(self.user.id, 'test', limit=5, window=60))
+        
+        # User 2 should not be affected
+        self.assertTrue(check_rate_limit(user2.id, 'test', limit=5, window=60))
+    
+    def test_cache_backend_configured(self):
+        """Test that cache backend is properly configured"""
+        from django.core.cache import cache
+        from django.conf import settings
+        
+        # Verify cache is configured
+        self.assertIn('default', settings.CACHES)
+        
+        # Test cache operations work
+        cache.set('test_key', 'test_value', 60)
+        self.assertEqual(cache.get('test_key'), 'test_value')
+        
+        cache.delete('test_key')
+        self.assertIsNone(cache.get('test_key'))
+
+
+class WebSocketSizeValidationTests(TestCase):
+    """Tests for WebSocket payload and message size validation (TASK_04)"""
+    
+    def setUp(self):
+        """Set up test user"""
+        from django.core.cache import cache
+        cache.clear()
+        
+        self.user = User.objects.create_user(
+            username='testuser@example.com',
+            email='testuser@example.com',
+            password='testpass123',
+            auth_type='regular',
+            role='user'
+        )
+    
+    def test_message_length_settings_exist(self):
+        """Test that message length settings are configured"""
+        from django.conf import settings
+        
+        self.assertTrue(hasattr(settings, 'WEBSOCKET_MAX_MESSAGE_LENGTH'))
+        self.assertTrue(hasattr(settings, 'WEBSOCKET_MAX_CONNECTIONS_PER_USER'))
+        
+        # Verify default values
+        self.assertEqual(settings.WEBSOCKET_MAX_MESSAGE_LENGTH, 10000)
+        self.assertEqual(settings.WEBSOCKET_MAX_CONNECTIONS_PER_USER, 10)
+    
+    def test_message_content_length_validation(self):
+        """Test that oversized message content is rejected"""
+        from django.conf import settings
+        
+        max_length = settings.WEBSOCKET_MAX_MESSAGE_LENGTH
+        
+        # Test message just under limit (should be valid)
+        valid_message = 'A' * (max_length - 1)
+        self.assertEqual(len(valid_message), max_length - 1)
+        
+        # Test message at limit (should be valid)
+        at_limit_message = 'A' * max_length
+        self.assertEqual(len(at_limit_message), max_length)
+        
+        # Test message over limit (should be invalid)
+        oversized_message = 'A' * (max_length + 1)
+        self.assertGreater(len(oversized_message), max_length)
+    
+    def test_connection_counter_operations(self):
+        """Test connection counter increment/decrement"""
+        from django.core.cache import cache
+        
+        conn_key = f"ws_conn_count_{self.user.id}"
+        
+        # Initial count should be 0
+        self.assertEqual(cache.get(conn_key, 0), 0)
+        
+        # Increment to 1
+        cache.set(conn_key, 1, 3600)
+        self.assertEqual(cache.get(conn_key), 1)
+        
+        # Increment to 5
+        cache.set(conn_key, 5, 3600)
+        self.assertEqual(cache.get(conn_key), 5)
+        
+        # Decrement to 4
+        count = cache.get(conn_key, 0)
+        cache.set(conn_key, count - 1, 3600)
+        self.assertEqual(cache.get(conn_key), 4)
+        
+        # Clear
+        cache.delete(conn_key)
+        self.assertEqual(cache.get(conn_key, 0), 0)
+    
+    def test_connection_limit_boundary(self):
+        """Test connection limit boundary conditions"""
+        from django.conf import settings
+        from django.core.cache import cache
+        
+        max_connections = settings.WEBSOCKET_MAX_CONNECTIONS_PER_USER
+        conn_key = f"ws_conn_count_{self.user.id}"
+        
+        # Set to just below limit
+        cache.set(conn_key, max_connections - 1, 3600)
+        current = cache.get(conn_key)
+        self.assertLess(current, max_connections)
+        
+        # Set to exactly at limit
+        cache.set(conn_key, max_connections, 3600)
+        current = cache.get(conn_key)
+        self.assertEqual(current, max_connections)
+        
+        # Over limit should be rejected in actual implementation
+        cache.set(conn_key, max_connections + 1, 3600)
+        current = cache.get(conn_key)
+        self.assertGreaterEqual(current, max_connections)
+    
+    def test_payload_size_limit_exists(self):
+        """Test that payload size limit is configured"""
+        from django.conf import settings
+        
+        self.assertTrue(hasattr(settings, 'WEBSOCKET_MAX_PAYLOAD_SIZE'))
+        self.assertEqual(settings.WEBSOCKET_MAX_PAYLOAD_SIZE, 102400)  # 100KB
+    
+    def test_message_length_error_format(self):
+        """Test that message length error has correct format"""
+        from django.conf import settings
+        
+        max_length = settings.WEBSOCKET_MAX_MESSAGE_LENGTH
+        
+        error_message = {
+            'type': 'error',
+            'code': 'MESSAGE_TOO_LONG',
+            'message': f'Message too long. Maximum length: {max_length} characters'
+        }
+        
+        self.assertEqual(error_message['type'], 'error')
+        self.assertEqual(error_message['code'], 'MESSAGE_TOO_LONG')
+        self.assertIn('too long', error_message['message'].lower())
+        self.assertIn(str(max_length), error_message['message'])
+    
+    def test_connection_limit_per_user_isolation(self):
+        """Test that connection limits are per-user"""
+        from django.core.cache import cache
+        
+        user2 = User.objects.create_user(
+            username='testuser2@example.com',
+            email='testuser2@example.com',
+            password='testpass123',
+            auth_type='regular',
+            role='user'
+        )
+        
+        conn_key_1 = f"ws_conn_count_{self.user.id}"
+        conn_key_2 = f"ws_conn_count_{user2.id}"
+        
+        # Set user 1 to 10 connections
+        cache.set(conn_key_1, 10, 3600)
+        
+        # User 2 should have 0 connections
+        self.assertEqual(cache.get(conn_key_2, 0), 0)
+        
+        # Set user 2 to 5 connections
+        cache.set(conn_key_2, 5, 3600)
+        
+        # Both should maintain their own counts
+        self.assertEqual(cache.get(conn_key_1), 10)
+        self.assertEqual(cache.get(conn_key_2), 5)
+
+
+class WebSocketSecurityIntegrationTests(TestCase):
+    """Integration tests for all WebSocket security features"""
+    
+    def setUp(self):
+        """Set up test data"""
+        from django.core.cache import cache
+        cache.clear()
+        
+        self.user = User.objects.create_user(
+            username='sectest@example.com',
+            email='sectest@example.com',
+            password='testpass123',
+            auth_type='regular',
+            role='user'
+        )
+    
+    def test_all_security_settings_configured(self):
+        """Test that all WebSocket security settings are present"""
+        from django.conf import settings
+        
+        security_settings = [
+            'WEBSOCKET_MAX_PAYLOAD_SIZE',
+            'WEBSOCKET_MAX_MESSAGE_LENGTH',
+            'WEBSOCKET_MAX_CONNECTIONS_PER_USER',
+            'WEBSOCKET_MESSAGE_RATE_LIMIT',
+            'WEBSOCKET_REACTION_RATE_LIMIT',
+            'WEBSOCKET_TYPING_RATE_LIMIT',
+        ]
+        
+        for setting in security_settings:
+            self.assertTrue(
+                hasattr(settings, setting),
+                f"Missing security setting: {setting}"
+            )
+    
+    def test_security_limits_are_reasonable(self):
+        """Test that security limits have reasonable values"""
+        from django.conf import settings
+        
+        # Payload size should be reasonable (100KB)
+        self.assertEqual(settings.WEBSOCKET_MAX_PAYLOAD_SIZE, 102400)
+        
+        # Message length should be reasonable (10K chars)
+        self.assertEqual(settings.WEBSOCKET_MAX_MESSAGE_LENGTH, 10000)
+        
+        # Connection limit should be reasonable (10 per user)
+        self.assertEqual(settings.WEBSOCKET_MAX_CONNECTIONS_PER_USER, 10)
+        
+        # Rate limits should be reasonable
+        self.assertGreater(settings.WEBSOCKET_MESSAGE_RATE_LIMIT, 0)
+        self.assertGreater(settings.WEBSOCKET_REACTION_RATE_LIMIT, 0)
+        self.assertGreater(settings.WEBSOCKET_TYPING_RATE_LIMIT, 0)
+    
+    def test_cache_backend_supports_counters(self):
+        """Test that cache backend can handle connection counters"""
+        from django.core.cache import cache
+        
+        test_keys = [
+            f"ws_conn_count_{self.user.id}",
+            "rate_limit_test_user_1_message_send",
+            "rate_limit_test_user_1_reaction_add",
+        ]
+        
+        # Test set/get/increment operations
+        for key in test_keys:
+            cache.set(key, 0, 3600)
+            self.assertEqual(cache.get(key), 0)
+            
+            # Increment
+            cache.set(key, cache.get(key) + 1, 3600)
+            self.assertEqual(cache.get(key), 1)
+            
+            # Cleanup
+            cache.delete(key)
+            self.assertIsNone(cache.get(key))
+

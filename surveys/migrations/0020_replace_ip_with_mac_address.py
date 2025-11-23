@@ -10,10 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='deviceresponse',
-            name='ip_address',
-        ),
         migrations.AddField(
             model_name='deviceresponse',
             name='mac_address',
@@ -29,3 +25,11 @@ class Migration(migrations.Migration):
             index=models.Index(fields=['mac_address'], name='surveys_device_mac_idx'),
         ),
     ]
+    
+    # Reverse migration support
+    def reverse_code(apps, schema_editor):
+        """Remove mac_address field and index when rolling back"""
+        pass  # Django handles this automatically with RemoveField and RemoveIndex
+    
+    # Add atomic=False if needed for large tables
+    atomic = True

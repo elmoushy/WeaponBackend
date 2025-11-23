@@ -6,8 +6,11 @@ import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
+from django.conf import settings
 from .models import Thread, ThreadParticipant, Message, MessageReaction
 from .services import MessageService
+from .security_utils import sanitize_message_content, validate_emoji
+from .rate_limiting import check_rate_limit
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +34,27 @@ class ThreadConsumer(AsyncWebsocketConsumer):
             await self.close(code=4001)  # Unauthorized
             return
         
+        # SECURITY: Limit concurrent connections per user
+        max_connections = getattr(settings, 'WEBSOCKET_MAX_CONNECTIONS_PER_USER', 10)
+        conn_key = f"ws_conn_count_{self.user.id}"
+        
+        current_connections = await self.get_connection_count(conn_key)
+        
+        if current_connections >= max_connections:
+            logger.warning(
+                f"Connection limit exceeded for user {self.user.id}: "
+                f"{current_connections}/{max_connections}"
+            )
+            await self.close(code=4008)  # Policy Violation
+            return
+        
+        # Increment connection counter
+        await self.increment_connection_count(conn_key)
+        
         # Check if user is participant
         is_participant = await self.check_participant()
         if not is_participant:
+            await self.decrement_connection_count(conn_key)  # Decrement on failure
             await self.close(code=4003)  # Forbidden
             return
         
@@ -45,11 +66,33 @@ class ThreadConsumer(AsyncWebsocketConsumer):
         
         await self.accept()
         
-        # Send connection success
+        # Send connection success with rate limit info
+        rate_limit_messages = getattr(settings, 'WEBSOCKET_MESSAGE_RATE_LIMIT', 60)
+        rate_limit_reactions = getattr(settings, 'WEBSOCKET_REACTION_RATE_LIMIT', 120)
+        rate_limit_typing = getattr(settings, 'WEBSOCKET_TYPING_RATE_LIMIT', 30)
+        
         await self.send(text_data=json.dumps({
             'type': 'connection.established',
             'thread_id': str(self.thread_id),
-            'message': 'Connected to thread'
+            'user_id': str(self.user.id),
+            'message': 'Connected to thread',
+            'rate_limits': {
+                'messages': {
+                    'limit': rate_limit_messages,
+                    'window': 60,
+                    'unit': 'per_minute'
+                },
+                'reactions': {
+                    'limit': rate_limit_reactions,
+                    'window': 60,
+                    'unit': 'per_minute'
+                },
+                'typing': {
+                    'limit': rate_limit_typing,
+                    'window': 60,
+                    'unit': 'per_minute'
+                }
+            }
         }))
         
         logger.info(f"User {self.user.id} connected to thread {self.thread_id}")
@@ -58,27 +101,49 @@ class ThreadConsumer(AsyncWebsocketConsumer):
         """
         Called when WebSocket connection is closed
         """
+        # SECURITY: Decrement connection counter
+        if hasattr(self, 'user') and not self.user.is_anonymous:
+            conn_key = f"ws_conn_count_{self.user.id}"
+            await self.decrement_connection_count(conn_key)
+        
         # Stop typing indicator if active
-        await self.channel_layer.group_send(
-            self.thread_group_name,
-            {
-                'type': 'typing_stop',
-                'user_id': self.user.id,
-            }
-        )
+        if hasattr(self, 'thread_group_name'):
+            await self.channel_layer.group_send(
+                self.thread_group_name,
+                {
+                    'type': 'typing_stop',
+                    'user_id': self.user.id,
+                }
+            )
         
         # Leave thread group
-        await self.channel_layer.group_discard(
-            self.thread_group_name,
-            self.channel_name
-        )
+        if hasattr(self, 'thread_group_name'):
+            await self.channel_layer.group_discard(
+                self.thread_group_name,
+                self.channel_name
+            )
         
-        logger.info(f"User {self.user.id} disconnected from thread {self.thread_id}")
+        logger.info(f"User {self.user.id} disconnected from thread {self.thread_id} (code={close_code})")
     
     async def receive(self, text_data):
         """
         Receive message from WebSocket client
         """
+        # SECURITY: Validate payload size to prevent memory exhaustion
+        max_payload_size = getattr(settings, 'WEBSOCKET_MAX_PAYLOAD_SIZE', 102400)  # 100KB
+        if len(text_data) > max_payload_size:
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'code': 'PAYLOAD_TOO_LARGE',
+                'message': f'Payload too large (max {max_payload_size // 1024}KB)'
+            }))
+            logger.warning(
+                f"User {self.user.id} sent oversized payload: "
+                f"{len(text_data)} bytes > {max_payload_size} bytes"
+            )
+            await self.close(code=1009)  # Message Too Big
+            return
+        
         try:
             data = json.loads(text_data)
             event_type = data.get('type')
@@ -115,14 +180,57 @@ class ThreadConsumer(AsyncWebsocketConsumer):
     # Event handlers for client requests
     async def handle_message_send(self, data):
         """Client wants to send a message"""
+        # SECURITY: Rate limiting for message sending
+        rate_limit = getattr(settings, 'WEBSOCKET_MESSAGE_RATE_LIMIT', 60)
+        rate_window = getattr(settings, 'WEBSOCKET_MESSAGE_RATE_WINDOW', 60)
+        
+        is_allowed = await self.check_rate_limit_async(
+            self.user.id,
+            'message_send',
+            limit=rate_limit,
+            window=rate_window
+        )
+        
+        if not is_allowed:
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'code': 'RATE_LIMIT_EXCEEDED',
+                'message': f'Rate limit exceeded. Maximum {rate_limit} messages per minute.'
+            }))
+            logger.warning(
+                f"User {self.user.id} exceeded message rate limit: "
+                f"{rate_limit} messages per {rate_window} seconds"
+            )
+            return
+        
         content = data.get('content', '').strip()
         reply_to_id = data.get('reply_to')
         attachment_ids = data.get('attachment_ids', [])
         
-        if not content:
+        # SECURITY: Validate message content length
+        max_length = getattr(settings, 'WEBSOCKET_MAX_MESSAGE_LENGTH', 10000)
+        
+        if len(content) > max_length:
             await self.send(text_data=json.dumps({
                 'type': 'error',
-                'message': 'Message content is required'
+                'code': 'MESSAGE_TOO_LONG',
+                'message': f'Message too long. Maximum length: {max_length} characters'
+            }))
+            logger.warning(
+                f"User {self.user.id} attempted to send oversized message: "
+                f"{len(content)} chars > {max_length} chars"
+            )
+            return
+        
+        # SECURITY: Sanitize content at WebSocket level to prevent XSS
+        if content:
+            content = await self.sanitize_content(content)
+        
+        # Validate content not empty after sanitization
+        if not content and not attachment_ids:
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'message': 'Message content is required or attachments must be provided'
             }))
             return
         
@@ -155,6 +263,24 @@ class ThreadConsumer(AsyncWebsocketConsumer):
     
     async def handle_typing_start(self):
         """User started typing"""
+        # SECURITY: Rate limiting for typing indicators
+        rate_limit = getattr(settings, 'WEBSOCKET_TYPING_RATE_LIMIT', 30)
+        rate_window = getattr(settings, 'WEBSOCKET_TYPING_RATE_WINDOW', 60)
+        
+        is_allowed = await self.check_rate_limit_async(
+            self.user.id,
+            'typing_indicator',
+            limit=rate_limit,
+            window=rate_window
+        )
+        
+        if not is_allowed:
+            # Silently ignore excessive typing events (don't annoy user with errors)
+            logger.debug(
+                f"User {self.user.id} exceeded typing indicator rate limit"
+            )
+            return
+        
         await self.channel_layer.group_send(
             self.thread_group_name,
             {
@@ -194,10 +320,42 @@ class ThreadConsumer(AsyncWebsocketConsumer):
     
     async def handle_reaction_add(self, data):
         """User added reaction to message"""
+        # SECURITY: Rate limiting for reactions
+        rate_limit = getattr(settings, 'WEBSOCKET_REACTION_RATE_LIMIT', 120)
+        rate_window = getattr(settings, 'WEBSOCKET_REACTION_RATE_WINDOW', 60)
+        
+        is_allowed = await self.check_rate_limit_async(
+            self.user.id,
+            'reaction_add',
+            limit=rate_limit,
+            window=rate_window
+        )
+        
+        if not is_allowed:
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'code': 'RATE_LIMIT_EXCEEDED',
+                'message': f'Rate limit exceeded. Maximum {rate_limit} reactions per minute.'
+            }))
+            logger.warning(
+                f"User {self.user.id} exceeded reaction rate limit"
+            )
+            return
+        
         message_id = data.get('message_id')
         emoji = data.get('emoji')
         
         if not message_id or not emoji:
+            return
+        
+        # SECURITY: Validate emoji before processing
+        try:
+            await self.validate_emoji_async(emoji)
+        except ValueError as e:
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'message': f'Invalid emoji: {str(e)}'
+            }))
             return
         
         # Add reaction in database
@@ -400,6 +558,73 @@ class ThreadConsumer(AsyncWebsocketConsumer):
             MessageService.remove_reaction(message, self.user, emoji)
         except Exception as e:
             logger.error(f"Error removing reaction: {str(e)}")
+    
+    @database_sync_to_async
+    def sanitize_content(self, content):
+        """Sanitize message content (async wrapper)"""
+        return sanitize_message_content(content)
+    
+    @database_sync_to_async
+    def validate_emoji_async(self, emoji):
+        """Validate emoji (async wrapper)"""
+        return validate_emoji(emoji)
+    
+    @database_sync_to_async
+    def check_rate_limit_async(self, user_id, action, limit, window):
+        """
+        Async wrapper for rate limit check
+        
+        Args:
+            user_id: User ID to check
+            action: Action type (message_send, reaction_add, typing_indicator)
+            limit: Maximum actions per window
+            window: Time window in seconds
+            
+        Returns:
+            bool: True if allowed, False if rate limit exceeded
+        """
+        return check_rate_limit(user_id, action, limit, window)
+    
+    @database_sync_to_async
+    def get_connection_count(self, key):
+        """
+        Get current connection count from cache
+        
+        Args:
+            key: Cache key for connection counter
+            
+        Returns:
+            int: Current connection count
+        """
+        from django.core.cache import cache
+        return cache.get(key, 0)
+    
+    @database_sync_to_async
+    def increment_connection_count(self, key):
+        """
+        Increment connection count with 1-hour expiry
+        
+        Args:
+            key: Cache key for connection counter
+        """
+        from django.core.cache import cache
+        count = cache.get(key, 0)
+        cache.set(key, count + 1, 3600)  # 1 hour expiry
+        logger.debug(f"Connection count incremented for {key}: {count + 1}")
+    
+    @database_sync_to_async
+    def decrement_connection_count(self, key):
+        """
+        Decrement connection count
+        
+        Args:
+            key: Cache key for connection counter
+        """
+        from django.core.cache import cache
+        count = cache.get(key, 0)
+        if count > 0:
+            cache.set(key, count - 1, 3600)
+            logger.debug(f"Connection count decremented for {key}: {count - 1}")
     
     @staticmethod
     async def send_unread_count_update(thread_id, user_id, unread_count):

@@ -1,6 +1,5 @@
 """
-Business Logic Services for Internal Chat
-"""
+Business Logic Services for Internal Chat"""
 import logging
 from django.db import transaction
 from django.utils import timezone
@@ -11,6 +10,7 @@ from .models import (
     Thread, ThreadParticipant, Message, GroupSettings,
     Attachment, DirectThreadKey, AuditLog, MessageReaction
 )
+from .security_utils import sanitize_message_content, sanitize_caption, validate_emoji
 
 logger = logging.getLogger(__name__)
 
@@ -308,6 +308,16 @@ class MessageService:
         if not ValidationService.can_post_in_thread(sender, thread):
             raise PermissionDenied("You don't have permission to post in this thread")
         
+        # SECURITY: Sanitize content before saving to prevent XSS attacks
+        if content:
+            content = sanitize_message_content(content)
+            # Trim whitespace after sanitization
+            content = content.strip() if content else ''
+        
+        # Validate content not empty after sanitization
+        if not content and not attachment_ids:
+            raise ValidationError("Message cannot be empty")
+        
         # Validate reply_to
         reply_to = None
         if reply_to_id:
@@ -372,6 +382,13 @@ class MessageService:
         
         if message.is_deleted():
             raise ValidationError("Cannot edit deleted message")
+        
+        # SECURITY: Sanitize content before saving to prevent XSS attacks
+        new_content = sanitize_message_content(new_content)
+        new_content = new_content.strip() if new_content else ''
+        
+        if not new_content:
+            raise ValidationError("Message content cannot be empty")
         
         message.content = new_content
         message.edited_at = timezone.now()
@@ -444,6 +461,12 @@ class MessageService:
         Add emoji reaction to message
         User can only have one reaction per message - old reaction is deleted if exists
         """
+        # SECURITY: Validate emoji to prevent injection
+        try:
+            validate_emoji(emoji)
+        except ValueError as e:
+            raise ValidationError(str(e))
+        
         # Check if reactions are enabled
         if message.thread.type == Thread.TYPE_GROUP:
             try:

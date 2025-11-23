@@ -56,7 +56,7 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
 class AttachmentUploadSerializer(serializers.ModelSerializer):
     """
-    Serializer for uploading attachments
+    Serializer for uploading attachments with security validation
     """
     file = serializers.FileField()
     file_name = serializers.CharField(required=False, allow_blank=True)
@@ -68,20 +68,37 @@ class AttachmentUploadSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'size', 'content_type']
     
     def validate_file(self, value):
-        # Check file size
-        max_size = getattr(settings, 'INTERNAL_CHAT_MAX_ATTACHMENT_SIZE', 10 * 1024 * 1024)
-        if value.size > max_size:
-            raise serializers.ValidationError(
-                f"File size exceeds maximum allowed size of {max_size / (1024 * 1024)}MB"
-            )
+        """
+        Validate uploaded file using magic bytes (not Content-Type header).
         
-        # Check content type
-        allowed_types = getattr(settings, 'INTERNAL_CHAT_ALLOWED_CONTENT_TYPES', [])
-        if allowed_types and value.content_type not in allowed_types:
-            raise serializers.ValidationError(
-                f"File type {value.content_type} is not allowed"
-            )
+        This provides defense-in-depth against:
+        - File extension spoofing (malware.exe → malware.jpg)
+        - MIME type spoofing (claiming image/jpeg for executable)
+        - Oversized files (DoS attack via storage exhaustion)
+        """
+        from .security_utils import validate_file_type, validate_file_size, sanitize_caption
         
+        # SECURITY: Validate file size first (fail fast for large files)
+        max_size_mb = getattr(settings, 'INTERNAL_CHAT_MAX_ATTACHMENT_SIZE', 10)
+        validate_file_size(value, max_size_mb=max_size_mb)
+        
+        # SECURITY: Validate file type using magic bytes (not Content-Type header!)
+        # This is the CRITICAL security check - detects actual file content
+        detected_mime = validate_file_type(value)
+        
+        # Store detected MIME type in context for use in create()
+        self.context['detected_mime'] = detected_mime
+        
+        return value
+    
+    def validate_caption(self, value):
+        """
+        Sanitize caption to prevent XSS attacks
+        """
+        from .security_utils import sanitize_caption
+        
+        if value:
+            return sanitize_caption(value)
         return value
     
     def create(self, validated_data):
@@ -101,13 +118,16 @@ class AttachmentUploadSerializer(serializers.ModelSerializer):
             unique_id = str(uuid.uuid4())[:8]  # Short UUID
             file_name = f"{name}_{unique_id}{ext}"
         
+        # Use detected MIME type (from magic bytes) instead of client-provided Content-Type
+        detected_mime = self.context.get('detected_mime', file.content_type)
+        
         # Create attachment without message (will be linked later)
         attachment = Attachment.objects.create(
             message=None,  # Will be set when message is created
             file=file,
             file_name=file_name,
             caption=validated_data.get('caption', ''),
-            content_type=file.content_type,
+            content_type=detected_mime,  # Use validated MIME type, not header
             size=file.size
         )
         
