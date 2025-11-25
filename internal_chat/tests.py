@@ -905,3 +905,236 @@ class WebSocketSecurityIntegrationTests(TestCase):
             cache.delete(key)
             self.assertIsNone(cache.get(key))
 
+
+class UserEnumerationTests(APITestCase):
+    """
+    CRITICAL SECURITY: Test user enumeration prevention
+    
+    OWASP Reference: A01:2021 - Broken Access Control
+    CWE-200: Exposure of Sensitive Information to an Unauthorized Actor
+    CWE-359: Exposure of Private Personal Information to an Unauthorized Actor
+    
+    Tests verify that the user list endpoint:
+    1. REQUIRES search query (prevents full enumeration)
+    2. Enforces minimum search length (2 characters)
+    3. Applies pagination (max 50 per page)
+    4. Enforces hard limit (100 results max)
+    5. Excludes current user from results
+    6. Returns proper error messages
+    """
+    
+    def setUp(self):
+        """Create test users"""
+        # Create main test user
+        self.user = User.objects.create_user(
+            username='test@example.com',
+            email='test@example.com',
+            password='testpass123',
+            first_name='Test',
+            last_name='User'
+        )
+        
+        # Create 150 additional users for pagination testing
+        self.test_users = []
+        for i in range(150):
+            user = User.objects.create_user(
+                username=f'john{i}@example.com',
+                email=f'john{i}@example.com',
+                password='testpass123',
+                first_name='John',
+                last_name=f'Doe{i}'
+            )
+            self.test_users.append(user)
+        
+        # Create users with different names for search testing
+        self.alice = User.objects.create_user(
+            username='alice@example.com',
+            email='alice@example.com',
+            password='testpass123',
+            first_name='Alice',
+            last_name='Smith'
+        )
+        
+        self.bob = User.objects.create_user(
+            username='bob@example.com',
+            email='bob@example.com',
+            password='testpass123',
+            first_name='Bob',
+            last_name='Johnson'
+        )
+        
+        # Authenticate
+        self.client.force_authenticate(user=self.user)
+    
+    def test_list_without_search_rejected(self):
+        """
+        SECURITY TEST: Listing without search query should be rejected
+        
+        Attack Vector: Attacker tries to enumerate all system users
+        Expected: HTTP 400 with clear error message
+        """
+        response = self.client.get('/api/internal-chat/users/')
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.data)
+        self.assertIn('Search query required', response.data['error'])
+        self.assertEqual(response.data['code'], 'SEARCH_REQUIRED')
+        
+        # Verify security log entry would be created
+        self.assertIn('at least 2 characters', response.data['detail'])
+    
+    def test_list_with_short_search_rejected(self):
+        """
+        SECURITY TEST: Search queries < 2 characters should be rejected
+        
+        Attack Vector: Attacker tries single-character searches to enumerate users
+        Expected: HTTP 400 for queries with 0 or 1 character
+        """
+        # Empty search
+        response = self.client.get('/api/internal-chat/users/', {'search': ''})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('at least 2 characters', response.data['detail'])
+        
+        # Single character
+        response = self.client.get('/api/internal-chat/users/', {'search': 'j'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['code'], 'SEARCH_REQUIRED')
+        
+        # Whitespace only
+        response = self.client.get('/api/internal-chat/users/', {'search': '   '})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_list_with_valid_search(self):
+        """
+        Test successful user search with valid query (>= 2 characters)
+        
+        Expected: Paginated results matching search query
+        """
+        # Search for "Alice"
+        response = self.client.get('/api/internal-chat/users/', {'search': 'al'})
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('count', response.data)
+        self.assertIn('results', response.data)
+        
+        # Should find Alice
+        user_ids = [u['id'] for u in response.data['results']]
+        self.assertIn(self.alice.id, user_ids)
+        
+        # Should NOT include current user
+        self.assertNotIn(self.user.id, user_ids)
+    
+    def test_pagination_enforced(self):
+        """
+        SECURITY TEST: Pagination should be enforced (max 50 per page)
+        
+        Expected: Results limited to 50 per page with pagination links
+        """
+        # Search for "John" (should match 150 users)
+        response = self.client.get('/api/internal-chat/users/', {'search': 'john'})
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Should have pagination
+        self.assertIn('count', response.data)
+        self.assertIn('results', response.data)
+        self.assertIn('next', response.data)
+        
+        # First page should have max 50 results
+        self.assertLessEqual(len(response.data['results']), 50)
+        
+        # Total count should be limited to 100 (hard limit)
+        self.assertLessEqual(response.data['count'], 100)
+    
+    def test_hard_limit_enforced(self):
+        """
+        SECURITY TEST: Hard limit of 100 results should be enforced
+        
+        Attack Vector: Attacker tries pagination to enumerate beyond 100 users
+        Expected: Maximum 100 results total, even with pagination
+        """
+        # Search for "John" (matches 150 users, but should limit to 100)
+        response = self.client.get('/api/internal-chat/users/', {'search': 'john'})
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Collect all results through pagination
+        all_results = response.data['results'][:]
+        next_url = response.data.get('next')
+        
+        while next_url and len(all_results) < 150:  # Safety limit
+            # Extract page parameter from next URL
+            if 'page=' in next_url:
+                page = next_url.split('page=')[1].split('&')[0]
+                response = self.client.get('/api/internal-chat/users/', {
+                    'search': 'john',
+                    'page': page
+                })
+                
+                if response.status_code == 200:
+                    all_results.extend(response.data['results'])
+                    next_url = response.data.get('next')
+                else:
+                    break
+            else:
+                break
+        
+        # CRITICAL: Total results should never exceed 100
+        self.assertLessEqual(len(all_results), 100,
+            f"Hard limit violated: {len(all_results)} results returned (max 100)")
+    
+    def test_current_user_excluded(self):
+        """
+        Test that current authenticated user is excluded from results
+        
+        Expected: Searching for own name should not return own account
+        """
+        # Search for current user's name
+        response = self.client.get('/api/internal-chat/users/', {'search': 'test'})
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Current user should NOT be in results
+        user_ids = [u['id'] for u in response.data['results']]
+        self.assertNotIn(self.user.id, user_ids,
+            "Current user should be excluded from search results")
+    
+    def test_search_across_multiple_fields(self):
+        """
+        Test that search works across first_name, last_name, email, username
+        
+        Expected: Search should match any of these fields
+        """
+        # Search by first name
+        response = self.client.get('/api/internal-chat/users/', {'search': 'alice'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user_ids = [u['id'] for u in response.data['results']]
+        self.assertIn(self.alice.id, user_ids)
+        
+        # Search by last name
+        response = self.client.get('/api/internal-chat/users/', {'search': 'johnson'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user_ids = [u['id'] for u in response.data['results']]
+        self.assertIn(self.bob.id, user_ids)
+        
+        # Search by email
+        response = self.client.get('/api/internal-chat/users/', {'search': 'bob@'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user_ids = [u['id'] for u in response.data['results']]
+        self.assertIn(self.bob.id, user_ids)
+    
+    def test_unauthenticated_access_denied(self):
+        """
+        SECURITY TEST: Unauthenticated users should be denied access
+        
+        Expected: HTTP 401/403
+        """
+        self.client.force_authenticate(user=None)
+        response = self.client.get('/api/internal-chat/users/', {'search': 'test'})
+        
+        self.assertIn(response.status_code, [
+            status.HTTP_401_UNAUTHORIZED,
+            status.HTTP_403_FORBIDDEN
+        ])
+
+

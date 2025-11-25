@@ -31,6 +31,7 @@ def api_root(request):
         'endpoints': {
             'authentication': '/api/auth/',
             'surveys': '/api/surveys/',
+            'newsletters': '/api/newsletters/',
             'notifications': '/api/notifications/',
             'internal_chat': '/api/internal-chat/',
             'admin': '/admin/',
@@ -52,6 +53,9 @@ urlpatterns = [
     
     # Survey service endpoints
     path('api/surveys/', include('surveys.urls')),
+    
+    # Newsletter endpoints (three separate news types)
+    path('api/newsletters/', include('newsletters.urls')),
     
     # Notifications endpoints
     path('api/notifications/', include('notifications.urls')),

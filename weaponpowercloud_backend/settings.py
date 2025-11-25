@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     # Local apps
     'authentication',
     'surveys',
+    'newsletters',  # Newsletter system with BLOB image storage
     'notifications',  # New app for real-time notifications
     'internal_chat',  # Internal chat system
 ]
@@ -450,7 +451,7 @@ SECURE_BROWSER_XSS_FILTER = True
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")  # Allow inline styles for admin
-CSP_IMG_SRC = ("'self'", "data:", "https:")
+CSP_IMG_SRC = ("'self'", "data:", "blob:", "https:")  # Allow blob URLs for file previews
 CSP_FONT_SRC = ("'self'", "https:")
 CSP_CONNECT_SRC = ("'self'",)
 CSP_FRAME_ANCESTORS = ("'none'",)  # Equivalent to X-Frame-Options: DENY
