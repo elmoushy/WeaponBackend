@@ -217,8 +217,19 @@ class GroupSettings(models.Model):
         choices=POSTING_MODE_CHOICES,
         default=POSTING_MODE_ALL
     )
+    members_can_add_others = models.BooleanField(
+        default=False,
+        help_text='Allow regular members to add new participants to the group'
+    )
     mentions_enabled = models.BooleanField(default=True)
     reactions_enabled = models.BooleanField(default=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='updated_group_settings'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

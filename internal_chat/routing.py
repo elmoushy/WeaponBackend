@@ -12,6 +12,6 @@ websocket_urlpatterns = [
     # Global presence WebSocket for online/offline status
     path('ws/internal-chat/presence/', consumers.PresenceConsumer.as_asgi()),
     
-    # Global user notification WebSocket (works across all pages)
-    path('ws/notifications/', consumers.UserNotificationConsumer.as_asgi()),
+    # Global user notification WebSocket for chat unread counts (works across all pages)
+    path('ws/internal-chat/notifications/', consumers.UserNotificationConsumer.as_asgi()),
 ]

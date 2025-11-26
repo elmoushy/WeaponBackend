@@ -482,6 +482,16 @@ class ThreadConsumer(AsyncWebsocketConsumer):
             'thread': event['thread'],
         }))
     
+    async def group_settings_updated(self, event):
+        """Group settings changed - notify all participants"""
+        await self.send(text_data=json.dumps({
+            'type': 'group.settings.updated',
+            'thread_id': event['thread_id'],
+            'settings': event['settings'],
+            'updated_by': event['updated_by'],
+            'timestamp': event['timestamp'],
+        }))
+    
     async def unread_count_update(self, event):
         """Unread count update for this thread"""
         # Only send to the specific user this count is for

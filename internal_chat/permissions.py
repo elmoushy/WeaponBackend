@@ -44,8 +44,9 @@ class IsOwnerOrAdmin(permissions.BasePermission):
 class CanPostInThread(permissions.BasePermission):
     """
     Permission check: user can post messages in the thread
+    Respects posting_mode group setting
     """
-    message = "You don't have permission to post in this thread"
+    message = "Only admins can post in this group"
     
     def has_permission(self, request, view):
         # For create operations, check thread_id from URL or request data
@@ -70,6 +71,22 @@ class CanPostInThread(permissions.BasePermission):
             thread = obj
         
         return ValidationService.can_post_in_thread(request.user, thread)
+
+
+class CanAddMembers(permissions.BasePermission):
+    """
+    Permission check: user can add members to the thread
+    Respects members_can_add_others group setting
+    """
+    message = "Only admins can add members to this group"
+    
+    def has_object_permission(self, request, view, obj):
+        if hasattr(obj, 'thread'):
+            thread = obj.thread
+        else:
+            thread = obj
+        
+        return ValidationService.can_add_members(request.user, thread)
 
 
 class IsMessageSenderOrAdmin(permissions.BasePermission):

@@ -143,6 +143,9 @@ class NotificationDetailView(generics.RetrieveUpdateAPIView):
             notification.read_at = timezone.now()
             notification.save(update_fields=['read_at'])
         
+        # Send WebSocket count update
+        NotificationService.send_notification_count_update(notification.recipient_id)
+        
         logger.info(f"Updated notification {notification.id} for user {self.request.user.email}")
 
 
@@ -208,6 +211,9 @@ def bulk_notification_action(request):
                 read_at=timezone.now()
             )
             
+            # Send WebSocket count update
+            NotificationService.send_notification_count_update(request.user.id)
+            
             return Response({
                 'status': 'success',
                 'message': f'Marked {updated_count} notifications as read',
@@ -221,6 +227,9 @@ def bulk_notification_action(request):
         elif action == BulkNotificationActionSerializer.ACTION_DELETE:
             # Delete notifications
             deleted_count, _ = notifications.delete()
+            
+            # Send WebSocket count update
+            NotificationService.send_notification_count_update(request.user.id)
             
             return Response({
                 'status': 'success',
@@ -345,6 +354,9 @@ def mark_all_read(request):
             is_read=True,
             read_at=timezone.now()
         )
+        
+        # Send WebSocket count update (count is now 0)
+        NotificationService.send_notification_count_update(request.user.id)
         
         lang = request.query_params.get('lang', 'en')
         messages = {

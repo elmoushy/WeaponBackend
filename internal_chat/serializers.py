@@ -299,13 +299,35 @@ class GroupSettingsSerializer(serializers.ModelSerializer):
     """
     Serializer for group settings
     """
+    thread_id = serializers.UUIDField(source='thread.id', read_only=True)
+    updated_by = serializers.SerializerMethodField(read_only=True)
+    
     class Meta:
         model = GroupSettings
         fields = [
-            'id', 'posting_mode', 'mentions_enabled',
-            'reactions_enabled', 'created_at', 'updated_at'
+            'thread_id', 'posting_mode', 'members_can_add_others',
+            'mentions_enabled', 'reactions_enabled',
+            'updated_at', 'updated_by'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['thread_id', 'updated_at', 'updated_by']
+    
+    def get_updated_by(self, obj):
+        """Return the user who last updated the settings"""
+        if obj.updated_by:
+            return {
+                'id': obj.updated_by.id,
+                'first_name': obj.updated_by.first_name,
+                'last_name': obj.updated_by.last_name
+            }
+        return None
+    
+    def validate_posting_mode(self, value):
+        """Validate posting_mode is a valid choice"""
+        if value not in [GroupSettings.POSTING_MODE_ALL, GroupSettings.POSTING_MODE_ADMINS_ONLY]:
+            raise serializers.ValidationError(
+                f"Invalid posting_mode. Must be one of: 'all', 'admins_only'"
+            )
+        return value
 
 
 class ThreadSerializer(serializers.ModelSerializer):

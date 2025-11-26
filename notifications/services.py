@@ -8,7 +8,7 @@ via WebSocket with multi-language support.
 import logging
 from typing import Dict, Any, Optional, List, Union
 from asgiref.sync import async_to_sync
-# from channels.layers import get_channel_layer  # COMMENTED OUT FOR PRODUCTION
+from channels.layers import get_channel_layer
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from .models import Notification, NotificationPreference
@@ -103,8 +103,8 @@ class NotificationService:
             
             logger.info(f"Created notification {notification.id} for user {recipient.email}")
             
-            # Send via WebSocket
-            NotificationService.send_websocket_notification(notification)
+            # Send notification count update via WebSocket
+            NotificationService.send_notification_count_update(notification.recipient_id)
             
             return notification
             
@@ -113,55 +113,52 @@ class NotificationService:
             return None
     
     @staticmethod
-    def send_websocket_notification(notification: Notification):
+    def send_notification_count_update(user_id: int):
         """
-        Send notification via WebSocket to the recipient.
+        Send updated notification count to user's WebSocket.
+        
+        This sends ONLY the count - notification details are fetched via REST API.
         
         Args:
-            notification: Notification instance to send
-        
-        NOTE: WebSocket functionality is COMMENTED OUT FOR PRODUCTION
+            user_id: ID of the user to send the count update to
         """
-        # WebSocket functionality COMMENTED OUT FOR PRODUCTION
-        logger.warning("WebSocket notifications are disabled for production deployment")
-        return
+        try:
+            channel_layer = get_channel_layer()
+            if not channel_layer:
+                logger.debug("Channel layer not configured, skipping WebSocket notification")
+                return
+            
+            # Get the current unread count
+            count = Notification.objects.filter(
+                recipient_id=user_id,
+                is_read=False
+            ).count()
+            
+            # Send to user's notification group
+            async_to_sync(channel_layer.group_send)(
+                f"notifications_{user_id}",
+                {
+                    "type": "send_notification_count",
+                    "count": count
+                }
+            )
+            
+            logger.debug(f"Sent notification count update to user {user_id}: {count}")
+            
+        except Exception as e:
+            logger.error(f"Failed to send notification count update to user {user_id}: {e}")
+    
+    @staticmethod
+    def send_websocket_notification(notification: Notification):
+        """
+        Send notification count update via WebSocket to the recipient.
         
-        # try:
-        #     channel_layer = get_channel_layer()
-        #     if not channel_layer:
-        #         logger.warning("Channel layer not configured, WebSocket notification not sent")
-        #         return
-        #     
-        #     # Get user's preferred language
-        #     try:
-        #         preferences = NotificationPreference.objects.get(user=notification.recipient)
-        #         lang = preferences.preferred_language
-        #     except NotificationPreference.DoesNotExist:
-        #         lang = 'en'
-        #     
-        #     # Prepare notification data
-        #     notification_data = notification.to_websocket_dict(lang)
-        #     
-        #     # Send to user's personal notification group
-        #     group_name = f"user_notifications_{notification.recipient.id}"
-        #     
-        #     async_to_sync(channel_layer.group_send)(
-        #         group_name,
-        #         {
-        #             'type': 'notification_message',
-        #             'notification': notification_data
-        #         }
-        #     )
-        #     
-        #     # Update notification as sent via WebSocket
-        #     notification.sent_via_websocket = True
-        #     notification.websocket_sent_at = timezone.now()
-        #     notification.save(update_fields=['sent_via_websocket', 'websocket_sent_at'])
-        #     
-        #     logger.info(f"Sent WebSocket notification {notification.id} to user {notification.recipient.email}")
-        #     
-        # except Exception as e:
-        #     logger.error(f"Failed to send WebSocket notification {notification.id}: {e}")
+        Note: This now sends only the count, not the full notification.
+        
+        Args:
+            notification: Notification instance that was created/updated
+        """
+        NotificationService.send_notification_count_update(notification.recipient_id)
     
     @staticmethod
     def create_survey_assigned_notification(

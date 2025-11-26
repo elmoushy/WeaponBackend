@@ -191,12 +191,22 @@ class ThreadViewSet(viewsets.ModelViewSet):
         )
         return Response(serializer.data)
     
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated, IsOwnerOrAdmin])
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def add_members(self, request, pk=None):
         """
         Add members to thread
+        Permission depends on members_can_add_others setting
         """
         thread = self.get_object()
+        
+        # Check if user can add members based on settings
+        from .services import ValidationService
+        if not ValidationService.can_add_members(request.user, thread):
+            return Response(
+                {'error': 'Only admins can add members to this group'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
         serializer = AddMembersSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
@@ -300,17 +310,31 @@ class ThreadViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
     
-    @action(detail=True, methods=['get', 'patch'], permission_classes=[IsAuthenticated, CanChangeSettings], url_path='group-settings', url_name='group-settings')
+    @action(detail=True, methods=['get', 'patch'], permission_classes=[IsAuthenticated], url_path='group-settings', url_name='group-settings')
     def group_settings_action(self, request, pk=None):
         """
         Get or update thread settings
+        
+        GET: Any participant can view settings
+        PATCH: Only admins/owners can modify settings
         """
         thread = self.get_object()
         
         if thread.type != Thread.TYPE_GROUP:
             return Response(
                 {'error': 'Only group threads have settings'},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Check if user is a participant
+        if not ThreadParticipant.objects.filter(
+            thread=thread,
+            user=request.user,
+            left_at__isnull=True
+        ).exists():
+            return Response(
+                {'error': 'You are not a participant of this thread'},
+                status=status.HTTP_403_FORBIDDEN
             )
         
         try:
@@ -323,14 +347,27 @@ class ThreadViewSet(viewsets.ModelViewSet):
             serializer = GroupSettingsSerializer(group_settings)
             return Response(serializer.data)
         
-        # PATCH - update settings
+        # PATCH - update settings (admin/owner only)
+        from .services import ValidationService
+        if not ValidationService.can_change_settings(request.user, thread):
+            return Response(
+                {'error': 'Only admins and owners can update group settings'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
         serializer = GroupSettingsSerializer(
             group_settings,
             data=request.data,
             partial=True
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        
+        # Track who updated the settings
+        group_settings = serializer.save(updated_by=request.user)
+        
+        # Broadcast settings update via WebSocket
+        from .services import GroupSettingsService
+        GroupSettingsService.broadcast_settings_updated(thread, group_settings, request.user)
         
         return Response(serializer.data)
 
@@ -675,62 +712,70 @@ class UserListPagination(PageNumberPagination):
 
 class UserListView(viewsets.ViewSet):
     """
-    ViewSet for listing users with search requirement (prevents enumeration)
-    SECURITY: Requires search query to prevent user enumeration attacks
+    ViewSet for listing users with optional search
+    Returns paginated list of users, optionally filtered by search query
     """
     permission_classes = [IsAuthenticated]
     pagination_class = UserListPagination
     
     def list(self, request):
         """
-        List users with REQUIRED search query (minimum 2 characters)
+        List users with optional search query
         
-        SECURITY FEATURES:
-        - Requires search query (prevents full user list enumeration)
+        FEATURES:
+        - Search is optional (if provided, minimum 2 characters required)
         - Pagination enforced (max 50 per page, 100 max page size)
         - Hard limit of 100 results total
         - Excludes current user from results
         
         Query Parameters:
-        - search (required): Minimum 2 characters
+        - search (optional): Minimum 2 characters if provided
         - limit (optional): Results per page (max 100)
         - page (optional): Page number
+        - page_size (optional): Results per page (alias for limit)
         
         Returns:
-        - 400: If search query missing or < 2 characters
+        - 400: If search query provided but < 2 characters
         - 200: Paginated user results
         """
         from authentication.models import User
         from .serializers import UserBasicSerializer
         
-        # SECURITY: Require minimum search query to prevent user enumeration
+        # Search is optional, but if provided must be at least 2 characters
         search = request.query_params.get('search', '').strip()
         
-        if len(search) < 2:
-            logger.warning(
-                f"User enumeration attempt blocked: user={request.user.id}, "
-                f"search='{search}' (length={len(search)})"
-            )
-            return Response({
-                'error': 'Search query required (minimum 2 characters)',
-                'detail': 'For privacy and security reasons, user listing requires a search term of at least 2 characters',
-                'code': 'SEARCH_REQUIRED'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        logger.info(
-            f"User search: user={request.user.id}, query='{search[:50]}'"
-        )
-        
-        # Search across relevant fields
+        # Base queryset - all active users except current user
         users = User.objects.filter(
-            Q(first_name__icontains=search) |
-            Q(last_name__icontains=search) |
-            Q(email__icontains=search) |
-            Q(username__icontains=search),
             is_active=True
         ).exclude(
             id=request.user.id  # Exclude current user
-        ).select_related().only(
+        )
+        
+        # Apply search filter if provided
+        if search:
+            if len(search) < 2:
+                return Response({
+                    'error': 'Search query too short (minimum 2 characters)',
+                    'detail': 'If providing a search term, it must be at least 2 characters',
+                    'code': 'SEARCH_TOO_SHORT'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            logger.info(
+                f"User search: user={request.user.id}, query='{search[:50]}'"
+            )
+            
+            # Search across relevant fields
+            users = users.filter(
+                Q(first_name__icontains=search) |
+                Q(last_name__icontains=search) |
+                Q(email__icontains=search) |
+                Q(username__icontains=search)
+            )
+        else:
+            logger.debug(f"User list: user={request.user.id}, no search filter")
+        
+        # Select only needed fields and apply ordering
+        users = users.select_related().only(
             'id', 'username', 'email', 'first_name', 'last_name',
             'is_online', 'last_seen', 'role'
         ).order_by('first_name', 'last_name', 'email')[:100]  # Hard limit to first 100 results

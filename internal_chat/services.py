@@ -605,13 +605,14 @@ class MessageService:
     def _broadcast_unread_count_update(thread_id, user_id, unread_count):
         """
         Broadcast unread count update to a specific user's WebSocket connection
-        Sends to both thread-specific and global user notification channels
+        Sends to both thread-specific and global notification channels
         """
         try:
             from django.db.models import Sum
             channel_layer = get_channel_layer()
             thread_group_name = f'thread_{thread_id}'
-            user_group_name = f'user_{user_id}'
+            # Use the same group name as NotificationCountConsumer
+            notifications_group_name = f'notifications_{user_id}'
             
             # Send to thread group (for users currently viewing the thread)
             async_to_sync(channel_layer.group_send)(
@@ -632,9 +633,10 @@ class MessageService:
                 total=Sum('unread_count')
             )['total'] or 0
             
-            # Send to user's global notification channel (for cross-page updates)
+            # Send to user's notification WebSocket channel (for cross-page updates)
+            # This is the same channel used for notification.count events
             async_to_sync(channel_layer.group_send)(
-                user_group_name,
+                notifications_group_name,
                 {
                     'type': 'chat_unread_update',
                     'thread_id': str(thread_id),
@@ -643,7 +645,7 @@ class MessageService:
                 }
             )
             
-            logger.debug(f"Broadcasted unread count update for thread {thread_id} to user {user_id}: {unread_count} (total: {total_unread})")
+            logger.info(f"Broadcasted chat unread update for thread {thread_id} to user {user_id}: {unread_count} (total: {total_unread})")
         except Exception as e:
             logger.error(f"Error broadcasting unread count update: {str(e)}")
     
@@ -702,6 +704,7 @@ class ValidationService:
     def can_post_in_thread(user, thread):
         """
         Check if user can post messages in thread
+        Returns False if user is not participant or if posting is restricted to admins only
         """
         try:
             participant = ThreadParticipant.objects.get(
@@ -728,7 +731,8 @@ class ValidationService:
     @staticmethod
     def can_manage_members(user, thread):
         """
-        Check if user can add/remove members
+        Check if user can add/remove members (admins/owners only)
+        Used for removing members and changing roles
         """
         try:
             participant = ThreadParticipant.objects.get(
@@ -739,6 +743,35 @@ class ValidationService:
             return participant.role in [ThreadParticipant.ROLE_OWNER, ThreadParticipant.ROLE_ADMIN]
         except ThreadParticipant.DoesNotExist:
             return False
+    
+    @staticmethod
+    def can_add_members(user, thread):
+        """
+        Check if user can add new members to the thread
+        Depends on members_can_add_others group setting
+        """
+        try:
+            participant = ThreadParticipant.objects.get(
+                thread=thread,
+                user=user,
+                left_at__isnull=True
+            )
+        except ThreadParticipant.DoesNotExist:
+            return False
+        
+        # Admins and owners can always add members
+        if participant.role in [ThreadParticipant.ROLE_OWNER, ThreadParticipant.ROLE_ADMIN]:
+            return True
+        
+        # For regular members, check the members_can_add_others setting
+        if thread.type == Thread.TYPE_GROUP:
+            try:
+                settings = thread.group_settings
+                return settings.members_can_add_others
+            except GroupSettings.DoesNotExist:
+                return False
+        
+        return False
     
     @staticmethod
     def can_edit_message(user, message):
@@ -774,3 +807,49 @@ class ValidationService:
             return participant.role in [ThreadParticipant.ROLE_OWNER, ThreadParticipant.ROLE_ADMIN]
         except ThreadParticipant.DoesNotExist:
             return False
+
+
+class GroupSettingsService:
+    """
+    Service for group settings operations
+    """
+    
+    @staticmethod
+    def broadcast_settings_updated(thread, settings, updated_by):
+        """
+        Broadcast group settings update to all participants via WebSocket
+        
+        Args:
+            thread: Thread instance
+            settings: GroupSettings instance
+            updated_by: User who updated the settings
+        """
+        try:
+            channel_layer = get_channel_layer()
+            thread_group_name = f'thread_{thread.id}'
+            
+            # Prepare payload
+            payload = {
+                'type': 'group_settings_updated',
+                'thread_id': str(thread.id),
+                'settings': {
+                    'posting_mode': settings.posting_mode,
+                    'members_can_add_others': settings.members_can_add_others,
+                },
+                'updated_by': {
+                    'id': updated_by.id,
+                    'first_name': updated_by.first_name,
+                    'last_name': updated_by.last_name
+                },
+                'timestamp': timezone.now().isoformat()
+            }
+            
+            # Send to all clients in thread group
+            async_to_sync(channel_layer.group_send)(
+                thread_group_name,
+                payload
+            )
+            
+            logger.info(f"Broadcasted group settings update for thread {thread.id} by user {updated_by.id}")
+        except Exception as e:
+            logger.error(f"Error broadcasting group settings update: {str(e)}")
